@@ -39,7 +39,7 @@ MetricService.ListMetrics(request)
 1. 不建设统一数据仓库。
 2. 不强制所有产品改造后端接口。
 3. 不让 AI 直接调用业务 SDK。
-4. 不让 AI 生成任意 React 页面。
+4. 不让 AI 生成任意 Vue 应用页面或业务页面逻辑。
 5. 不让 AI 生成鉴权、权限、数据聚合逻辑。
 6. 不做完整 BI 指标语义层。
 7. 不做复杂表达式执行引擎。
@@ -184,13 +184,14 @@ AI 生成代码时，只允许生成符合标准接口的 chart widget：
 建议拆成以下包：
 
 ```text
-@company/ai-dashboard-runtime
-@company/ai-dashboard-schema
-@company/ai-dashboard-widgets
-@company/ai-dashboard-echarts
-@company/ai-dashboard-ai-catalog
-@company/ai-dashboard-generator
-@company/ai-dashboard-sandbox
+@dao-style-viz/ai-dashboard-runtime
+@dao-style-viz/ai-dashboard-schema
+@dao-style-viz/ai-dashboard-vue
+@dao-style-viz/ai-dashboard-widgets
+@dao-style-viz/ai-dashboard-echarts-vue
+@dao-style-viz/ai-dashboard-ai-catalog
+@dao-style-viz/ai-dashboard-generator
+@dao-style-viz/ai-dashboard-sandbox
 ```
 
 ### 5.1 ai-dashboard-schema
@@ -234,9 +235,9 @@ AI 生成代码时，只允许生成符合标准接口的 chart widget：
 
 基础组件默认不开放 AI 生成。
 
-### 5.4 ai-dashboard-echarts
+### 5.4 ai-dashboard-echarts-vue
 
-基于 ECharts 的图表组件库：
+基于 Vue 3.3.x 与 ECharts 的图表组件库：
 
 * LineChart
 * BarChart
@@ -278,7 +279,7 @@ AI 生成代码时，只允许生成符合标准接口的 chart widget：
 
 负责 AI 生成图表组件的隔离预览：
 
-* 编译 TSX
+* 编译 Vue SFC
 * 类型检查
 * ESLint / AST 安全扫描
 * iframe sandbox 预览
@@ -676,7 +677,7 @@ import { z } from 'zod';
 import {
   createSdkDataSource,
   defineDataSources,
-} from '@company/ai-dashboard-runtime';
+} from '@dao-style-viz/ai-dashboard-runtime';
 import { ClusterService } from '@/generated/sdk';
 
 const metricValueSchema = z.object({
@@ -792,14 +793,17 @@ export function createDataSourceCatalog(registry: DataSourceRegistry) {
 每个 widget 都必须有 AI metadata。
 
 ```ts
-export type WidgetDefinition<TData, TProps> = {
+export type WidgetFramework = 'vue' | string;
+
+export type WidgetDefinition<TData, TProps, TComponent = unknown> = {
   type: string;
   name: string;
   description?: string;
 
   category: 'metric' | 'chart' | 'table' | 'layout' | 'filter';
 
-  component: React.ComponentType<WidgetRuntimeProps<TData, TProps>>;
+  framework: WidgetFramework;
+  component: TComponent;
 
   dataSchema: z.ZodSchema<TData>;
   propsSchema: z.ZodSchema<TProps>;
@@ -832,6 +836,7 @@ export const donutChartWidget = defineWidget({
   name: '环形图',
   description: '适合展示分类占比或状态分布',
   category: 'chart',
+  framework: 'vue',
 
   component: DonutChart,
 
@@ -912,10 +917,11 @@ export type WidgetRuntimeProps<TData = unknown, TProps = unknown> = {
 
 ### 10.3 ECharts 组件示例
 
-```tsx
-import React, { useMemo } from 'react';
-import ReactECharts from 'echarts-for-react';
-import type { WidgetRuntimeProps } from '@company/ai-dashboard-runtime';
+```vue
+<script setup lang="ts">
+import { computed } from 'vue';
+import VChart from 'vue-echarts';
+import type { WidgetRuntimeProps } from '@dao-style-viz/ai-dashboard-runtime';
 
 type LineChartDataItem = {
   name: string;
@@ -929,61 +935,61 @@ type LineChartProps = {
   unit?: string;
 };
 
-export function LineChartWidget(
-  props: WidgetRuntimeProps<LineChartDataItem[], LineChartProps>
-) {
-  const { data, props: config, theme, format, t, locale, emit } = props;
+const runtimeProps =
+  defineProps<WidgetRuntimeProps<LineChartDataItem[], LineChartProps>>();
 
-  const xField = config.xField ?? 'name';
-  const yField = config.yField ?? 'value';
+const xField = computed(() => runtimeProps.props.xField ?? 'name');
+const yField = computed(() => runtimeProps.props.yField ?? 'value');
 
-  const option = useMemo(() => {
-    return {
-      backgroundColor: 'transparent',
-      tooltip: {
-        trigger: 'axis',
-        valueFormatter: (value: number) =>
-          `${format.number(value)}${config.unit ?? ''}`,
-      },
-      grid: {
-        left: 32,
-        right: 24,
-        top: 32,
-        bottom: 32,
-        containLabel: true,
-      },
-      xAxis: {
-        type: 'category',
-        data: data.map(item => item[xField as keyof LineChartDataItem]),
-      },
-      yAxis: {
-        type: 'value',
-      },
-      series: [
-        {
-          type: 'line',
-          smooth: config.smooth ?? false,
-          data: data.map(item => item[yField as keyof LineChartDataItem]),
-        },
-      ],
-    };
-  }, [data, xField, yField, config.smooth, config.unit, format]);
+const option = computed(() => ({
+  backgroundColor: 'transparent',
+  tooltip: {
+    trigger: 'axis',
+    valueFormatter: (value: number) =>
+      `${runtimeProps.format.number(value)}${runtimeProps.props.unit ?? ''}`,
+  },
+  grid: {
+    left: 32,
+    right: 24,
+    top: 32,
+    bottom: 32,
+    containLabel: true,
+  },
+  xAxis: {
+    type: 'category',
+    data: runtimeProps.data.map(item => item[xField.value as keyof LineChartDataItem]),
+  },
+  yAxis: {
+    type: 'value',
+  },
+  series: [
+    {
+      type: 'line',
+      smooth: runtimeProps.props.smooth ?? false,
+      data: runtimeProps.data.map(item => item[yField.value as keyof LineChartDataItem]),
+    },
+  ],
+}));
 
-  return (
-    <ReactECharts
-      option={option}
-      style={{ width: '100%', height: '100%' }}
-      onEvents={{
-        click: params => {
-          emit?.({
-            type: 'clickItem',
-            payload: params.data,
-          });
-        },
-      }}
-    />
-  );
+function handleClick(params: { data?: unknown }) {
+  runtimeProps.emit?.({
+    trigger: 'clickItem',
+    sourceWidgetId: runtimeProps.id,
+    payload: {
+      data: params.data,
+    },
+  });
 }
+</script>
+
+<template>
+  <VChart
+    :option="option"
+    autoresize
+    style="width: 100%; height: 100%"
+    @click="handleClick"
+  />
+</template>
 ```
 
 ### 10.4 ECharts dataset 建议
@@ -1324,11 +1330,11 @@ AI 生成一个标准组件包：
 ```text
 custom-chart-xxx
   ├─ manifest.json
-  ├─ Chart.tsx
+  ├─ Chart.vue
   ├─ schema.ts
   ├─ sample-data.json
   ├─ README.md
-  └─ Chart.stories.tsx
+  └─ Chart.stories.ts
 ```
 
 ### 14.3 manifest.json
@@ -1339,7 +1345,7 @@ custom-chart-xxx
   "name": "Node Traffic Topology Chart",
   "description": "Show node topology and network traffic between nodes.",
   "category": "chart",
-  "runtime": "react",
+  "runtime": "vue",
   "chartEngine": "echarts",
   "inputType": "NodeTrafficTopologyData",
   "version": "0.1.0",
@@ -1380,17 +1386,17 @@ export const propsSchema = z.object({
 });
 ```
 
-### 14.5 Chart.tsx 约束
+### 14.5 Chart.vue 约束
 
-AI 生成的 Chart.tsx 必须：
+AI 生成的 Chart.vue 必须：
 
-1. 默认导出 React component。
-2. 使用标准 WidgetRuntimeProps。
+1. 是 Vue 3.3.x 单文件组件。
+2. 使用标准 WidgetRuntimeProps 兼容 props / emits。
 3. 不发起网络请求。
 4. 不访问业务 SDK。
 5. 不访问 token / cookie / storage。
 6. 不使用 eval / new Function。
-7. 不使用 dangerouslySetInnerHTML。
+7. 不使用 `v-html`。
 8. 所有文本通过 t / format 处理。
 9. 仅使用白名单依赖。
 
@@ -1431,7 +1437,7 @@ document.cookie
 eval
 Function
 import(...)
-dangerouslySetInnerHTML
+v-html
 window.location
 document.write
 ```
@@ -1441,10 +1447,10 @@ document.write
 MVP 允许：
 
 ```text
-react
+vue
 echarts
-echarts-for-react
-@company/ai-dashboard-runtime
+vue-echarts
+@dao-style-viz/ai-dashboard-runtime
 lodash-es
 ```
 
@@ -1512,16 +1518,23 @@ packages/
 
   ai-dashboard-runtime/
     src/
-      BigScreenRuntime.tsx
-      ScreenCanvas.tsx
-      WidgetRenderer.tsx
-      WidgetShell.tsx
       data-loader.ts
       ref-resolver.ts
       refresh-manager.ts
+      event-dispatcher.ts
+      renderer-adapter.ts
       i18n-runtime.ts
       formatters.ts
-      error-boundary.tsx
+      index.ts
+
+  ai-dashboard-vue/
+    src/
+      BigScreenRuntime.vue
+      ScreenCanvas.vue
+      WidgetRenderer.vue
+      WidgetShell.vue
+      WidgetErrorBoundary.vue
+      define-vue-widget.ts
       index.ts
 
   ai-dashboard-widgets/
@@ -1533,7 +1546,7 @@ packages/
       FilterBar/
       index.ts
 
-  ai-dashboard-echarts/
+  ai-dashboard-echarts-vue/
     src/
       LineChart/
       BarChart/
@@ -1557,7 +1570,7 @@ packages/
     src/
       compile.ts
       ast-scan.ts
-      preview-frame.tsx
+      preview-frame.vue
       index.ts
 ```
 
@@ -1583,7 +1596,7 @@ product-a/
         en-US.json
 
       screens/
-        ClusterOverviewDashboard.tsx
+        ClusterOverviewDashboard.vue
 ```
 
 ---
@@ -1685,7 +1698,7 @@ product-a/
 任务：
 
 1. 定义 generated chart package 结构。
-2. 实现 TSX 编译。
+2. 实现 Vue SFC 编译。
 3. 实现 AST 安全扫描。
 4. 实现依赖白名单检查。
 5. 实现 iframe sandbox preview。
@@ -1806,7 +1819,7 @@ resolveRefs(
 验收：
 
 * DataSource Catalog 不包含 query 函数。
-* Widget Catalog 不包含 React component 源码。
+* Widget Catalog 不包含 Vue component 源码。
 * Catalog 包含 schema、examples、aiHints、i18n metadata。
 
 ### Task 8：实现 AI Dashboard 生成器
@@ -1827,7 +1840,7 @@ resolveRefs(
 
 验收：
 
-* TSX 编译通过。
+* Vue SFC 编译通过。
 * AST 安全扫描通过。
 * 依赖白名单通过。
 * iframe sandbox 预览可用。
@@ -1873,7 +1886,7 @@ Rules:
 ### 19.3 Chart Component Prompt
 
 ```text
-Generate a React chart widget package.
+Generate a Vue chart widget package.
 
 Rules:
 - Generate only chart presentation code.
@@ -1882,10 +1895,10 @@ Rules:
 - Do not call any business SDK.
 - Do not read localStorage/sessionStorage/cookie.
 - Do not use eval/new Function/dynamic import.
-- Do not use dangerouslySetInnerHTML.
+- Do not use v-html.
 - Use t() and format.*() for all user-facing text.
 - Use only allowed dependencies.
-- Output files: manifest.json, schema.ts, Chart.tsx, sample-data.json, README.md.
+- Output files: manifest.json, schema.ts, Chart.vue, sample-data.json, README.md.
 ```
 
 ---
@@ -1990,4 +2003,3 @@ AI 生成 dashboard 配置，Runtime 负责安全运行；
 AI 只能在受控范围内生成 chart widget；
 i18n、schema 校验、安全扫描从第一版开始内置。
 ```
-
