@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "paths": {
+      "@dao-style-viz/ai-dashboard-schema": [
+        "packages/ai-dashboard-schema/dist/index.d.ts"
+      ],
+      "@dao-style-viz/ai-dashboard-runtime": [
+        "packages/ai-dashboard-runtime/dist/index.d.ts"
+      ]
+    }
+  },
+  "exclude": ["src/**/*.test.ts"]
+}

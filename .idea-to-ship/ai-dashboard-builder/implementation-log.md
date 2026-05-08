@@ -6,7 +6,7 @@
 ## Stage Status
 
 - [x] Stage 1 — Workspace + Schema Contracts
-- [ ] Stage 2 — Runtime + Vue Tracer Bullet
+- [x] Stage 2 — Runtime + Vue Tracer Bullet
 - [ ] Stage 3 — Vue ECharts Widget Slice
 - [ ] Stage 4 — AI Catalog + Config Validation Gate
 - [ ] Stage 5 — Runtime Event + Refresh Hardening
@@ -84,3 +84,73 @@
 - lint: ok — `pnpm -r --if-present lint`
 - build: ok — `pnpm -r --if-present build`
 - tests: ok — `pnpm -r --if-present test` ran 1 file / 5 tests, 0 failed
+
+## Stage 2 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 1 is checked off and the workspace/schema package exists.
+- There is no `ai-dashboard-runtime`, `ai-dashboard-vue`, or demo app implementation yet.
+- The architecture now expects Vue 3.3.x as the default renderer and a framework-neutral runtime core.
+
+### Assumptions
+
+- Use Vue `3.3.13` for the Stage 2 renderer and demo.
+- Stage 2 will not add ECharts or `vue-echarts`; those remain Stage 3.
+- Use a single simple Vue widget in the demo (`MetricValue`) to prove dataSource -> runtime -> widget rendering.
+- Implement interval refresh only at a basic widget-renderer level in Stage 2; deeper refresh/event hardening remains Stage 5.
+- Integrate host i18n through a runtime `t` function boundary. The demo uses local messages, while the `amamba-ui` vue-i18n plugin remains a Stage 2/3 integration reference rather than a direct dependency.
+- Use Vite library builds for the Vue package and the Vite app build for the demo.
+
+## Stage 2 — Runtime + Vue Tracer Bullet
+
+**Completed:** 2026-05-08 18:39 CST
+
+### Files touched
+
+- `package.json` — adds Vue/Vite/Vue Test Utils/jsdom/eslint parser tooling.
+- `pnpm-lock.yaml` — locks Stage 2 Vue/Vite dependencies.
+- `tsconfig.base.json` — adds workspace path aliases for schema/runtime/vue packages.
+- `eslint.config.js` — enables Vue SFC lint parsing and disables noisy template formatting rules.
+- `packages/ai-dashboard-runtime/package.json` — adds runtime package scripts and dependencies.
+- `packages/ai-dashboard-runtime/tsconfig.json` — runtime typecheck config.
+- `packages/ai-dashboard-runtime/tsconfig.build.json` — runtime build config using built schema declarations.
+- `packages/ai-dashboard-runtime/src/*` — adds ref resolver, runtime context, dataSource helper, widget registry, data loader, i18n runtime, formatters, event dispatcher, refresh primitives, and public exports.
+- `packages/ai-dashboard-runtime/src/__tests__/*` — adds unit tests for refs, dataSource helper, and data loader/widget dataSchema compatibility.
+- `packages/ai-dashboard-vue/package.json` — adds Vue renderer package scripts and dependencies.
+- `packages/ai-dashboard-vue/tsconfig.json` — Vue renderer typecheck config.
+- `packages/ai-dashboard-vue/tsconfig.build.json` — Vue renderer declaration build config using built runtime/schema declarations.
+- `packages/ai-dashboard-vue/vite.config.ts` — library build config for Vue renderer.
+- `packages/ai-dashboard-vue/src/*` — adds Vue `BigScreenRuntime`, `ScreenCanvas`, `WidgetRenderer`, `WidgetShell`, `WidgetErrorBoundary`, `defineVueWidget`, and exports.
+- `apps/demo/package.json` — adds Vite demo app scripts and dependencies.
+- `apps/demo/tsconfig.json` — demo typecheck config.
+- `apps/demo/vite.config.ts` — demo Vite config.
+- `apps/demo/index.html` — demo HTML entry.
+- `apps/demo/src/*` — adds mocked SDK, dataSource registration, dashboard config, messages, simple MetricValue widget, app shell, and main entry.
+
+### Decisions made during implementation
+
+- Split runtime core from Vue rendering: runtime has no Vue imports; Vue package owns component rendering and error boundaries.
+- Use `RuntimeInput.t` as the host i18n seam, with `messages` as a demo/local fallback. This matches the provided `amamba-ui` vue-i18n reference without copying its global installer.
+- Keep the demo widget non-ECharts (`MetricValue`) because Stage 3 owns ECharts.
+- Make `DataSourceRegistry` and `WidgetRegistry` maps use `Definition<any, any>` internally. Zod-backed definitions are strongly typed at creation time, but registry maps must accept heterogeneous definitions.
+- Build Vue package declarations with `vue-tsc` and bundle JS/CSS with Vite.
+
+### Deviations from architecture.md
+
+- None. Stage 2 follows the updated Vue 3.3.x architecture.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- `pnpm install` still reports ignored `esbuild` build scripts, but Stage 2 Vite builds pass without approving them.
+- The demo dev server required escalated permission to bind `127.0.0.1:5173` in this sandbox.
+- A sandboxed `curl` check could not reach the escalated dev server, but Vite reported it ready at `http://127.0.0.1:5173/`.
+
+### Verification
+
+- install: ok — `pnpm install`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- build: ok — `pnpm -r --if-present build`
+- tests: ok — `pnpm -r --if-present test` ran 4 files / 11 tests, 0 failed
+- demo server: started — `pnpm --dir apps/demo exec vite --host 127.0.0.1 --port 5173`

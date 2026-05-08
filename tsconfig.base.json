@@ -13,6 +13,18 @@
     "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@dao-style-viz/ai-dashboard-schema": [
+        "packages/ai-dashboard-schema/src/index.ts"
+      ],
+      "@dao-style-viz/ai-dashboard-runtime": [
+        "packages/ai-dashboard-runtime/src/index.ts"
+      ],
+      "@dao-style-viz/ai-dashboard-vue": [
+        "packages/ai-dashboard-vue/src/index.ts"
+      ]
+    }
   }
 }
