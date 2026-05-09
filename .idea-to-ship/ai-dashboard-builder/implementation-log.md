@@ -12,7 +12,7 @@
 - [x] Stage 5 — Runtime Event + Refresh Hardening
 - [x] Stage 6 — Chart + Basic Widget Coverage
 - [x] Stage 7 — Generated Chart Sandbox Gate
-- [ ] Stage 8 — Product Integration Example
+- [x] Stage 8 — Product Integration Example
 
 ## Stage 1 Pre-Stage Notes
 
@@ -624,3 +624,71 @@
 - tests: ok — `pnpm -r --if-present test` ran 12 files / 55 tests, 0 failed
 - build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
 - whitespace: ok — `git diff --check`
+
+## Stage 8 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 7 is complete and review fixes are staged. There are no unrelated unstaged implementation changes before Stage 8 starts.
+- `apps/demo` proves the runtime with mock SDK data, but it is still a demo surface rather than a product-style integration tree.
+- The standalone `playground/playground-ui` host exists outside the root workspace, but it does not yet contain the dashboard product integration example.
+- The architecture expects a product-style example tree with real-world dataSource file layout, proto generated SDK wrapper shape, dashboard config, dashboard-owned i18n messages, host screen integration, and package CSS imports.
+
+### Assumptions
+
+- Add `apps/product-integration` as a root workspace app so the product-style integration compiles under the same `pnpm -r` verification path.
+- Consume dashboard packages as workspace package dependencies without Vite source aliases. This better represents a product host consuming built package exports and makes package CSS imports explicit.
+- Use a local `src/product-sdk/generated/*` folder to model proto generated TypeScript SDK static service methods. It remains mocked data, but the call shape matches generated static methods.
+- Keep the product example focused on one tenant capacity screen with dashboard-owned locale JSON resources, dataSource wrappers, widget registry, config validation, and host runtime wiring.
+- Do not integrate the dashboard into `playground/playground-ui` in Stage 8. The generated full-template app remains the external host reference, while this stage adds a smaller product-style workspace app that is easy to typecheck/build.
+
+## Stage 8 — Product Integration Example
+
+**Completed:** 2026-05-09 13:41 CST
+
+### Files touched
+
+- `apps/product-integration/package.json` — adds the product-style workspace app scripts and dashboard package dependencies.
+- `apps/product-integration/tsconfig.json`, `apps/product-integration/vite.config.ts`, `apps/product-integration/index.html` — add product app TypeScript and Vite wiring.
+- `apps/product-integration/src/main.ts`, `apps/product-integration/src/App.vue`, `apps/product-integration/src/style.css`, `apps/product-integration/src/env.d.ts` — add app entry, package CSS imports, and host page baseline styles.
+- `apps/product-integration/src/product-sdk/generated/tenant-capacity.ts` — models proto generated static SDK service methods and request/response types.
+- `apps/product-integration/src/data-sources/tenant-capacity.ts` — wraps generated SDK static methods with `createSdkDataSource`.
+- `apps/product-integration/src/dashboards/tenant-capacity.ts` — adds the product dashboard config with filters, metrics, alert list, and chart widgets.
+- `apps/product-integration/src/dashboards/tenant-capacity.i18n/*` — adds dashboard-owned English and Chinese locale resources.
+- `apps/product-integration/src/i18n/messages.ts` — merges host product messages with dashboard-owned locale messages.
+- `apps/product-integration/src/widgets/index.ts` — registers ECharts and basic widget packages for the product host.
+- `apps/product-integration/src/dashboard-validation.ts` — runs the product dashboard through the catalog validation gate.
+- `apps/product-integration/src/screens/TenantCapacityScreen.vue` — adds the host screen integration with runtime route context and locale switching.
+- `apps/product-integration/src/__tests__/tenant-capacity.test.ts` — verifies catalog validation, dataSource SDK wrapper output, and locale merge behavior.
+- `pnpm-lock.yaml` — records the new workspace app dependencies.
+- `.idea-to-ship/ai-dashboard-builder/implementation-log.md` — records Stage 8 assumptions and completion.
+
+### Decisions made during implementation
+
+- Keep the product example as a workspace app so root verification covers the integration without modifying the standalone generated playground.
+- Consume package exports directly rather than Vite source aliases. This better matches product usage and exercises built package CSS exports.
+- Use dashboard-owned locale JSON adjacent to the dashboard config and merge it into host product messages before passing runtime messages into `BigScreenRuntime`.
+- Use `validateDashboardConfig` in the product app so registry/dataSource/layout/i18n issues surface before runtime rendering.
+- Add a focused smoke test despite this being an implementation stage because Stage 8's value is proving integration wiring, not just compiling source files.
+- Keep visible widget text that comes through widget `data` locale-aware at the product dataSource layer. This avoids adding product-specific i18n behavior to generic widget prop schemas while still proving locale-sensitive MetricCard, Panel, FilterBar, and AlarmList output.
+- Let namespace filter changes update `globalFilters.namespace` only. The runtime reloads data-bound widgets from the filter change, so an extra `refreshWidget` action would duplicate the target chart reload.
+
+### Deviations from architecture.md
+
+- None. The product-style tree is implemented as `apps/product-integration` rather than inside `playground/playground-ui`; this matches the pre-stage assumption and keeps the generated full-template host untouched.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- Both demo and product integration production builds emit the expected ECharts bundle-size warning. Product integration main JS is about `887.52 kB`.
+- The product example uses mocked SDK responses with real generated-SDK call shape. A real product repo still needs to replace `src/product-sdk/generated/*` with generated service imports.
+
+### Verification
+
+- install: ok — `pnpm install`
+- product app typecheck/lint/test/build: ok — package-local checks passed
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 13 files / 59 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo and product integration apps
+- whitespace: ok — `git diff --check`
+- dev server: started — `http://127.0.0.1:5174/`

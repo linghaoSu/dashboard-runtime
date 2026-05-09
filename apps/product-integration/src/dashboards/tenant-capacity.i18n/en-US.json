@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "tenantCapacity": {
+      "name": "Tenant Capacity",
+      "widget": {
+        "namespaceFilter": {
+          "title": "Namespace"
+        },
+        "capacityNote": {
+          "title": "SLO"
+        },
+        "cpu": {
+          "title": "CPU Capacity"
+        },
+        "memory": {
+          "title": "Memory Capacity"
+        },
+        "alerts": {
+          "title": "Active Alerts"
+        },
+        "namespaceUsage": {
+          "title": "Namespace CPU"
+        }
+      },
+      "state": {
+        "empty": "No data",
+        "error": "Failed to load capacity data"
+      }
+    }
+  }
+}

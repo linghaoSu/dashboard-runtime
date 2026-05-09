@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "tenantCapacity": {
+      "name": "租户容量",
+      "widget": {
+        "namespaceFilter": {
+          "title": "命名空间"
+        },
+        "capacityNote": {
+          "title": "SLO"
+        },
+        "cpu": {
+          "title": "CPU 容量"
+        },
+        "memory": {
+          "title": "内存容量"
+        },
+        "alerts": {
+          "title": "活跃告警"
+        },
+        "namespaceUsage": {
+          "title": "命名空间 CPU"
+        }
+      },
+      "state": {
+        "empty": "暂无数据",
+        "error": "容量数据加载失败"
+      }
+    }
+  }
+}
