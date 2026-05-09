@@ -28,7 +28,7 @@ export const clusterOverviewDashboard: DashboardConfig = {
   widgets: [
     {
       id: "cpu-usage",
-      type: "MetricValue",
+      type: "GaugeChart",
       title: {
         key: "dashboard.clusterOverview.widget.cpuUsage.title",
         defaultMessage: "CPU Usage"
@@ -52,7 +52,74 @@ export const clusterOverviewDashboard: DashboardConfig = {
         }
       },
       props: {
-        precision: 1
+        max: 100,
+        precision: 1,
+        unit: "%",
+        warningThreshold: 75,
+        dangerThreshold: 90
+      }
+    },
+    {
+      id: "cpu-trend",
+      type: "LineChart",
+      title: {
+        key: "dashboard.clusterOverview.widget.cpuTrend.title",
+        defaultMessage: "CPU Trend"
+      },
+      layout: { x: 336, y: 32, w: 592, h: 220 },
+      data: {
+        source: "cluster.cpuTrend",
+        params: {
+          clusterId: { $ref: "context.clusterId" }
+        },
+        fallback: {
+          emptyText: {
+            key: "dashboard.clusterOverview.state.empty",
+            defaultMessage: "No data"
+          },
+          errorText: {
+            key: "dashboard.clusterOverview.state.error",
+            defaultMessage: "Failed to load"
+          }
+        }
+      },
+      props: {
+        xField: "time",
+        yField: "value",
+        smooth: true,
+        area: true,
+        unit: "%",
+        showLegend: false
+      }
+    },
+    {
+      id: "pod-status",
+      type: "DonutChart",
+      title: {
+        key: "dashboard.clusterOverview.widget.podStatus.title",
+        defaultMessage: "Pod Status"
+      },
+      layout: { x: 32, y: 284, w: 420, h: 220 },
+      data: {
+        source: "cluster.podStatusDistribution",
+        params: {
+          clusterId: { $ref: "context.clusterId" },
+          locale: { $ref: "context.locale" }
+        },
+        fallback: {
+          emptyText: {
+            key: "dashboard.clusterOverview.state.empty",
+            defaultMessage: "No data"
+          },
+          errorText: {
+            key: "dashboard.clusterOverview.state.error",
+            defaultMessage: "Failed to load"
+          }
+        }
+      },
+      props: {
+        unit: "",
+        showLegend: true
       }
     }
   ]

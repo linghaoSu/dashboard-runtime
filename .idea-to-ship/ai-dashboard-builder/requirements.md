@@ -30,6 +30,7 @@
 - 以 ECharts 作为 MVP 图表引擎，提供 LineChart、BarChart、AreaChart、DonutChart、PieChart、GaugeChart、RadarChart、HeatmapChart、ScatterChart、FunnelChart、MapChart 等基础图表能力。
 - 实现 AI Catalog Layer，向 AI 暴露 dataSource、widget、theme、layout preset 和 i18n metadata，但不暴露 query 实现或业务敏感代码。
 - 实现 AI Dashboard 生成流程，先生成 Dashboard Plan，再生成符合 schema 的 DashboardConfig。
+- 集成可选的 `mcp-echarts` 辅助链路，用于 AI 生成 ECharts option 的本地预览、图片导出和语法校验，但它不能绕过 DashboardConfig schema、WidgetRegistry 或 sandbox gate。
 - 创建或生成 dashboard config 时必须同时提供按 locale 拆分的 i18n JSON 资源，便于项目侧合并到已有 vue-i18n messages。
 - 实现受控的 AI 图表组件生成流程，默认产物包括 manifest、schema、Chart.vue、sample data、README 和 story，并保留未来其他渲染器产物格式的扩展位。
 - 实现 generated chart sandbox 的类型检查、ESLint / AST 安全扫描、依赖白名单、iframe sandbox 预览、schema 校验和人工确认入口。
@@ -100,8 +101,10 @@
 45. Generated chart sandbox 必须对生成组件执行 TypeScript check、ESLint、AST safety scan、schema validation、bundle build、sandbox preview 和人工确认。
 46. Generated chart sandbox 必须阻止包含禁止 API 或非白名单依赖的组件注册。
 47. 平台必须提供 prompt templates，分别用于 Dashboard Plan、DashboardConfig 和 Chart Component 生成。
-48. 平台必须提供至少一个业务接入示例，展示如何注册 proto TS SDK dataSource 并通过 DashboardConfig 使用。
-49. MVP 必须能通过手写 DashboardConfig 跑通 Runtime 渲染、DataSource 调用 proto TS SDK、ECharts Widget 展示、locale 切换重新请求并更新展示。
+48. AI 生成链路可以调用 `mcp-echarts` 生成 ECharts option、PNG/SVG 预览或 option 校验结果，但只能使用 catalog 中暴露的样例 / mock / 聚合数据，不能传入业务 SDK、token、用户敏感数据或 query 实现。
+49. `mcp-echarts` 输出只能作为生成和审核辅助材料；进入 runtime 的仍必须是 DashboardConfig 或通过 sandbox gate 的 chart widget package。
+50. 平台必须提供至少一个业务接入示例，展示如何注册 proto TS SDK dataSource 并通过 DashboardConfig 使用。
+51. MVP 必须能通过手写 DashboardConfig 跑通 Runtime 渲染、DataSource 调用 proto TS SDK、ECharts Widget 展示、locale 切换重新请求并更新展示。
 
 ## Non-Functional Requirements
 
@@ -125,6 +128,7 @@
 - `Locale changes update UI and data dependencies → verify: switching zh-CN/en-US changes title/format output and re-queries dependsOnLocale sources`.
 - `AI Catalog hides executable implementation → verify: generated dataSource catalog JSON contains metadata/schema/examples but no query function or source code`.
 - `AI DashboardConfig output is constrained → verify: unknown dataSource/widget, layout overflow, missing i18n text, and interval below minimum all fail validation`.
+- `mcp-echarts assists generation without bypassing gates → verify: docs and prompt contract mark its output as preview/validation evidence only, while runtime input still passes DashboardConfig/schema/sandbox validation`.
 - `Dashboard i18n resources are mergeable → verify: demo/project messages merge with dashboard locale JSON and translator resolves dashboard keys`.
 - `Generated chart safety gate blocks unsafe code → verify: fixtures containing fetch, localStorage, eval, dynamic import, v-html, or non-whitelisted dependencies fail AST/dependency scan`.
 - `Generated chart preview is gated by validation → verify: only components passing type check, lint, AST scan, schema validation, bundle build, and sandbox preview can be registered`.
@@ -151,6 +155,7 @@
 - `packages/ai-dashboard-ai-catalog/` — dataSource、widget、theme、layout、i18n catalog 导出。
 - `packages/ai-dashboard-generator/` — dashboard plan/config 生成、patch、修复与 chart proposal。
 - `packages/ai-dashboard-sandbox/` — generated chart 编译、AST scan、依赖白名单、preview frame、manifest/schema 校验。
+- `docs/mcp-echarts.md` — 可选 MCP ECharts 接入方式、边界和使用约束。
 - `product-a/src/big-screen/data-sources/` — 业务产品 dataSource 接入示例。
 - `product-a/src/big-screen/dashboards/` — 业务产品 dashboard config 示例。
 - `product-a/src/big-screen/dashboards/<dashboard>.i18n/` — dashboard 随附的 locale JSON，用于 merge 到项目侧 i18n messages。

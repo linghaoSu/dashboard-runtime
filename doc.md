@@ -275,6 +275,7 @@ AI 生成代码时，只允许生成符合标准接口的 chart widget：
 * 根据用户修改意图 patch DashboardConfig
 * 判断是否需要生成新图表组件
 * 生成 chart component proposal
+* 可选接入 `mcp-echarts`，用 catalog 样例数据生成 / 校验 ECharts option，并产出 PNG / SVG / option 预览作为审核材料
 
 ### 5.7 ai-dashboard-sandbox
 
@@ -1298,6 +1299,22 @@ AI 生成 dashboard 时需要输入：
 
 AI 根据 plan 生成符合 schema 的 DashboardConfig。
 
+### 13.2.1 可选 mcp-echarts 辅助
+
+可以把 `mcp-echarts` 配成 AI 生成链路的 MCP 工具。它适合做三件事：
+
+1. 根据 chart intent 和样例数据生成 ECharts option 草案。
+2. 本地渲染 PNG / SVG 预览，帮助 AI 和审核者快速判断视觉是否符合预期。
+3. 校验 ECharts option 语法，给 AI 多轮修复提供反馈。
+
+约束：
+
+* `mcp-echarts` 只接收 catalog 暴露的样例 / mock / 聚合数据。
+* 不向 `mcp-echarts` 传业务 SDK、query 实现、token、cookie、用户敏感数据或未脱敏生产响应。
+* `mcp-echarts` 输出只能作为生成辅助和审核证据，不能直接进入 runtime。
+* 最终进入 runtime 的仍然必须是 DashboardConfig，或通过 sandbox gate 的 chart widget package。
+* 如果启用对象存储保存预览图，返回 URL 只作为审核 artifact，不写入 DashboardConfig。
+
 ### 13.3 AI 生成约束
 
 AI 必须遵守：
@@ -1495,6 +1512,8 @@ AI 只能读取：
 * theme metadata
 * layout presets
 * i18n key metadata
+* 经过脱敏的 sample data / mock data
+* `mcp-echarts` 生成的 option / image preview / validation result
 
 AI 不能读取：
 
@@ -1566,6 +1585,12 @@ packages/
       create-data-source-catalog.ts
       create-widget-catalog.ts
       create-theme-catalog.ts
+      index.ts
+
+  ai-dashboard-generator/
+    src/
+      mcp-echarts-adapter.ts
+      prompt-templates.ts
       index.ts
 
   ai-dashboard-sandbox/
@@ -1684,10 +1709,11 @@ product-a/
 1. 实现 DataSource Catalog 导出。
 2. 实现 Widget Catalog 导出。
 3. 定义 AI prompt template。
-4. 先生成 Dashboard Plan。
-5. 再生成 DashboardConfig。
-6. 对 AI 输出做 schema 校验。
-7. 提供自动修复 prompt。
+4. 定义可选 `mcp-echarts` 辅助链路，用于 ECharts option 预览 / 校验。
+5. 先生成 Dashboard Plan。
+6. 再生成 DashboardConfig。
+7. 对 AI 输出做 schema 校验。
+8. 提供自动修复 prompt。
 
 验收标准：
 
@@ -1867,6 +1893,7 @@ Rules:
 - Use only widgets from the provided Widget Catalog.
 - Do not invent dataSource keys.
 - Do not invent widget types.
+- You may use mcp-echarts only to preview or validate ECharts option ideas with sample data.
 - All user-facing text must use i18n keys and defaultMessage.
 - If existing widgets are insufficient, add an item to missingCapabilities.
 - Output JSON only.
@@ -1887,6 +1914,7 @@ Rules:
 - Layout must fit within the canvas.
 - refresh.intervalMs must not be lower than 5000.
 - Do not output executable JavaScript code.
+- mcp-echarts output is preview evidence only; the final config must still use registered widget types and schema-valid props.
 - Output DashboardConfig JSON and locale JSON resources only.
 ```
 

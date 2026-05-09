@@ -45,6 +45,7 @@ There is no existing package manager, build system, source tree, test runner, li
 - Proto generated SDK integration is represented by mock static service methods in the demo/tests until a real product repo integrates the packages.
 - Keep schema, dataSource, ref resolution, catalog, and validation contracts free of Vue imports so another renderer can be added without rewriting those contracts.
 - The Vue renderer should integrate with a host-provided `vue-i18n` composer or `t` function instead of owning global locale installation; standalone demo messages are only a fallback for local verification.
+- `mcp-echarts` can be used as an optional local MCP helper for AI chart generation. It can generate ECharts option/image artifacts and validate option syntax, but it is not a runtime dependency and cannot bypass schema, registry, or sandbox checks.
 
 ## Alternatives Considered
 
@@ -226,6 +227,7 @@ export const clusterDataSources = defineDataSources({
 - `packages/ai-dashboard-ai-catalog/src/create-widget-catalog.ts` — metadata-only widget export.
 - `packages/ai-dashboard-ai-catalog/src/prompt-templates.ts` — MVP prompt text constants.
 - `packages/ai-dashboard-ai-catalog/src/index.ts` — public catalog exports.
+- `packages/ai-dashboard-generator/src/mcp-echarts-adapter.ts` — optional future adapter that calls `mcp-echarts` for chart option preview/validation evidence.
 - `apps/demo/src/mock-sdk.ts` — mock proto-style static service methods.
 - `apps/demo/src/data-sources/cluster.ts` — demo `createSdkDataSource` registrations.
 - `apps/demo/src/dashboards/cluster-overview.ts` — example DashboardConfig.
@@ -268,10 +270,24 @@ DataSourceRegistry + WidgetRegistry
   -> catalog creators strip executable fields
   -> JSON-safe catalog items
   -> prompt templates / external AI generator
+  -> optional mcp-echarts option/image preview using sample data only
   -> DashboardPlan
   -> DashboardConfig
   -> schema + catalog validation before runtime sees it
 ```
+
+`mcp-echarts` integration boundary:
+
+```text
+catalog metadata + sample/mock data
+  -> AI proposes chart intent or ECharts option shape
+  -> mcp-echarts renders/validates option locally
+  -> generator records preview artifact + option feedback
+  -> generator maps the result back to DashboardConfig props or chart proposal files
+  -> platform schema/sandbox/human review remains authoritative
+```
+
+The MCP server must not receive business SDK source, query implementations, auth tokens, cookies, raw user-sensitive data, or unredacted production responses. If object storage output is enabled for chart artifacts, those URLs are review artifacts only and are not stored inside DashboardConfig.
 
 Dashboard config packaging flow:
 
@@ -604,6 +620,7 @@ Rollout path:
 - Vue renderer: Vue Test Utils tests for multiple widgets, error boundaries, loading/error/empty states, locale switch, widget dataSchema compatibility, and event dispatch mapping.
 - Vue ECharts widgets: component tests can mock `vue-echarts` and assert option inputs, not canvas pixels.
 - Catalog: snapshot/structural tests ensuring no function fields or implementation source are exported.
+- Generator MCP adapter: contract tests or fixtures proving `mcp-echarts` output is treated as preview/validation evidence only and cannot skip DashboardConfig/sandbox validation.
 - Demo app: smoke test verifies one config renders multiple widget shells and locale toggle changes text.
 - Sandbox stage: fixture tests for allowed and blocked generated chart packages.
 
@@ -612,7 +629,7 @@ Rollout path:
 1. **Stage 1 — Workspace + Schema Contracts**: Create pnpm workspace, TypeScript/Vitest/ESLint setup, schema package, config fixtures, and schema tests. No runtime rendering yet.
 2. **Stage 2 — Runtime + Vue Tracer Bullet**: Implement framework-neutral ref resolver with explicit scope order, i18n runtime, formatters, dataSource registry/helper, widget registry, data loader, widget dataSchema compatibility validation, renderer adapter contracts, Vue `ScreenCanvas`, Vue `WidgetShell`, Vue `WidgetRenderer`, Vue `BigScreenRuntime`, and a demo with mocked SDK and one simple non-ECharts Vue widget.
 3. **Stage 3 — Vue ECharts Widget Slice**: Add `ai-dashboard-echarts-vue` with LineChart, GaugeChart, DonutChart, widget metadata, ECharts locale/theme adapter, and demo dashboard updates.
-4. **Stage 4 — AI Catalog + Config Validation Gate**: Add catalog package, JSON schema conversion, prompt templates, validation helpers for unknown dataSource/widget, i18n text enforcement, layout bounds, and minimum refresh interval.
+4. **Stage 4 — AI Catalog + Config Validation Gate**: Add catalog package, JSON schema conversion, prompt templates, optional `mcp-echarts` generation-assist contract, validation helpers for unknown dataSource/widget, i18n text enforcement, layout bounds, and minimum refresh interval.
 5. **Stage 5 — Runtime Event + Refresh Hardening**: Implement event dispatcher mapping from widget-emitted triggers to configured `setFilter`, `refreshWidget`, and `emit` actions; finish interval refresh behavior, request cancellation on filter/locale/dashboard changes, and dependsOnLocale reload tests.
 6. **Stage 6 — Basic Widgets Extraction**: Extract reusable Vue MetricCard, RankingList, ScrollTable, AlarmList, FilterBar, and TimeRangePicker into `ai-dashboard-widgets` once the runtime widget shell contract is stable; keep component internals behind the framework marker so future renderer packages can provide equivalents.
 7. **Stage 7 — Generated Chart Sandbox Gate**: Add generated chart package schema, dependency allowlist, AST safety scan, type/lint/build hooks, iframe preview contract, fixture tests, and a disabled-by-default generated registry.
@@ -628,5 +645,6 @@ Each stage is independently shippable: the build and tests should pass, and the 
 - Decide if config-level validation errors should render in production UI or be handled by the host application.
 - Decide whether widget layout uses raw pixel coordinates only for MVP or should reserve a future grid abstraction.
 - Decide whether catalog JSON schema conversion uses `zod-to-json-schema` or a narrower custom schema serializer.
+- Decide whether the `mcp-echarts` adapter is CLI-only for local agent runs or exposed behind an internal service for managed generation workflows.
 - Decide whether generated chart sandbox runs as a local CLI first or inside a management UI.
 - Decide CSP and `postMessage` protocol details for iframe preview before implementing Stage 7.

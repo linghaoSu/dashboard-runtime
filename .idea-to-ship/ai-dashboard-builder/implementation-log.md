@@ -7,7 +7,7 @@
 
 - [x] Stage 1 — Workspace + Schema Contracts
 - [x] Stage 2 — Runtime + Vue Tracer Bullet
-- [ ] Stage 3 — Vue ECharts Widget Slice
+- [x] Stage 3 — Vue ECharts Widget Slice
 - [ ] Stage 4 — AI Catalog + Config Validation Gate
 - [ ] Stage 5 — Runtime Event + Refresh Hardening
 - [ ] Stage 6 — Basic Widgets Extraction
@@ -192,3 +192,139 @@
 - lint: ok — `pnpm -r --if-present lint`
 - build: ok — `pnpm -r --if-present build`
 - tests: ok — `pnpm -r --if-present test` ran 5 files / 13 tests, 0 failed
+
+## Stage 3 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 2 and the dashboard i18n follow-up are complete.
+- `packages/ai-dashboard-echarts-vue` does not exist yet.
+- The demo dashboard currently proves a single non-ECharts widget and mocked SDK dataSource.
+- The architecture expects Stage 3 to add `LineChart`, `GaugeChart`, `DonutChart`, ECharts widget metadata, ECharts locale/theme adapter, and demo dashboard updates.
+
+### Assumptions
+
+- Implement only the Stage 3 chart set from `architecture.md`: `LineChart`, `GaugeChart`, and `DonutChart`. `BarChart` and other chart breadth remain later work from `doc.md`, not this staged slice.
+- Use `echarts` `^5.5.1` and `vue-echarts` `^6.7.3`, matching Vue 3.3.x and the ECharts 5 integration pattern.
+- Keep chart components presentation-only. Data remains loaded and normalized by registered dataSources.
+- Use ECharts core imports and `vue-echarts` `VChart` instead of importing all of ECharts globally.
+- Use dashboard-namespaced i18n keys in the demo chart titles and keep locale-dependent pod status labels in the mocked dataSource transform.
+
+## Stage 3 — Vue ECharts Widget Slice
+
+**Completed:** 2026-05-09 09:50 CST
+
+### Files touched
+
+- `packages/ai-dashboard-echarts-vue/package.json` — adds the Vue ECharts package and dependencies.
+- `packages/ai-dashboard-echarts-vue/tsconfig.json` — typecheck config for the chart package.
+- `packages/ai-dashboard-echarts-vue/tsconfig.build.json` — declaration build config against built workspace packages.
+- `packages/ai-dashboard-echarts-vue/vite.config.ts` — library build config for the chart package.
+- `packages/ai-dashboard-echarts-vue/src/register-echarts.ts` — registers the ECharts core renderer, chart types, and components used by this slice.
+- `packages/ai-dashboard-echarts-vue/src/echarts-adapter.ts` — adds ECharts init, locale normalization, palette, text, and axis adapters.
+- `packages/ai-dashboard-echarts-vue/src/schemas.ts` — adds data and props schemas for line, gauge, and donut charts.
+- `packages/ai-dashboard-echarts-vue/src/LineChart.vue` — adds the trend chart component.
+- `packages/ai-dashboard-echarts-vue/src/GaugeChart.vue` — adds the bounded metric chart component.
+- `packages/ai-dashboard-echarts-vue/src/DonutChart.vue` — adds the category distribution chart component.
+- `packages/ai-dashboard-echarts-vue/src/option-utils.ts` — adds shared field reading and value formatting helpers.
+- `packages/ai-dashboard-echarts-vue/src/echarts-widgets.ts` — exports widget definitions and metadata.
+- `packages/ai-dashboard-echarts-vue/src/index.ts` — exports the public chart package API.
+- `apps/demo/package.json` — depends on the chart package.
+- `apps/demo/src/mock-sdk.ts` — adds mocked CPU trend and pod status SDK methods.
+- `apps/demo/src/data-sources/cluster.ts` — registers chart-compatible dataSources.
+- `apps/demo/src/dashboards/cluster-overview.ts` — renders GaugeChart, LineChart, and DonutChart from config.
+- `apps/demo/src/dashboards/cluster-overview.i18n/*` — adds chart title messages.
+- `apps/demo/src/widgets/index.ts` — merges chart widgets into the demo widget registry.
+- `packages/ai-dashboard-vue/vite.config.ts` — preserves emitted declarations during library builds.
+- `tsconfig.base.json` — adds the chart package path alias.
+- `pnpm-lock.yaml` — locks the new ECharts dependencies.
+
+### Decisions made during implementation
+
+- The chart props schemas keep defaults, while the exported props types describe DashboardConfig input shape. Components still apply explicit fallbacks so authored configs can omit defaulted fields.
+- ECharts options may contain formatter functions authored by the package code, but dashboard config still cannot inject executable option functions.
+- The demo keeps the Stage 2 `MetricValue` widget registered, but the dashboard config now uses the Stage 3 chart widgets.
+- Vite package builds now set `emptyOutDir: false` so `vue-tsc` declaration output is not deleted by the subsequent Vite bundle step.
+
+### Deviations from architecture.md
+
+- None.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- `pnpm install` warns that `vue-demi` and `vue-echarts` build scripts are ignored. Current typecheck/build/test verification passes without approving them.
+- Demo production build warns that the generated JS chunk is larger than 500 kB after adding ECharts. This is expected for the MVP chart engine and can be addressed later with code splitting if needed.
+
+### Verification
+
+- install: ok — `pnpm install`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
+- tests: ok — `pnpm -r --if-present test` ran 5 files / 13 tests, 0 failed
+- whitespace: ok — `git diff --check`
+
+## Stage 3 Follow-up — ECharts Nonzero Container Init
+
+**Completed:** 2026-05-09 09:55 CST
+
+### Files touched
+
+- `packages/ai-dashboard-echarts-vue/src/EchartsContainer.vue` — delays `VChart` mount until its container reports nonzero width and height.
+- `packages/ai-dashboard-echarts-vue/src/LineChart.vue` — renders through the guarded ECharts container.
+- `packages/ai-dashboard-echarts-vue/src/GaugeChart.vue` — renders through the guarded ECharts container.
+- `packages/ai-dashboard-echarts-vue/src/DonutChart.vue` — renders through the guarded ECharts container.
+- `packages/ai-dashboard-echarts-vue/src/index.ts` — exports the guarded container.
+- `packages/ai-dashboard-vue/src/WidgetShell.vue` — makes the widget body a flex, overflow-hidden sizing context for chart children.
+- `packages/ai-dashboard-vue/package.json` — exports package CSS for consumers that use built package output.
+- `packages/ai-dashboard-echarts-vue/package.json` — exports package CSS for consumers that use built package output.
+- `apps/demo/vite.config.ts` — aliases workspace packages to source during demo development so Vue SFC styles are injected.
+
+### Decisions made during implementation
+
+- Fix the root cause at the chart mount boundary instead of suppressing the ECharts warning. `VChart` now mounts only after `ResizeObserver` or the first animation frame confirms a nonzero container.
+- Keep the guard inside the ECharts package so non-chart widgets do not inherit chart-specific lifecycle behavior.
+- Playwright showed the initial blank UI was caused by the demo resolving built package JS without loading package CSS; `.dao-widget-shell` was `display: block` / `position: static`, so chart bodies had height `0`.
+- The demo now resolves workspace package source files in Vite dev/build, while package consumers can import `@dao-style-viz/ai-dashboard-vue/style.css` and `@dao-style-viz/ai-dashboard-echarts-vue/style.css`.
+
+### Deviations from architecture.md
+
+- None.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- Playwright console still reports only a missing `favicon.ico` 404 from the demo app.
+
+### Verification
+
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
+- tests: ok — `pnpm -r --if-present test` ran 5 files / 13 tests, 0 failed
+- Playwright: ok — dashboard renders charts; measured chart canvases have nonzero width and height
+- whitespace: ok — `git diff --check`
+
+## Stage 4 Planning Follow-up — Optional mcp-echarts Assist
+
+**Completed:** 2026-05-09 10:14 CST
+
+### Files touched
+
+- `docs/mcp-echarts.md` — documents optional MCP server config, use cases, data boundary, and output handling.
+- `.idea-to-ship/ai-dashboard-builder/requirements.md` — records `mcp-echarts` as generation-time assistance, not a runtime or validation bypass.
+- `.idea-to-ship/ai-dashboard-builder/architecture.md` — adds the optional `mcp-echarts` flow and Stage 4 adapter boundary.
+- `doc.md` — updates the source design with MCP-assisted ECharts preview/validation rules.
+
+### Decisions made during implementation
+
+- Treat `mcp-echarts` as optional generator tooling. It can produce option/image preview and validation feedback, but final artifacts still pass DashboardConfig schema, registry compatibility checks, generated chart sandbox, and human review.
+- Do not add `mcp-echarts` as a runtime dependency. Local MCP clients can run it via `npx -y mcp-echarts`; managed workflows can use SSE/streamable transport behind a generator adapter.
+- Restrict MCP inputs to catalog metadata and sample/mock/aggregated data.
+
+### Deviations from architecture.md
+
+- None. This updates the architecture before the Stage 4 implementation.
+
+### Verification
+
+- docs/config: ok — source docs, requirements, and architecture agree on the MCP boundary

@@ -5,6 +5,12 @@
       "widget": {
         "cpuUsage": {
           "title": "CPU Usage"
+        },
+        "cpuTrend": {
+          "title": "CPU Trend"
+        },
+        "podStatus": {
+          "title": "Pod Status"
         }
       },
       "state": {

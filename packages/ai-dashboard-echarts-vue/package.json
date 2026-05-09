@@ -1,5 +1,5 @@
 {
-  "name": "@dao-style-viz/ai-dashboard-vue",
+  "name": "@dao-style-viz/ai-dashboard-echarts-vue",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,8 +20,11 @@
   },
   "dependencies": {
     "@dao-style-viz/ai-dashboard-runtime": "workspace:*",
-    "@dao-style-viz/ai-dashboard-schema": "workspace:*",
-    "vue": "3.3.13"
+    "@dao-style-viz/ai-dashboard-vue": "workspace:*",
+    "echarts": "^5.5.1",
+    "vue": "3.3.13",
+    "vue-echarts": "^6.7.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "vue-tsc": "^2.2.12"

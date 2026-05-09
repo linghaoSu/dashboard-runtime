@@ -62,8 +62,11 @@ const shellStyle = computed(() => ({
 
 .dao-widget-shell__body {
   position: relative;
+  display: flex;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   padding: 12px;
 }
 

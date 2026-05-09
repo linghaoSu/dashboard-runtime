@@ -13,8 +13,14 @@ export default defineConfig({
     rollupOptions: {
       external: [
         "vue",
+        "echarts",
+        "echarts/core",
+        "echarts/charts",
+        "echarts/components",
+        "echarts/renderers",
+        "vue-echarts",
         "@dao-style-viz/ai-dashboard-runtime",
-        "@dao-style-viz/ai-dashboard-schema"
+        "@dao-style-viz/ai-dashboard-vue"
       ]
     }
   }
