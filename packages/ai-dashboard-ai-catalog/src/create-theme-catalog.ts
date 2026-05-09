@@ -129,6 +129,21 @@ export const defaultThemeCatalog: ThemeCatalogItem[] = [
           "#65a30d"
         ],
         goodFor: ["embedded product pages", "light backgrounds"]
+      },
+      {
+        key: "ipavo-console-light",
+        name: "Ipavo Console Light",
+        colors: [
+          "#2497df",
+          "#32d475",
+          "#f4b434",
+          "#dd5250",
+          "#7b61ff",
+          "#00b8a9",
+          "#e85aad",
+          "#7cb342"
+        ],
+        goodFor: ["ipavo-style admin consoles", "container overview", "light card grids"]
       }
     ],
     aiHints: {

@@ -17,11 +17,16 @@ import { computed, ref } from "vue";
 import ScreenCanvas from "./ScreenCanvas.vue";
 import WidgetRenderer from "./WidgetRenderer.vue";
 
+type ConfigErrorMode = "development" | "production";
+
 const props = defineProps<{
   config: DashboardConfig;
   widgets: WidgetRegistry;
   dataSources: DataSourceRegistry;
   runtime: RuntimeInput;
+  configErrorMode?: ConfigErrorMode;
+  configErrorTitle?: string;
+  configErrorMessage?: string;
 }>();
 
 const emit = defineEmits<{
@@ -36,15 +41,44 @@ const parsedConfig = computed(() => {
   if (!result.success) {
     return {
       config: null,
-      error: new Error(result.error.message)
+      error: result.error,
+      issues: result.error.issues
     };
   }
 
   return {
     config: result.data,
-    error: null
+    error: null,
+    issues: []
   };
 });
+
+const configErrorMode = computed<ConfigErrorMode>(() =>
+  props.configErrorMode ?? (import.meta.env.DEV ? "development" : "production")
+);
+
+const configErrorTitle = computed(
+  () =>
+    props.configErrorTitle ??
+    (configErrorMode.value === "development"
+      ? "Dashboard config validation failed"
+      : "Dashboard unavailable")
+);
+
+const configErrorMessage = computed(
+  () =>
+    props.configErrorMessage ??
+    (configErrorMode.value === "development"
+      ? "Fix the DashboardConfig issues below before rendering."
+      : "The dashboard configuration is invalid. Contact the dashboard owner.")
+);
+
+const configErrorDetails = computed(() =>
+  parsedConfig.value.issues.map((issue) => {
+    const path = issue.path.length ? issue.path.join(".") : "(root)";
+    return `${path}: ${issue.message}`;
+  })
+);
 
 const runtimeContext = computed(() => {
   if (!parsedConfig.value.config) {
@@ -120,8 +154,15 @@ function handleRuntimeEvent(event: WidgetRuntimeEvent) {
 </script>
 
 <template>
-  <div v-if="parsedConfig.error" class="dao-runtime-error">
-    {{ parsedConfig.error.message }}
+  <div v-if="parsedConfig.error" class="dao-runtime-error" role="alert">
+    <strong class="dao-runtime-error__title">{{ configErrorTitle }}</strong>
+    <p class="dao-runtime-error__message">{{ configErrorMessage }}</p>
+    <ul
+      v-if="configErrorMode === 'development'"
+      class="dao-runtime-error__details"
+    >
+      <li v-for="issue in configErrorDetails" :key="issue">{{ issue }}</li>
+    </ul>
   </div>
   <ScreenCanvas v-else-if="parsedConfig.config && runtimeContext" :canvas="parsedConfig.config.canvas">
     <WidgetRenderer
@@ -141,10 +182,34 @@ function handleRuntimeEvent(event: WidgetRuntimeEvent) {
 
 <style scoped>
 .dao-runtime-error {
-  display: grid;
+  display: flex;
   min-height: 240px;
-  place-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
   color: #b91c1c;
   font-size: 14px;
+  padding: 24px;
+  text-align: center;
+}
+
+.dao-runtime-error__title {
+  color: #991b1b;
+  font-size: 16px;
+}
+
+.dao-runtime-error__message {
+  margin: 0;
+}
+
+.dao-runtime-error__details {
+  display: inline-grid;
+  align-self: center;
+  margin: 4px 0 0;
+  max-width: min(720px, 100%);
+  gap: 4px;
+  color: #7f1d1d;
+  padding-left: 18px;
+  text-align: left;
 }
 </style>

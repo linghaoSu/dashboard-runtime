@@ -15,7 +15,7 @@
 | 3 | warning | `packages/ai-dashboard-ai-catalog/src/create-layout-catalog.ts:99` | Layout presets exposed width/height but not required `canvas.scaleMode`, forcing AI output to invent a schema-required field. | Added `scaleMode` to layout catalog canvas metadata for every preset and asserted it in catalog tests. |
 | 4 | warning | `apps/product-integration/src/dashboards/tenant-capacity.ts:216` | The namespace chart used a multi-color palette, but single-series BarChart colored by series, so every namespace bar used the first color. | Set single-series BarChart to `colorBy: "data"` and covered it in chart option tests. |
 | 5 | warning | `apps/product-integration/src/dashboards/tenant-capacity.ts:35` | Product integration intentionally consumes built package exports, but new strict schema keys could fail if package `dist` was stale when running app-local test/dev/build. | Added `build:deps` plus `pretest`, `prebuild`, and `predev` scripts so app-local workflows refresh dependent package dist before running. |
-| 6 | warning | `.idea-to-ship/ai-dashboard-builder/test-plan.md:140` | Release-gate evidence still reported 65 tests after two more regression tests were added. | Updated `test-plan.md`, `release-gate.md`, and `implementation-log.md` to 13 files / 67 tests and current build chunk sizes. |
+| 6 | warning | `.idea-to-ship/ai-dashboard-builder/test-plan.md:140` | Release-gate evidence still reported an outdated test count after more regression tests were added. | Updated `test-plan.md`, `release-gate.md`, and `implementation-log.md` to the current 18 files / 86 tests and current build chunk sizes. |
 
 ## Out-of-Scope Issues Skipped
 
@@ -43,12 +43,12 @@ New behavior-changing paths have regression coverage:
 
 Verification run after fixes:
 
-- `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` — 1 file / 8 tests
+- `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` — 1 file / 9 tests
 - `pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue test` — 1 file / 13 tests
-- `pnpm --filter @dao-style-viz/product-integration-example test` — prebuild deps + 1 file / 7 tests
+- `pnpm --filter @dao-style-viz/product-integration-example test` — prebuild deps + 6 files / 19 tests
 - `pnpm -r --if-present typecheck`
 - `pnpm -r --if-present lint`
-- `pnpm -r --if-present test` — 13 files / 69 tests
+- `pnpm -r --if-present test` — 18 files / 86 tests
 - `pnpm -r --if-present build` — expected ECharts chunk-size warnings in demo and product integration apps
 - `git diff --check`
 

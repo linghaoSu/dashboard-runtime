@@ -1,0 +1,71 @@
+{
+  "dashboardId": "ipavo-overview",
+  "audience": "product manager and platform operations manager",
+  "intent": "Render an ipavo-style container observability overview that matches the supplied reference dashboard.",
+  "executionMode": "local-agent-assisted",
+  "layout": {
+    "canvas": {
+      "width": 1920,
+      "height": 900,
+      "scaleMode": "fit"
+    },
+    "preset": "product-observability-grid",
+    "designEvidence": "docs/design.md"
+  },
+  "theme": {
+    "background": "#f3f6fa",
+    "chartPalette": [
+      "#2563eb",
+      "#16a34a",
+      "#f59e0b",
+      "#ef4444",
+      "#7c3aed",
+      "#0891b2"
+    ]
+  },
+  "dataSources": [
+    "ipavo.pods.summary",
+    "ipavo.cpu.usage",
+    "ipavo.memory.usage",
+    "ipavo.health.status",
+    "ipavo.alert.summary",
+    "ipavo.cluster.count",
+    "ipavo.resource.usage",
+    "ipavo.ability.overview"
+  ],
+  "widgets": [
+    {
+      "id": "pod-statistics",
+      "type": "IpavoPodStatistics",
+      "purpose": "Show pod density and running/other totals."
+    },
+    {
+      "id": "cpu-usage",
+      "type": "AreaChart",
+      "purpose": "Show compact CPU trend without a full y-axis."
+    },
+    {
+      "id": "memory-usage",
+      "type": "AreaChart",
+      "purpose": "Show compact memory trend without a full y-axis."
+    },
+    {
+      "id": "health-status",
+      "type": "IpavoHealthStatus",
+      "purpose": "Show cluster/node/container-group health."
+    },
+    {
+      "id": "alert-status",
+      "type": "IpavoAlertStatus",
+      "purpose": "Show alert severity counts and recent alert rows."
+    },
+    {
+      "id": "resource-usage",
+      "type": "IpavoResourceUsage",
+      "purpose": "Show CPU, memory, container-group, and disk usage rings."
+    }
+  ],
+  "i18nNamespace": "dashboard.ipavo",
+  "missingCapabilities": [],
+  "approvalRequiredBeforeConfig": true
+}

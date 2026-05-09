@@ -50,6 +50,7 @@ For a Vue 3.3.x product host, use the same package set as the product integratio
     "@dao-style-viz/ai-dashboard-schema": "workspace:*",
     "@dao-style-viz/ai-dashboard-vue": "workspace:*",
     "@dao-style-viz/ai-dashboard-widgets": "workspace:*",
+    "@daocloud-proto/ipavo": "0.13.0",
     "vue": "3.3.13",
     "zod": "^3.23.8"
   }
@@ -57,6 +58,8 @@ For a Vue 3.3.x product host, use the same package set as the product integratio
 ```
 
 For v0.1, `workspace:*` is the only supported consumption mode inside this repository. Product teams evaluating from another repository should use the release candidate commit/branch as source evidence until package publishing is explicitly approved.
+
+Product SDK packages are product-owned dependencies. The ipavo pilot pins `@daocloud-proto/ipavo@0.13.0` only in `apps/product-integration`; dashboard platform packages must not depend on product SDK packages.
 
 ## Import Package Styles
 
@@ -351,7 +354,7 @@ export const tenantCapacityValidation = validateDashboardConfig(
 );
 ```
 
-The host screen should block runtime rendering and show validation issues if validation fails.
+The host screen should block runtime rendering if validation fails. In development, show validation issue details so product engineers can fix the dashboard config. In production, show concise dashboard-unavailable copy and keep raw validation details in product-owned logs or diagnostics, not in the user-facing dashboard.
 
 ## Render In A Product Screen
 
@@ -363,6 +366,7 @@ Pass config, registries, dataSources, and runtime input to `BigScreenRuntime`:
   :widgets="productWidgetRegistry"
   :data-sources="tenantCapacityDataSources"
   :runtime="runtime"
+  :config-error-mode="configErrorMode"
 />
 ```
 
@@ -384,6 +388,16 @@ const runtime = computed(() => ({
 
 Route, user, locale, timezone, and messages are host-owned. DashboardConfig can reference them through `$ref`.
 
+`configErrorMode` should follow the same production/development split used by the host validation gate:
+
+```ts
+const configErrorMode = computed(() =>
+  import.meta.env.DEV ? "development" : "production"
+);
+```
+
+`BigScreenRuntime` also accepts optional `configErrorTitle` and `configErrorMessage` props for host-specific production copy. The v0.1 contract is documented in `.idea-to-ship/ai-dashboard-builder/config-error-ux-contract.md`.
+
 ## Replace The Mock SDK With A Real SDK
 
 When moving from the example to a real product:
@@ -400,9 +414,24 @@ For local backend preview, route SDK HTTP calls through the product host or mana
 ```sh
 PRODUCT_API_URL=http://localhost:8080
 PRODUCT_AUTH_TOKEN=<jwt>
+PRODUCT_API_ALLOWED_HOSTS=localhost:8080
+PRODUCT_API_TIMEOUT_MS=10000
+PRODUCT_IPAVO_VERSION_PATH=/apis/ipavo.io/v1alpha1/version
+PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH=/apis/ipavo.io/v1alpha1/resource/summary
 ```
 
-The proxy injects the JWT auth header server-side. Do not put backend URLs, JWTs, cookies, or auth headers in DashboardConfig or AI-facing catalog output.
+Use `apps/product-integration/.env.example` as the local template. Do not commit real backend URLs or JWT values.
+
+The proxy injects the JWT auth header server-side. `PRODUCT_API_ALLOWED_HOSTS` is optional for local-only testing but required for shared preview services. Do not put backend URLs, JWTs, cookies, or auth headers in DashboardConfig, local-agent tasks, or AI-facing catalog output. The credential contract is documented in `.idea-to-ship/ai-dashboard-builder/backend-proxy-credential-contract.md`.
+
+After setting the env values locally, run:
+
+```sh
+pnpm run check:ipavo-live-pilot
+pnpm run check:ipavo-live-backend
+```
+
+The live backend smoke validates status and response shape without printing tokens or response bodies. If a product backend maps those smoke endpoints differently, override `PRODUCT_IPAVO_VERSION_PATH` and `PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH`; they must be backend paths, not full URLs.
 
 ## Required Product Checks
 
@@ -416,6 +445,19 @@ pnpm --filter @dao-style-viz/product-integration-example build
 ```
 
 For a full v0.1 release candidate, also run the release-gate commands in `.idea-to-ship/ai-dashboard-builder/release-gate.md`.
+Bundle budgets are tracked in `.idea-to-ship/ai-dashboard-builder/performance-bundle-budget.md` and checked with:
+
+```sh
+pnpm run check:bundle-budget
+```
+
+`playground/playground-ui` is kept as a standalone DaoStyle full-template host reference only. Use `apps/product-integration` as the canonical dashboard wiring example for v0.1. The playground decision is recorded in `.idea-to-ship/ai-dashboard-builder/playground-host-integration.md`.
+
+## AI Generation In v0.1
+
+v0.1 uses a local-agent-assisted workflow. The platform does not host its own LLM runtime. Product teams should run generation through a user-controlled local agent such as Codex or OpenCode, then commit only reviewed DashboardConfig and locale resources.
+
+The required path is documented in `.idea-to-ship/ai-dashboard-builder/generator-execution-path.md`: plan first, human approval, DashboardConfig and locale generation, `validateDashboardConfig`, product checks, and bundle budget checks. Backend URLs, JWTs, cookies, SDK implementation, and raw production responses must stay out of prompts, DashboardConfig, and AI catalog output.
 
 ## Minimum Test Coverage For A New Product Dashboard
 
@@ -434,12 +476,11 @@ Use `apps/product-integration/src/__tests__/tenant-capacity.test.ts` as the mode
 - Do not register generated chart widgets unless the sandbox validation and human approval gate pass.
 - Do not bypass `validateDashboardConfig`.
 - Do not rely on registry package publishing; it is not part of v0.1.
-- Do not treat current ECharts bundle warnings as a permanent budget. They are accepted only for internal v0.1 evaluation.
+- Do not treat current ECharts bundle warnings as an unlimited budget. They are accepted only while the v0.1 bundle budget passes.
 
 ## Current Known Limits
 
 - Package publishing and clean external consumer install are not approved yet.
 - The product integration app uses mocked SDK data with real generated-SDK call shape.
-- Production config-error UX ownership is not final.
-- Performance and bundle budgets are not quantified.
-- Generated chart preview CSP/origin/postMessage hardening is deferred.
+- Performance and bundle budgets are quantified for v0.1 internal evaluation, but lazy loading is not implemented yet.
+- Generated chart preview CSP/origin/postMessage hardening is implemented for the sandbox gate; the productized chart browser UI is still deferred.

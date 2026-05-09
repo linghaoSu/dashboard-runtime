@@ -31,7 +31,16 @@ export const ipavoOverviewDashboard: DashboardConfig = {
       widgetBorder: "transparent",
       widgetShadow: "0 4px 12px rgba(15, 23, 42, 0.12)"
     },
-    chartPalette: ["#5b8ff9", "#32d475", "#f4b434", "#dd5250", "#2497df"]
+    chartPalette: [
+      "#2497df",
+      "#32d475",
+      "#f4b434",
+      "#dd5250",
+      "#7b61ff",
+      "#00b8a9",
+      "#e85aad",
+      "#7cb342"
+    ]
   },
   i18n: {
     namespace: "dashboard.ipavo",

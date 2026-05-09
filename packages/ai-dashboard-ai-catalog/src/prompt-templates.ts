@@ -9,6 +9,7 @@ Rules:
 - Select a global chart palette from the provided Theme Catalog unless the approved plan requires a local chart override.
 - Do not invent dataSource keys.
 - Do not invent widget types.
+- Do not request or include backend URLs, auth tokens, cookies, SDK source code, or raw production responses.
 - You may use mcp-echarts only to preview or validate ECharts option ideas with sample data.
 - All user-facing text must use i18n keys and defaultMessage.
 - If existing widgets are insufficient, add an item to missingCapabilities.
@@ -28,6 +29,7 @@ Rules:
 - Use widget props.palette only for deliberate per-chart overrides.
 - refresh.intervalMs must not be lower than 5000.
 - Do not output executable JavaScript code.
+- Do not include backend URLs, auth tokens, cookies, SDK source code, or raw production responses.
 - mcp-echarts output is preview evidence only; the final config must still use registered widget types and schema-valid props.
 - Output DashboardConfig JSON and locale JSON resources only.`;
 

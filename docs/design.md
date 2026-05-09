@@ -37,6 +37,12 @@ Recommended v0.1 presets:
 | `overview-3-kpi-chart-table` | cluster, tenant, resource, and operations overview pages | top KPI row, primary chart, side list/table |
 | `map-with-side-panel` | geography, topology, site status | dominant map/coordinate chart, side detail panel |
 | `tenant-ops-command` | product operations dashboard | filter band, note/status band, KPI row, full-width diagnostic chart |
+| `ipavo-console-overview` | DaoCloud product console pages similar to the ipavo reference | pod statistics, compact CPU/memory trends, health, alerts, cluster/resource/function panels |
+
+For ipavo-style product pages, prefer a `1920x760` canvas with a 24 px outer margin, 16 px card gutters, four aligned columns, and two rows. The reference slot pattern is:
+
+- Row 1: pod statistics, CPU/memory trend stack, health status, alert list.
+- Row 2: cluster count, wide resource usage, function overview.
 
 ## Color System
 
@@ -61,6 +67,7 @@ Use these palettes as starting points:
 | `aurora-contrast` | Aurora Contrast | high-contrast charts with many categories | `#60a5fa`, `#34d399`, `#fbbf24`, `#fb7185`, `#c084fc`, `#2dd4bf`, `#f97316`, `#a3e635` |
 | `product-light` | Product Light | embedded light product pages | `#2563eb`, `#059669`, `#d97706`, `#dc2626`, `#7c3aed`, `#0891b2`, `#db2777`, `#65a30d` |
 | `capacity-signal` | Capacity Signal | capacity and SLO views | `#0ea5e9`, `#10b981`, `#f59e0b`, `#ef4444`, `#8b5cf6`, `#06b6d4`, `#84cc16`, `#f43f5e` |
+| `ipavo-console-light` | Ipavo Console Light | light card-based product consoles | `#2497df`, `#32d475`, `#f4b434`, `#dd5250`, `#7b61ff`, `#00b8a9`, `#e85aad`, `#7cb342` |
 
 ## DashboardConfig Pattern
 

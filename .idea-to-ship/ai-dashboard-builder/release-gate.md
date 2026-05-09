@@ -33,6 +33,7 @@ The version marker is `0.1.0` across the workspace packages, but that marker doe
 - Basic widgets and ECharts widgets needed by the MVP dashboards.
 - AI catalog export and AI DashboardConfig validation gates.
 - Generated chart sandbox validation and approval gate contracts.
+- Generated chart preview CSP, origin, and postMessage hardening.
 - Product integration example using proto-style static TypeScript SDK methods.
 - Standalone playground buildability as a host-reference signal.
 
@@ -41,10 +42,8 @@ The version marker is `0.1.0` across the workspace packages, but that marker doe
 - Internal or external registry publishing.
 - Real product SDK pilot completion.
 - External consumer install verification outside this workspace.
-- Production config-error UX finalization.
-- Quantified performance and bundle budgets.
-- Generator execution service/CLI selection.
-- Generated chart preview CSP, origin, and postMessage hardening.
+- Productized manager-facing workbench UI and local agent bridge implementation.
+- Chart extension browser UI and online fetch integration.
 
 ## Required Go Criteria
 
@@ -58,7 +57,7 @@ The version marker is `0.1.0` across the workspace packages, but that marker doe
 | RG-6 | Standalone playground remains buildable outside the root workspace | `pnpm --dir playground/playground-ui run build` | PASS with warnings |
 | RG-7 | Product-facing adoption guide exists and matches the product example | `docs/ai-dashboard-v0.1-adoption.md` | PASS |
 | RG-8 | Safety boundaries are not weakened | Code review, catalog tests, sandbox tests | PASS on current evidence |
-| RG-9 | Known warnings are triaged and assigned to roadmap owners | This release gate, `test-plan.md`, `roadmap.md` | PASS |
+| RG-9 | Known warnings are triaged and assigned to roadmap owners | This release gate, `test-plan.md`, `roadmap.md`, `performance-bundle-budget.md` | PASS |
 | RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | NOT READY in current working tree |
 
 Final v0.1 GO requires every row to be PASS. Rows marked "PASS on current evidence" must be rerun against the final release candidate commit or branch.
@@ -76,17 +75,26 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 - Package registry publishing is attempted before the blockers in `.idea-to-ship/ai-dashboard-builder/package-publishing-surface.md` are closed.
 - New high-risk code review findings remain unresolved.
 - New bundle or build warnings appear without an owner and release decision.
+- `pnpm run check:bundle-budget` fails after a production build.
 
 ## Current Evidence
 
 | Evidence | Result | Notes |
 |---|---|---|
-| `.idea-to-ship/ai-dashboard-builder/test-plan.md` | PASS with documented warnings | 13 files, 69 tests |
+| `.idea-to-ship/ai-dashboard-builder/test-plan.md` | PASS with documented warnings | 18 files, 86 tests |
 | `docs/ai-dashboard-v0.1-adoption.md` | PASS | Product-facing guide based on `apps/product-integration` |
+| `.idea-to-ship/ai-dashboard-builder/config-error-ux-contract.md` | PASS | Production hides raw validation details; development shows debug details |
+| `.idea-to-ship/ai-dashboard-builder/performance-bundle-budget.md` | PASS | v0.1 hard ceilings defined and script-checked |
+| `.idea-to-ship/ai-dashboard-builder/generator-execution-path.md` | PASS | v0.1 uses local-agent-assisted generation with validation gates |
+| `.idea-to-ship/ai-dashboard-builder/playground-host-integration.md` | PASS | Playground is validated as reference-only host surface |
+| `.idea-to-ship/ai-dashboard-builder/backend-proxy-credential-contract.md` | PASS | Server-side proxy keeps backend URL/JWT out of DashboardConfig and prompts |
+| `.idea-to-ship/ai-dashboard-builder/chart-extension-promotion-flow.md` | PASS | Missing chart capabilities flow through sandboxed generated widget approval |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 13 files, 69 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo JS 823.47 kB, product integration JS 907.66 kB |
+| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo JS 824.27 kB, product integration JS 909.69 kB |
+| `pnpm run check:bundle-budget` | PASS | Demo/product app and package JS/CSS assets are under v0.1 hard ceilings |
+| `pnpm run check:roadmap-completion` | FAIL as expected | Roadmap-closure gate only; blocks on missing live ipavo backend URL, JWT, and allowlist |
 | `pnpm --dir playground/playground-ui run build` | PASS with warnings | `input-placeholder` pseudo-class warning; largest JS chunk 576.9 kB |
 | `git diff --check` | PASS | No whitespace errors |
 
@@ -94,8 +102,8 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 
 | Warning | Decision | Owner / Follow-up |
 |---|---|---|
-| Demo and product integration Vite chunks exceed 500 kB after minification | Accepted for internal v0.1 only because ECharts is known to dominate the app bundle | ITS-ai-dashboard-builder-007 |
-| Standalone playground emits `input-placeholder` pseudo-class warnings | Accepted for release-gate evidence because the build succeeds and the playground is a host-reference surface, not the release artifact | ITS-ai-dashboard-builder-009 |
+| Demo and product integration Vite chunks exceed 500 kB after minification | Accepted for internal v0.1 only while `pnpm run check:bundle-budget` passes | ITS-ai-dashboard-builder-007 |
+| Standalone playground emits `input-placeholder` pseudo-class warnings | Accepted because ITS-009 confirms the playground is a reference-only host surface and build succeeds | ITS-ai-dashboard-builder-009 |
 | Standalone playground largest JS chunk is 576.9 kB | Accepted as a known host-template signal, not a v0.1 package budget | ITS-ai-dashboard-builder-007 / ITS-ai-dashboard-builder-009 |
 | Line coverage is not measured | Accepted for v0.1 because coverage tooling is not configured; behavior and traceability coverage are documented in `test-plan.md` | Future test-infra follow-up |
 
@@ -107,10 +115,12 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 4. Run `pnpm -r --if-present lint`.
 5. Run `pnpm -r --if-present test`.
 6. Run `pnpm -r --if-present build`.
-7. Run `pnpm --dir playground/playground-ui run build`.
-8. Run `git diff --check`.
-9. Update `test-plan.md` results if any command output or warning changes.
-10. Record platform-lead GO/HOLD decision in this file.
+7. Run `pnpm run check:bundle-budget`.
+8. Run `pnpm --dir playground/playground-ui run build`.
+9. Run `git diff --check`.
+10. For full roadmap closure, run `pnpm run check:roadmap-completion`; this must pass only after the live ipavo backend/JWT gate is satisfied or explicitly scoped out.
+11. Update `test-plan.md` results if any command output or warning changes.
+12. Record platform-lead GO/HOLD decision in this file.
 
 ## Sign-Off
 

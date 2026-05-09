@@ -125,6 +125,98 @@ export const defaultLayoutCatalog: LayoutPresetCatalogItem[] = [
       source: "docs/design.md",
       principles: ["filter band first", "KPI scan row", "full-width diagnostic chart"]
     }
+  },
+  {
+    key: "ipavo-console-overview",
+    name: "Ipavo Console Overview",
+    description:
+      "Light product-console grid with pod statistics, compact trends, health, alerts, resource usage, and feature overview",
+    rationale:
+      "Matches the ipavo reference dashboard shape: fast first-row scanning, two compact trend cards, health and alert status to the right, then cluster/resource/feature detail across a second row.",
+    canvas: {
+      width: 1920,
+      height: 760,
+      scaleMode: "fit"
+    },
+    grid: {
+      margin: 24,
+      gutter: 16,
+      columns: 4
+    },
+    slots: [
+      {
+        key: "pod-statistics",
+        x: 24,
+        y: 20,
+        w: 456,
+        h: 318,
+        recommendedCategories: ["metric", "layout"]
+      },
+      {
+        key: "cpu-usage",
+        x: 496,
+        y: 20,
+        w: 456,
+        h: 146,
+        recommendedCategories: ["chart"]
+      },
+      {
+        key: "memory-usage",
+        x: 496,
+        y: 192,
+        w: 456,
+        h: 146,
+        recommendedCategories: ["chart"]
+      },
+      {
+        key: "health-status",
+        x: 968,
+        y: 20,
+        w: 456,
+        h: 318,
+        recommendedCategories: ["metric", "layout"]
+      },
+      {
+        key: "alert-status",
+        x: 1440,
+        y: 20,
+        w: 456,
+        h: 318,
+        recommendedCategories: ["list", "metric"]
+      },
+      {
+        key: "cluster-count",
+        x: 24,
+        y: 388,
+        w: 456,
+        h: 320,
+        recommendedCategories: ["table", "layout"]
+      },
+      {
+        key: "resource-usage",
+        x: 496,
+        y: 388,
+        w: 928,
+        h: 320,
+        recommendedCategories: ["chart", "metric"]
+      },
+      {
+        key: "ability-overview",
+        x: 1440,
+        y: 388,
+        w: 456,
+        h: 320,
+        recommendedCategories: ["list", "layout"]
+      }
+    ],
+    aiHints: {
+      goodFor: ["ipavo overview", "container overview", "product console health dashboard"],
+      notGoodFor: ["single KPI page", "map-first dashboards", "long BI tables"]
+    },
+    designEvidence: {
+      source: "docs/design.md",
+      principles: ["ipavo reference grid", "compact trend cards", "status panels on the right"]
+    }
   }
 ];
 

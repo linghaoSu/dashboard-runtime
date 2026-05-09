@@ -1,74 +1,83 @@
 export type EmptyRequest = Record<string, never>;
+export type empty = EmptyRequest;
+
+export enum displayType {
+  BY_NAMESPACE = "BY_NAMESPACE",
+  BY_CLUSTER = "BY_CLUSTER",
+  BY_POD = "BY_POD"
+}
 
 export type CountSummary = {
-  healthy: number;
-  total: number;
+  healthy?: number;
+  total?: number;
 };
 
 export type ClusterInfo = {
-  name: string;
-  provider: string;
-  features: string[];
+  name?: string;
+  provider?: string;
+  clusterFeatures?: string[];
+  features?: string[];
 };
 
 export type GetResourceSummaryResponse = {
-  clusterCount: CountSummary;
-  nodeCount: CountSummary;
-  podCount: CountSummary;
-  threshold: number;
-  clusterItems: ClusterInfo[];
+  clusterCount?: CountSummary;
+  nodeCount?: CountSummary;
+  podCount?: CountSummary;
+  threshold?: number;
+  namespaceCount?: number;
+  clusterItems?: ClusterInfo[];
 };
 
 export type SamplePair = {
-  timestamp: number;
-  value: number;
+  timestamp?: string;
+  value?: string;
 };
 
 export type ResourceUsage = {
-  usage: number;
-  total: number;
-  history: SamplePair[];
+  usage?: number;
+  total?: number;
+  history?: SamplePair[];
 };
 
+export type GetResourceUsageRequest = EmptyRequest;
+
 export type GetResourceUsageResponse = {
-  thresholds: [number, number];
-  cpu: ResourceUsage;
-  memory: ResourceUsage;
-  pod: ResourceUsage;
-  disk: ResourceUsage;
+  thresholds?: number[];
+  cpu?: ResourceUsage;
+  memory?: ResourceUsage;
+  pod?: ResourceUsage;
+  disk?: ResourceUsage;
 };
 
 export type GetAlertSummaryResponse = {
-  alertCount: {
-    critical: number;
-    warning: number;
-    info: number;
-  };
-  alertMessages: string[];
+  alertCount?: Record<string, number>;
+  alertMessages?: string[];
 };
 
-export type ProductInfo = {
-  id: string;
-  title: string;
-  features: string[];
+export type product = {
+  id?: string;
+  title?: string;
+  status?: boolean;
+  features?: string[];
 };
 
 export type ListProductsResponse = {
-  items: ProductInfo[];
+  items?: product[];
 };
 
 export type GetPodSummaryRequest = {
-  type: "BY_CLUSTER" | "BY_NAMESPACE";
+  type?: displayType;
 };
 
-export type SummaryInstance = {
-  cluster: string;
+export type summaryInstance = {
+  cluster?: string;
   namespace?: string;
-  podCount: CountSummary;
+  pod?: string;
+  podCount?: CountSummary;
 };
 
 export type GetPodSummaryResponse = {
-  items: SummaryInstance[];
+  items?: summaryInstance[];
 };
 
 const nowSeconds = 1_715_163_600;
@@ -86,8 +95,8 @@ const memoryHistory = [
 
 function history(values: number[]): SamplePair[] {
   return values.map((value, index) => ({
-    timestamp: nowSeconds + index * 120,
-    value
+    timestamp: String(nowSeconds + index * 120),
+    value: String(value)
   }));
 }
 
@@ -106,19 +115,19 @@ export class IPavo {
         {
           name: "minquan-dev",
           provider: "k",
-          features: ["ds", "is", "more"]
+          clusterFeatures: ["ds", "is", "more"]
         },
         {
           name: "kpanda-global-cluster",
           provider: "c",
-          features: ["ds", "sp", "more"]
+          clusterFeatures: ["ds", "sp", "more"]
         }
       ]
     };
   }
 
   static async GetResourceUsage(
-    request: EmptyRequest
+    request: GetResourceUsageRequest
   ): Promise<GetResourceUsageResponse> {
     void request;
 

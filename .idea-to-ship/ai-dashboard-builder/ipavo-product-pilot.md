@@ -3,7 +3,7 @@
 **Date:** 2026-05-09 16:32 CST
 **Roadmap Item:** ITS-ai-dashboard-builder-003
 **Reference Product:** `/Users/sulinghao/workspaces/dce5/ipavo-ui`
-**Current Verdict:** Local pilot implemented with ipavo-style generated SDK shape; real backend execution requires product SDK package access and JWT proxy configuration
+**Current Verdict:** Local pilot implemented and calibrated against `@daocloud-proto/ipavo@0.13.0`; real backend execution still requires backend URL, JWT, and allowlist values.
 
 ## Product Reference
 
@@ -35,10 +35,18 @@ This proves the target dashboard can be represented as DashboardConfig plus prod
 
 ## Real SDK Contract
 
-In a real ipavo pilot, replace the local mock SDK import with generated npm packages:
+The reference project pins `@daocloud-proto/ipavo` at `0.13.0`. In a real ipavo pilot, replace the local mock SDK import with generated npm packages:
 
 ```ts
 import { IPavo } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo.pb";
+import type {
+  GetAlertSummaryResponse,
+  GetPodSummaryRequest,
+  GetPodSummaryResponse,
+  GetResourceSummaryResponse,
+  GetResourceUsageResponse,
+  ListProductsResponse
+} from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo_type.pb";
 ```
 
 The SDK methods remain static methods such as:
@@ -48,6 +56,14 @@ The SDK methods remain static methods such as:
 - `IPavo.GetResourceUsage({})`
 - `IPavo.ListProducts({})`
 - `IPavo.GetPodSummary({ type })`
+
+The local fixture in `apps/product-integration/src/product-sdk/generated/ipavo-overview.ts` now mirrors the real package's important integration details:
+
+- `IPavo` is a static generated service class.
+- response fields are optional.
+- `SamplePair.timestamp` and `SamplePair.value` are string-shaped, so dataSource transforms normalize them before chart output.
+- pod summary uses the generated `displayType` enum.
+- product-owned transforms convert generated SDK DTOs into stable widget data schemas.
 
 The dashboard platform must not expose SDK implementation, tokens, cookies, permission logic, or raw sensitive responses to AI catalog output. AI sees only dataSource metadata, schemas, compatibility, and redacted/mock examples.
 
@@ -72,9 +88,45 @@ For this repo's product-integration app, the equivalent local proxy knobs are:
 ```sh
 PRODUCT_API_URL=http://localhost:8080
 PRODUCT_AUTH_TOKEN=<jwt>
+PRODUCT_API_ALLOWED_HOSTS=localhost:8080
+PRODUCT_API_TIMEOUT_MS=10000
+PRODUCT_IPAVO_VERSION_PATH=/apis/ipavo.io/v1alpha1/version
+PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH=/apis/ipavo.io/v1alpha1/resource/summary
 ```
 
+Use `apps/product-integration/.env.example` as the local template and keep real values uncommitted.
+
 The proxy injects `Authorization: Bearer <jwt>` for `/apis`. DashboardConfig must never contain backend URLs, JWTs, or auth headers.
+
+## Live Pilot Preflight
+
+The exact product-owner handoff is recorded in `.idea-to-ship/ai-dashboard-builder/live-pilot-input-request.md`.
+
+Before claiming the real ipavo pilot is complete, run:
+
+```sh
+pnpm run check:ipavo-live-pilot
+```
+
+The preflight verifies:
+
+- `@daocloud-proto/ipavo@0.13.0` is installed in this workspace.
+- the generated service/type files are present.
+- `PRODUCT_API_URL` is an absolute `http` or `https` URL.
+- `PRODUCT_AUTH_TOKEN` is configured but redacted from output.
+- `PRODUCT_API_ALLOWED_HOSTS` includes the target backend host.
+
+This command is expected to fail until backend URL, JWT, and allowlist values are provided.
+
+Once preflight passes, run the live backend smoke:
+
+```sh
+pnpm run check:ipavo-live-backend
+```
+
+The smoke calls the ipavo version and resource-summary endpoints through `PRODUCT_API_URL` using a server-side `Authorization: Bearer <PRODUCT_AUTH_TOKEN>` header. It validates only response status and shape, and never prints the token or response body.
+
+If the product backend uses different paths for those two smoke endpoints, override `PRODUCT_IPAVO_VERSION_PATH` and `PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH`. They are path-only values and cannot be full URLs.
 
 ## Manager-Facing Workbench Target
 
@@ -118,7 +170,6 @@ When charts are insufficient:
 
 ## Remaining Blockers
 
-- The real `@daocloud-proto/ipavo` package is not installed in this workspace.
-- Real backend URL and JWT are not provided to this repo; only proxy configuration knobs are present.
+- Real backend URL, JWT, and `PRODUCT_API_ALLOWED_HOSTS` values are not provided to this repo; only proxy configuration knobs, preflight checks, and an opt-in live backend smoke are present.
 - The manager-facing workbench, server proxy service, agent bridge, and chart extension browser are not implemented yet.
 - Production handling for storing JWTs and connecting to local agents needs a separate security review.

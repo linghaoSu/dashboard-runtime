@@ -9,7 +9,11 @@ import {
   evaluateGeneratedChartApprovalGate,
   validateGeneratedChartPackage
 } from "../gate.js";
-import { parseGeneratedChartPreviewMessage } from "../preview-contract.js";
+import {
+  createGeneratedChartRenderMessage,
+  parseGeneratedChartPreviewMessage,
+  validateGeneratedChartPreviewMessage
+} from "../preview-contract.js";
 import type { GeneratedChartPackage } from "../schemas.js";
 
 describe("validateGeneratedChartPackage", () => {
@@ -27,7 +31,14 @@ describe("validateGeneratedChartPackage", () => {
     ]);
     expect(result.previewContract).toMatchObject({
       widgetType: "GeneratedLatencyChart",
-      sandboxAttributes: ["allow-scripts"]
+      sandboxAttributes: ["allow-scripts"],
+      disallowedSandboxAttributes: expect.arrayContaining(["allow-same-origin"]),
+      csp: expect.stringContaining("connect-src 'none'"),
+      originPolicy: {
+        previewOrigin: "null",
+        parentOrigin: "http://127.0.0.1",
+        requireExactOrigin: true
+      }
     });
   });
 
@@ -157,12 +168,73 @@ describe("preview and registry gates", () => {
     expect(
       parseGeneratedChartPreviewMessage({
         type: "ai-dashboard.generated-chart.rendered",
+        protocolVersion: "1.0.0",
+        sessionId: "session-123456789",
+        requestId: "render-1",
         widgetType: "GeneratedLatencyChart"
       })
     ).toEqual({
       type: "ai-dashboard.generated-chart.rendered",
+      protocolVersion: "1.0.0",
+      sessionId: "session-123456789",
+      requestId: "render-1",
       widgetType: "GeneratedLatencyChart"
     });
+  });
+
+  it("creates render messages bound to the preview session", () => {
+    const gateResult = validateGeneratedChartPackage(createSafePackage(), {
+      previewSessionId: "session-123456789"
+    });
+
+    if (!gateResult.previewContract) {
+      throw new Error("Expected preview contract");
+    }
+
+    expect(createGeneratedChartRenderMessage(gateResult.previewContract, "render-1"))
+      .toMatchObject({
+        type: "ai-dashboard.generated-chart.render",
+        protocolVersion: "1.0.0",
+        sessionId: "session-123456789",
+        requestId: "render-1",
+        widgetType: "GeneratedLatencyChart"
+      });
+  });
+
+  it("rejects preview messages from the wrong origin, session, or widget", () => {
+    const message = {
+      type: "ai-dashboard.generated-chart.rendered",
+      protocolVersion: "1.0.0",
+      sessionId: "session-123456789",
+      requestId: "render-1",
+      widgetType: "GeneratedLatencyChart"
+    };
+    const context = {
+      eventOrigin: "null",
+      expectedOrigin: "null",
+      expectedSessionId: "session-123456789",
+      expectedWidgetType: "GeneratedLatencyChart"
+    };
+
+    expect(validateGeneratedChartPreviewMessage(message, context)).toEqual(message);
+    expect(() =>
+      validateGeneratedChartPreviewMessage(message, {
+        ...context,
+        eventOrigin: "https://attacker.example"
+      })
+    ).toThrow("origin mismatch");
+    expect(() =>
+      validateGeneratedChartPreviewMessage(message, {
+        ...context,
+        expectedSessionId: "session-other-1234"
+      })
+    ).toThrow("session mismatch");
+    expect(() =>
+      validateGeneratedChartPreviewMessage(message, {
+        ...context,
+        expectedWidgetType: "OtherWidget"
+      })
+    ).toThrow("widget type mismatch");
   });
 
   it("keeps the generated widget registry disabled by default", () => {

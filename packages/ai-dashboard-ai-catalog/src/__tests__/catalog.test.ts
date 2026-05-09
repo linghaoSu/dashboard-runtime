@@ -11,6 +11,10 @@ import { createI18nCatalog } from "../create-i18n-catalog.js";
 import { createLayoutCatalog } from "../create-layout-catalog.js";
 import { createThemeCatalog } from "../create-theme-catalog.js";
 import { createWidgetCatalog } from "../create-widget-catalog.js";
+import {
+  dashboardConfigPrompt,
+  dashboardPlanPrompt
+} from "../prompt-templates.js";
 import { validateDashboardConfig } from "../validate-dashboard-config.js";
 
 const paramsSchema = z.object({
@@ -184,10 +188,41 @@ describe("catalog creators", () => {
     expect(layoutCatalog[0]?.slots.length).toBeGreaterThan(0);
     expect(layoutCatalog[0]?.canvas.scaleMode).toBe("fit");
     expect(layoutCatalog[0]?.designEvidence?.source).toBe("docs/design.md");
+    expect(
+      layoutCatalog.find((layout) => layout.key === "ipavo-console-overview")
+    ).toMatchObject({
+      canvas: {
+        width: 1920,
+        height: 760
+      },
+      slots: expect.arrayContaining([
+        expect.objectContaining({ key: "pod-statistics" }),
+        expect.objectContaining({ key: "resource-usage", w: 928 })
+      ]),
+      designEvidence: {
+        source: "docs/design.md",
+        principles: expect.arrayContaining(["ipavo reference grid"])
+      }
+    });
+    expect(
+      themeCatalog
+        .find((theme) => theme.key === "dao-light")
+        ?.paletteAlternates?.some(
+          (palette) => palette.key === "ipavo-console-light"
+        )
+    ).toBe(true);
     expect(i18nCatalog.requiredResourceFiles).toEqual([
       "en-US.json",
       "zh-CN.json"
     ]);
+  });
+
+  it("keeps auth and raw production material out of generator prompt contracts", () => {
+    const prompts = `${dashboardPlanPrompt}\n${dashboardConfigPrompt}`;
+
+    expect(prompts).toContain("auth tokens");
+    expect(prompts).toContain("SDK source code");
+    expect(prompts).toContain("raw production responses");
   });
 });
 

@@ -5,6 +5,7 @@ import {
 import { lineChartDataSchema } from "@dao-style-viz/ai-dashboard-echarts-vue";
 import { z } from "zod";
 import {
+  displayType,
   IPavo,
   type EmptyRequest,
   type GetAlertSummaryResponse,
@@ -23,8 +24,10 @@ import {
   ipavoResourceUsageDataSchema
 } from "../widgets/ipavo";
 
-// Real ipavo pilots should replace the local mock above with:
+// The reference ipavo-ui pins @daocloud-proto/ipavo@0.13.0. Live pilots should
+// replace the local fixture above with:
 // import { IPavo } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo.pb";
+// import type { ... } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo_type.pb";
 // Backend URL and JWT auth headers belong to the host/server proxy, not
 // DashboardConfig or AI-facing catalog output.
 const emptyParamsSchema = z.object({});
@@ -63,25 +66,34 @@ export const ipavoOverviewDataSources = defineDataSources({
         }
       }
     ],
-    request: () => ({ type: "BY_CLUSTER" }),
+    request: () => ({ type: displayType.BY_CLUSTER }),
     call: (request) => IPavo.GetPodSummary(request),
     transform: (response) => {
-      const cells = response.items.flatMap((item, itemIndex) => {
-        const total = item.podCount.total;
-        const healthy = item.podCount.healthy;
+      let totalPods = 0;
+      let runningPods = 0;
+      const cells = (response.items ?? []).flatMap((item, itemIndex) => {
+        const total = item.podCount?.total ?? 0;
+        const healthy = item.podCount?.healthy ?? 0;
+        if (total <= 0) {
+          return [];
+        }
+
+        totalPods += total;
+        runningPods += healthy;
         const unhealthy = Math.max(total - healthy, 0);
         const healthyCells = Math.max(Math.round((healthy / total) * 14), 1);
         const unhealthyCells = Math.max(Math.round((unhealthy / total) * 4), 1);
+        const label = item.cluster ?? item.namespace ?? item.pod ?? `pod-${itemIndex + 1}`;
 
         return [
           ...Array.from({ length: healthyCells }, (_, index) => ({
-            id: `${item.cluster}-healthy-${itemIndex}-${index}`,
-            label: item.cluster,
+            id: `${label}-healthy-${itemIndex}-${index}`,
+            label,
             status: "healthy" as const
           })),
           ...Array.from({ length: unhealthyCells }, (_, index) => ({
-            id: `${item.cluster}-warning-${itemIndex}-${index}`,
-            label: item.cluster,
+            id: `${label}-warning-${itemIndex}-${index}`,
+            label,
             status: "warning" as const
           }))
         ];
@@ -90,9 +102,9 @@ export const ipavoOverviewDataSources = defineDataSources({
       return {
         cells,
         legend,
-        totalPods: 278,
-        runningPods: 241,
-        otherPods: 37
+        totalPods,
+        runningPods,
+        otherPods: Math.max(totalPods - runningPods, 0)
       };
     }
   }),
@@ -110,7 +122,7 @@ export const ipavoOverviewDataSources = defineDataSources({
     examples: [{ params: {}, output: [{ time: "15:00", value: 9.2 }] }],
     request: () => ({}),
     call: (request) => IPavo.GetResourceUsage(request),
-    transform: (response) => toLineData(response.cpu.history, (value) => value)
+    transform: (response) => toLineData(response.cpu?.history ?? [], (value) => value)
   }),
   "ipavo.memoryUsage": createSdkDataSource<
     Record<string, never>,
@@ -127,7 +139,7 @@ export const ipavoOverviewDataSources = defineDataSources({
     request: () => ({}),
     call: (request) => IPavo.GetResourceUsage(request),
     transform: (response) =>
-      toLineData(response.memory.history, (value) => value / 1024 ** 3)
+      toLineData(response.memory?.history ?? [], (value) => value / 1024 ** 3)
   }),
   "ipavo.healthStatus": createSdkDataSource<
     Record<string, never>,
@@ -154,9 +166,9 @@ export const ipavoOverviewDataSources = defineDataSources({
     call: (request) => IPavo.GetResourceSummary(request),
     transform: (response) => {
       const items = [
-        toHealthItem("集群", "C", response.clusterCount, response.threshold),
-        toHealthItem("节点", "N", response.nodeCount, response.threshold),
-        toHealthItem("容器组", "P", response.podCount, response.threshold)
+        toHealthItem("集群", "C", response.clusterCount, response.threshold ?? 0.8),
+        toHealthItem("节点", "N", response.nodeCount, response.threshold ?? 0.8),
+        toHealthItem("容器组", "P", response.podCount, response.threshold ?? 0.8)
       ];
       const healthy = items.every((item) => item.status === "healthy");
 
@@ -193,24 +205,24 @@ export const ipavoOverviewDataSources = defineDataSources({
       counts: [
         {
           label: "紧急",
-          value: response.alertCount.critical,
+          value: response.alertCount?.critical ?? 0,
           status: "critical",
           color: "#dd5250"
         },
         {
           label: "警告",
-          value: response.alertCount.warning,
+          value: response.alertCount?.warning ?? 0,
           status: "warning",
           color: "#f4a62a"
         },
         {
           label: "提示",
-          value: response.alertCount.info,
+          value: response.alertCount?.info ?? 0,
           status: "info",
           color: "#2497df"
         }
       ],
-      messages: response.alertMessages
+      messages: response.alertMessages ?? []
     })
   }),
   "ipavo.clusterCount": createSdkDataSource<
@@ -228,8 +240,8 @@ export const ipavoOverviewDataSources = defineDataSources({
     request: () => ({}),
     call: (request) => IPavo.GetResourceSummary(request),
     transform: (response) => ({
-      clusters: response.clusterItems,
-      nodes: response.nodeCount.total
+      clusters: (response.clusterItems ?? []).map(toClusterItem),
+      nodes: response.nodeCount?.total ?? 0
     })
   }),
   "ipavo.resourceUsage": createSdkDataSource<
@@ -270,59 +282,80 @@ export const ipavoOverviewDataSources = defineDataSources({
     request: () => ({}),
     call: (request) => IPavo.ListProducts(request),
     transform: (response) => ({
-      products: response.items.map((item) => ({
-        title: item.title,
-        icon: item.title.slice(0, 1),
-        features: item.features
-      }))
+      products: (response.items ?? []).map((item, index) => {
+        const title = item.title ?? item.id ?? `Product ${index + 1}`;
+
+        return {
+          title,
+          icon: title.slice(0, 1),
+          features: item.features ?? []
+        };
+      })
     })
   })
 });
 
 function toLineData(
-  history: Array<{ timestamp: number; value: number }>,
+  history: Array<{ timestamp?: string | number; value?: string | number }>,
   readValue: (value: number) => number
 ) {
   return history.map((item) => ({
-    time: new Date(item.timestamp * 1000).toLocaleTimeString("en-US", {
+    time: new Date(toNumber(item.timestamp) * 1000).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false
     }),
-    value: readValue(item.value)
+    value: readValue(toNumber(item.value))
   }));
 }
 
 function toHealthItem(
   label: string,
   icon: string,
-  count: { healthy: number; total: number },
+  count: { healthy?: number; total?: number } | undefined,
   threshold: number
 ) {
-  const healthy = count.total === 0 || count.healthy / count.total > threshold;
+  const total = count?.total ?? 0;
+  const healthyCount = count?.healthy ?? 0;
+  const healthy = total === 0 || healthyCount / total > threshold;
 
   return {
     label,
     icon,
-    healthy: count.healthy,
-    total: count.total,
+    healthy: healthyCount,
+    total,
     status: healthy ? "healthy" as const : "unhealthy" as const
   };
 }
 
 function toUsageItem(
   label: string,
-  usage: { usage: number; total: number },
+  usage: { usage?: number; total?: number } | undefined,
   unit: "bytes" | "core" | "count"
 ) {
-  const percent = usage.total === 0 ? 0 : usage.usage / usage.total;
+  const used = usage?.usage ?? 0;
+  const total = usage?.total ?? 0;
+  const percent = total === 0 ? 0 : used / total;
 
   return {
     label,
     percent,
-    usedLabel: formatUsage(usage.usage, unit),
-    totalLabel: formatUsage(usage.total, unit),
+    usedLabel: formatUsage(used, unit),
+    totalLabel: formatUsage(total, unit),
     color: percent >= 0.8 ? "#dd5250" : percent >= 0.6 ? "#f4b434" : "#43a1e5"
+  };
+}
+
+function toClusterItem(item: {
+  name?: string;
+  provider?: string;
+  clusterFeatures?: string[];
+  features?: string[];
+}) {
+  return {
+    name: item.name ?? "unknown",
+    provider: item.provider ?? "unknown",
+    features: item.clusterFeatures ?? item.features ?? []
   };
 }
 
@@ -339,4 +372,13 @@ function formatUsage(value: number, unit: "bytes" | "core" | "count") {
   }
 
   return String(Math.round(value));
+}
+
+function toNumber(value: string | number | undefined) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }

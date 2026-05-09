@@ -21,6 +21,7 @@
     "@dao-style-viz/ai-dashboard-schema": "workspace:*",
     "@dao-style-viz/ai-dashboard-vue": "workspace:*",
     "@dao-style-viz/ai-dashboard-widgets": "workspace:*",
+    "@daocloud-proto/ipavo": "0.13.0",
     "vue": "3.3.13",
     "zod": "^3.23.8"
   },

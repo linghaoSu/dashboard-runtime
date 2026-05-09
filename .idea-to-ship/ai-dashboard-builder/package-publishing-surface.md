@@ -26,6 +26,8 @@ This preserves the v0.1 release gate boundary: product frontend engineers can ad
 
 Non-publishable workspace projects remain the root workspace, `apps/demo`, `apps/product-integration`, and `playground/playground-ui`.
 
+`apps/product-integration` may include product-owned SDK dependencies such as `@daocloud-proto/ipavo@0.13.0` for pilot verification. Those dependencies are intentionally outside the publishable dashboard package surface and must not leak into `@dao-style-viz/ai-dashboard-*` package dependencies.
+
 ## Build And Pack Order
 
 The package build must respect internal dependencies:
@@ -82,7 +84,7 @@ Results:
 
 - Workspace typecheck passed.
 - Workspace lint passed.
-- Workspace tests passed: 13 files / 69 tests.
+- Workspace tests passed: 18 files / 86 tests.
 - Workspace build passed with the existing ECharts chunk-size warnings in demo and product integration.
 - All seven package tarballs were created under `/tmp/ai-dashboard-packs`.
 - `pnpm pack` rewrote internal `workspace:*` dependencies to `0.1.0` in tarball `package.json` files.

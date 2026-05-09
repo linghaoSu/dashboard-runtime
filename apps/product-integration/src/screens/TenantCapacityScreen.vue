@@ -40,6 +40,20 @@ const activeDataSources = computed(() =>
 const activeValidation = computed(() =>
   dashboardId.value === "ipavo" ? ipavoOverviewValidation : tenantCapacityValidation
 );
+const configErrorMode = computed(() =>
+  import.meta.env.DEV ? "development" : "production"
+);
+const showConfigErrorDetails = computed(() => configErrorMode.value === "development");
+const configErrorTitle = computed(() =>
+  showConfigErrorDetails.value
+    ? "Dashboard config validation failed"
+    : "Dashboard unavailable"
+);
+const configErrorMessage = computed(() =>
+  showConfigErrorDetails.value
+    ? "Fix the DashboardConfig issues below before rendering."
+    : "The dashboard configuration is invalid. Contact the dashboard owner."
+);
 const screenTitle = computed(() =>
   translator.value(
     dashboardId.value === "ipavo"
@@ -90,8 +104,9 @@ const validationIssues = computed(() =>
     </header>
 
     <section v-if="validationIssues.length" class="product-screen__validation">
-      <strong>Dashboard config validation failed</strong>
-      <ul>
+      <strong>{{ configErrorTitle }}</strong>
+      <p>{{ configErrorMessage }}</p>
+      <ul v-if="showConfigErrorDetails">
         <li v-for="issue in validationIssues" :key="issue">{{ issue }}</li>
       </ul>
     </section>
@@ -102,6 +117,7 @@ const validationIssues = computed(() =>
         :widgets="productWidgetRegistry"
         :data-sources="activeDataSources"
         :runtime="runtime"
+        :config-error-mode="configErrorMode"
       />
     </section>
   </main>
@@ -187,6 +203,10 @@ const validationIssues = computed(() =>
   background: rgb(127 29 29 / 22%);
   color: #fecaca;
   padding: 14px;
+}
+
+.product-screen__validation p {
+  margin: 6px 0 0;
 }
 
 .product-screen__validation ul {

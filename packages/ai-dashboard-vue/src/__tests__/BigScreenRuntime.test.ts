@@ -209,12 +209,50 @@ describe("BigScreenRuntime", () => {
     expect(seenLocales).toEqual(["en-US", "zh-CN"]);
     expect(wrapper.find(".count-value").text()).toBe("2");
   });
+
+  it("renders config validation details in development error mode", () => {
+    const wrapper = mountRuntime({
+      config: {
+        version: "1.0.0",
+        widgets: []
+      } as unknown as DashboardConfig,
+      dataSources: {},
+      configErrorMode: "development"
+    });
+
+    expect(wrapper.find(".dao-runtime-error").attributes("role")).toBe("alert");
+    expect(wrapper.find(".dao-runtime-error__title").text()).toBe(
+      "Dashboard config validation failed"
+    );
+    expect(wrapper.find(".dao-runtime-error__details").exists()).toBe(true);
+    expect(wrapper.text()).toContain("canvas");
+  });
+
+  it("hides config validation details in production error mode", () => {
+    const wrapper = mountRuntime({
+      config: {
+        version: "1.0.0",
+        widgets: []
+      } as unknown as DashboardConfig,
+      dataSources: {},
+      configErrorMode: "production"
+    });
+
+    expect(wrapper.find(".dao-runtime-error").attributes("role")).toBe("alert");
+    expect(wrapper.find(".dao-runtime-error__title").text()).toBe("Dashboard unavailable");
+    expect(wrapper.find(".dao-runtime-error__details").exists()).toBe(false);
+    expect(wrapper.text()).toContain(
+      "The dashboard configuration is invalid. Contact the dashboard owner."
+    );
+    expect(wrapper.text()).not.toContain("canvas");
+  });
 });
 
 function mountRuntime(options: {
   config: DashboardConfig;
   dataSources: DataSourceRegistry;
   runtime?: RuntimeInput;
+  configErrorMode?: "development" | "production";
 }) {
   return mount(BigScreenRuntime, {
     props: {
@@ -223,7 +261,8 @@ function mountRuntime(options: {
       widgets,
       runtime: options.runtime ?? {
         locale: "en-US"
-      }
+      },
+      configErrorMode: options.configErrorMode
     }
   });
 }

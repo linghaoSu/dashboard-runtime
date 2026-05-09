@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "baseUrl": "../.."
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]

@@ -58,4 +58,6 @@ Forbidden inputs:
 `mcp-echarts` output is review evidence. The generator may store preview artifacts and validation feedback, but the final checked-in or published artifact must still be one of:
 
 - A schema-valid `DashboardConfig` plus dashboard locale JSON resources.
-- A generated chart widget package that passes typecheck, lint, AST safety scan, dependency allowlist, bundle build, sandbox preview, and human approval.
+- A generated chart widget package that passes typecheck, lint, AST safety scan, dependency allowlist, bundle build, CSP/origin/session-bound sandbox preview, and human approval.
+
+The chart extension promotion flow is documented in `.idea-to-ship/ai-dashboard-builder/chart-extension-promotion-flow.md`.

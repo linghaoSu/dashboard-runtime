@@ -688,7 +688,7 @@
 - product app typecheck/lint/test/build: ok — package-local checks passed
 - typecheck: ok — `pnpm -r --if-present typecheck`
 - lint: ok — `pnpm -r --if-present lint`
-- tests: ok — `pnpm -r --if-present test` ran 13 files / 59 tests, 0 failed
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
 - build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo and product integration apps
 - whitespace: ok — `git diff --check`
 - dev server: started — `http://127.0.0.1:5174/`
@@ -718,7 +718,7 @@
 - product integration test: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 1 file / 5 tests, 0 failed
 - typecheck: ok — `pnpm -r --if-present typecheck`
 - lint: ok — `pnpm -r --if-present lint`
-- tests: ok — `pnpm -r --if-present test` ran 13 files / 62 tests, 0 failed
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
 - build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo and product integration apps
 - playground build: ok — `pnpm --dir playground/playground-ui run build` with existing `input-placeholder` pseudo-class warnings
 - whitespace: ok — `git diff --check`
@@ -775,7 +775,7 @@
 - product integration test: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 1 file / 5 tests
 - typecheck: ok — `pnpm -r --if-present typecheck`
 - lint: ok — `pnpm -r --if-present lint`
-- tests: ok — `pnpm -r --if-present test` ran 13 files / 67 tests, 0 failed
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
 - build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`822.33 kB`) and product integration (`888.75 kB`) apps
 - whitespace: ok — `git diff --check`
 
@@ -810,16 +810,234 @@
 
 - product typecheck: ok — `pnpm --filter @dao-style-viz/product-integration-example typecheck`
 - product lint: ok — `pnpm --filter @dao-style-viz/product-integration-example lint`
-- product tests: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 1 file / 7 tests, 0 failed
-- product build: ok — `pnpm --filter @dao-style-viz/product-integration-example build` with expected ECharts bundle-size warning, now `907.66 kB`
+- product tests: ok — latest `pnpm --filter @dao-style-viz/product-integration-example test` rerun covered 6 files / 19 tests, 0 failed
+- product build: ok — `pnpm --filter @dao-style-viz/product-integration-example build` with expected ECharts bundle-size warning, now `909.69 kB`
 - Vue runtime typecheck: ok — `pnpm --filter @dao-style-viz/ai-dashboard-vue typecheck`
 - ECharts widget typecheck/test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue typecheck`; `pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue test`
 - typecheck: ok — `pnpm -r --if-present typecheck`
 - lint: ok — `pnpm -r --if-present lint`
-- tests: ok — `pnpm -r --if-present test` ran 13 files / 69 tests, 0 failed
-- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`823.47 kB`) and product integration (`907.66 kB`) apps
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`823.47 kB`) and product integration (`909.69 kB`) apps
 - whitespace: ok — `git diff --check`
 - dev server: started — `http://127.0.0.1:5174/`
+
+## Post-Stage Config Error UX Contract Follow-up
+
+**Completed:** 2026-05-09 16:46 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-004
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/config-error-ux-contract.md` — locks the v0.1 hybrid config-error UX contract.
+- `packages/ai-dashboard-vue/src/BigScreenRuntime.vue` — adds `configErrorMode`, `configErrorTitle`, and `configErrorMessage` props; development mode renders schema issue details, production mode hides them.
+- `packages/ai-dashboard-vue/src/__tests__/BigScreenRuntime.test.ts` — adds runtime coverage for development detail rendering and production detail redaction.
+- `apps/product-integration/src/screens/TenantCapacityScreen.vue` — applies the same development/production split to the product host validation gate and passes the mode into the runtime.
+- `docs/ai-dashboard-v0.1-adoption.md` — documents the host/runtime validation behavior and links the contract.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md`, `.idea-to-ship/ai-dashboard-builder/release-gate.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md` — update status and verification evidence.
+
+### Decisions made
+
+- Use a hybrid contract: product hosts validate before rendering and own production copy; runtime keeps a fallback in case invalid config reaches the adapter.
+- Show Zod issue paths/messages only in development mode.
+- Treat production exposure of raw validation details, SDK details, backend URLs, or auth material as a no-go condition.
+
+### Verification
+
+- Vue runtime typecheck: ok — `pnpm --filter @dao-style-viz/ai-dashboard-vue typecheck`
+- Vue runtime tests: ok — `pnpm --filter @dao-style-viz/ai-dashboard-vue test` ran 1 file / 4 tests, 0 failed
+- product typecheck: ok — `pnpm --filter @dao-style-viz/product-integration-example typecheck`
+- product lint: ok — `pnpm --filter @dao-style-viz/product-integration-example lint`
+- product tests: ok — latest `pnpm --filter @dao-style-viz/product-integration-example test` rerun covered 6 files / 19 tests, 0 failed
+- product build: ok — `pnpm --filter @dao-style-viz/product-integration-example build` with expected ECharts bundle-size warning, now `909.69 kB`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`824.27 kB`) and product integration (`909.69 kB`) apps
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Performance And Bundle Budget Follow-up
+
+**Completed:** 2026-05-09 16:52 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-007
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/performance-bundle-budget.md` — defines v0.1 hard ceilings, current evidence, runtime assumptions, no-go conditions, and post-v0.1 optimization follow-ups.
+- `scripts/check-bundle-budget.mjs` — checks built demo/product app assets and core library bundles against v0.1 budgets.
+- `package.json` — adds `pnpm run check:bundle-budget`.
+- `docs/ai-dashboard-v0.1-adoption.md` — points adopters at the budget check and clarifies that ECharts warnings are accepted only while the budget passes.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md`, `.idea-to-ship/ai-dashboard-builder/release-gate.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md` — update ITS-007 status and release-gate evidence.
+
+### Decisions made
+
+- Keep current eager widget/ECharts imports for v0.1, but cap demo and product integration total JS assets at 950 KiB raw.
+- Treat Vite's default `>500 kB` warning as accepted only for internal v0.1 and only while the explicit budget check passes.
+- Defer lazy loading and browser render metrics until after product pilot and generator workflow contracts are stable.
+
+### Verification
+
+- budget check: ok — `pnpm run check:bundle-budget`
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Generated Chart Preview Security Follow-up
+
+**Completed:** 2026-05-09 17:05 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-005
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/generated-chart-preview-security-policy.md` — documents iframe sandbox attributes, CSP, origin/session/message validation, and preview no-go conditions.
+- `packages/ai-dashboard-sandbox/src/preview-contract.ts` — adds CSP, disallowed sandbox attributes, origin policy, session-bound messages, render-message creation, and validated message parsing.
+- `packages/ai-dashboard-sandbox/src/gate.ts` — lets callers pass preview origin/session options into generated chart package validation.
+- `packages/ai-dashboard-sandbox/src/__tests__/sandbox.test.ts` — adds preview security regression coverage.
+- `docs/mcp-echarts.md` — clarifies that generated chart preview evidence must pass CSP/origin/session-bound sandbox preview before approval.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md` — update ITS-005 status and evidence.
+
+### Decisions made
+
+- Keep generated chart registration disabled unless the approval gate receives passing validation, hook results, preview result, and human approval.
+- Require sandboxed preview iframes to use only `allow-scripts`; `allow-same-origin` is explicitly disallowed.
+- Require postMessage validation to check `event.origin`, session ID, and widget type, not only message shape.
+- Block preview network access by default through CSP `connect-src 'none'`.
+
+### Verification
+
+- sandbox typecheck: ok — `pnpm --filter @dao-style-viz/ai-dashboard-sandbox typecheck`
+- sandbox lint: ok — `pnpm --filter @dao-style-viz/ai-dashboard-sandbox lint`
+- sandbox tests: ok — `pnpm --filter @dao-style-viz/ai-dashboard-sandbox test` ran 1 file / 15 tests, 0 failed
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`824.27 kB`) and product integration (`909.69 kB`) apps
+- budget check: ok — `pnpm run check:bundle-budget`
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Playground Host Integration Follow-up
+
+**Completed:** 2026-05-09 17:09 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-009
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/playground-host-integration.md` — records the v0.1 decision to keep `playground/playground-ui` as a standalone DaoStyle host reference, not the canonical dashboard wiring example.
+- `docs/ai-dashboard-v0.1-adoption.md` — points product adopters to `apps/product-integration` for dashboard wiring and the playground artifact for host-shape evidence.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md`, `.idea-to-ship/ai-dashboard-builder/release-gate.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md` — update ITS-009 status and release evidence.
+
+### Decisions made
+
+- Do not wire dashboard runtime into the full-template playground for v0.1.
+- Keep `apps/product-integration` as the canonical dashboard integration surface because it participates in root verification.
+- Keep the playground outside the root pnpm workspace to preserve standalone generated-host behavior.
+
+### Verification
+
+- playground build: ok — `pnpm --dir playground/playground-ui run build` with known `input-placeholder` generated CSS warnings and largest JS chunk `576.9 kB`
+
+## Post-Stage Workbench Agent Bridge Architecture Follow-up
+
+**Completed:** 2026-05-09 17:11 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-011
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/workbench-agent-bridge-architecture.md` — defines the manager workbench UI areas, local agent bridge protocol, approval checkpoints, permission model, storage boundaries, and deferred implementation choices.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — marks ITS-011 complete as an architecture artifact.
+
+### Decisions made
+
+- The manager-facing workbench must orchestrate a user-controlled local agent instead of hosting its own LLM loop.
+- File writes and commands require explicit approval and allowlisting.
+- Backend proxy credentials are never passed to the agent; the workbench can expose only redacted proxy status.
+
+### Verification
+
+- artifact review: ok — architecture covers chat flow, plan review, preview, edit controls, validation, bridge protocol, approval checkpoints, and token/file-write boundaries.
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Backend Proxy Credential Contract Follow-up
+
+**Completed:** 2026-05-09 17:12 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-012
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/backend-proxy-credential-contract.md` — defines local and future workbench proxy credential boundaries.
+- `apps/product-integration/src/proxy-config.ts` — extracts testable `/apis` proxy config with URL parsing, optional host allowlist, JWT header injection, and redacted diagnostics.
+- `apps/product-integration/src/__tests__/proxy-config.test.ts` — covers fake backend/JWT header injection, scheme rejection, allowlist rejection, and redaction.
+- `apps/product-integration/vite.config.ts` — uses the shared proxy config helper.
+- `docs/ai-dashboard-v0.1-adoption.md` — documents `PRODUCT_API_ALLOWED_HOSTS` and links the credential contract.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — marks ITS-012 complete.
+
+### Decisions made
+
+- Backend URL and JWT stay in the server-side proxy boundary, never in DashboardConfig, prompt payloads, catalogs, or local agent tasks.
+- Local Vite preview uses environment variables; future shared workbench previews must add owner-managed allowlists, expiration, audit logs, rate limits, and response redaction.
+- Diagnostics expose only redacted proxy status.
+
+### Verification
+
+- product tests: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 6 files / 19 tests, 0 failed
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`824.27 kB`) and product integration (`909.69 kB`) apps
+- budget check: ok — `pnpm run check:bundle-budget`
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Chart Extension Promotion Flow Follow-up
+
+**Completed:** 2026-05-09 17:14 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-013
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/chart-extension-promotion-flow.md` — defines chart candidate discovery, generated widget package creation, sandbox validation, hook/preview/human approval, promotion states, and no-go conditions.
+- `docs/mcp-echarts.md` — links `mcp-echarts` output to the chart extension promotion flow.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — marks ITS-013 complete as a workflow artifact.
+
+### Decisions made
+
+- Chart extension UI is post-v0.1, but the promotion workflow is now explicit.
+- Generated widgets remain disabled by default and require validation, hooks, secure preview, and approval before registration.
+- Any eager bundle inclusion of generated widgets requires a bundle-budget decision.
+
+### Verification
+
+- artifact review: ok — workflow maps missing capabilities to generated package, sandbox gate, secure preview, approval, and registry promotion.
+- tests: ok — `pnpm -r --if-present test` ran 18 files / 86 tests, 0 failed
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Generator Execution Path Follow-up
+
+**Completed:** 2026-05-09 16:57 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-006
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/generator-execution-path.md` — chooses the v0.1 local-agent-assisted generation workflow and records validation/no-go gates.
+- `.idea-to-ship/ai-dashboard-builder/generator-sample-plan.json` — adds a sample DashboardPlan for the ipavo reference dashboard.
+- `packages/ai-dashboard-ai-catalog/src/prompt-templates.ts` — adds prompt constraints blocking backend URLs, auth tokens, cookies, SDK source, and raw production responses.
+- `packages/ai-dashboard-ai-catalog/src/__tests__/catalog.test.ts` — adds regression coverage for the prompt safety contract.
+- `docs/ai-dashboard-v0.1-adoption.md` — documents the local Codex/OpenCode-style generation path for v0.1 adopters.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md`, `.idea-to-ship/ai-dashboard-builder/release-gate.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md` — update ITS-006 status and verification evidence.
+
+### Decisions made
+
+- v0.1 uses a local-agent-assisted file workflow. The platform does not create, host, or key-manage an LLM runtime.
+- The required sequence is plan -> human approval -> DashboardConfig plus locale resources -> `validateDashboardConfig` -> product checks -> bundle budget.
+- The manager-facing web workbench and local agent bridge remain later work under ITS-ai-dashboard-builder-011.
+
+### Verification
+
+- AI catalog typecheck: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog typecheck`
+- AI catalog lint: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog lint`
+- AI catalog test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` ran 1 file / 9 tests, 0 failed
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`824.27 kB`) and product integration (`909.69 kB`) apps
+- budget check: ok — `pnpm run check:bundle-budget`
+- whitespace: ok — `git diff --check`
 
 ## Post-Stage Package Publishing Surface Follow-up
 
@@ -848,6 +1066,156 @@
 - package contents: ok — widgets tarball no longer includes nested declaration copies from schema/runtime/vue packages
 - typecheck: ok — `pnpm -r --if-present typecheck`
 - lint: ok — `pnpm -r --if-present lint`
-- tests: ok — `pnpm -r --if-present test` ran 13 files / 69 tests, 0 failed
-- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`823.47 kB`) and product integration (`907.66 kB`) apps
+- tests: ok — latest `pnpm -r --if-present test` rerun covered 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`823.47 kB`) and product integration (`909.69 kB`) apps
+- whitespace: ok — `git diff --check`
+
+## Completion Audit And Real SDK Calibration Follow-up
+
+**Completed:** 2026-05-09 17:55 CST
+**Roadmap Items:** ITS-ai-dashboard-builder-003 and overall roadmap audit
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/completion-audit.md` — maps every current roadmap/user requirement to concrete evidence and records the remaining live pilot blocker.
+- `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md` — records the actual reference package `@daocloud-proto/ipavo@0.13.0` and generated SDK integration details.
+- `.idea-to-ship/ai-dashboard-builder/live-pilot-input-request.md` — records the exact product-owner inputs and local commands needed to close the live backend/JWT pilot without committing secrets.
+- `scripts/check-ipavo-live-pilot.mjs` — adds an executable preflight for the remaining real ipavo pilot inputs without printing token values.
+- `package.json` — adds `check:ipavo-live-pilot`.
+- `apps/product-integration/package.json`, `pnpm-lock.yaml` — add the real `@daocloud-proto/ipavo@0.13.0` SDK dependency to the product integration example.
+- `apps/product-integration/.env.example` — documents local live-preview proxy env names and optional ipavo smoke endpoint path overrides without committing real backend URL/JWT values.
+- `scripts/check-ipavo-live-backend.mjs` — adds an opt-in live backend smoke that validates ipavo status/shape without printing token or response bodies; endpoint overrides are path-only and cannot bypass the host allowlist.
+- `package.json` — adds `check:ipavo-live-backend`.
+- `apps/product-integration/src/product-sdk/ipavo-live-contract.ts` — verifies real SDK import paths, expected static `IPavo` methods, and generated `displayType` values without calling the backend.
+- `apps/product-integration/src/__tests__/ipavo-live-contract.test.ts` — covers the live SDK import contract.
+- `apps/product-integration/src/__tests__/ipavo-live-backend-script.test.ts` — covers live backend smoke preflight failures without network access or token leakage.
+- `apps/product-integration/src/__tests__/ipavo-live-pilot-script.test.ts` — covers the SDK/env preflight success and failure paths without token leakage.
+- `apps/product-integration/tsconfig.json` — includes Node test types for the script-level smoke tests.
+- `docs/ai-dashboard-v0.1-adoption.md`, `.idea-to-ship/ai-dashboard-builder/package-publishing-surface.md` — clarify that product SDK packages are product-owned app dependencies, not dashboard platform package dependencies.
+- `apps/product-integration/src/product-sdk/generated/ipavo-overview.ts` — calibrates the local ipavo SDK fixture toward the real generated package shape: optional response fields, string sample pairs, generated `displayType`, static `IPavo` service methods.
+- `apps/product-integration/src/data-sources/ipavo-overview.ts` — normalizes real generated DTO shapes into stable widget schemas and guards optional SDK response fields.
+- `.idea-to-ship/ai-dashboard-builder/performance-bundle-budget.md`, `.idea-to-ship/ai-dashboard-builder/release-gate.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md` — refresh current build/budget evidence after the calibration.
+
+### Decisions made
+
+- Keep `@daocloud-proto/ipavo` as a product app dependency only; dashboard platform packages must not depend on product SDK packages.
+- Use the installed product SDK package for preflight evidence, but keep current tests backed by a local fixture until backend/JWT values are available.
+- Keep the active goal open because backend URL/JWT execution remains externally blocked.
+- Treat `pnpm run check:ipavo-live-pilot` as the explicit blocker check for the live pilot; it is expected to fail until backend URL, JWT, and allowlist values are provided.
+- Treat `pnpm run check:ipavo-live-backend` as the opt-in backend smoke once those values exist; it must not print token values or response bodies.
+- Allow `PRODUCT_IPAVO_VERSION_PATH` and `PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH` for product-specific endpoint mappings, but only as path values so `PRODUCT_API_ALLOWED_HOSTS` remains authoritative.
+
+### Verification
+
+- reference inspection: ok — `/Users/sulinghao/workspaces/dce5/ipavo-ui/package.json` pins `@daocloud-proto/ipavo` to `0.13.0`
+- preflight syntax: ok — `node --check scripts/check-ipavo-live-pilot.mjs`
+- live backend smoke syntax: ok — `node --check scripts/check-ipavo-live-backend.mjs`
+- live pilot preflight: blocked as expected — `pnpm run check:ipavo-live-pilot` passes the `@daocloud-proto/ipavo@0.13.0` package check and fails because `PRODUCT_API_URL`, `PRODUCT_AUTH_TOKEN`, and `PRODUCT_API_ALLOWED_HOSTS` are missing in this workspace
+- live backend smoke: blocked as expected — `pnpm run check:ipavo-live-backend` stops before network because `PRODUCT_API_URL` is not configured
+- live backend endpoint guard: ok — `PRODUCT_IPAVO_VERSION_PATH=https://evil.example pnpm run check:ipavo-live-backend` fails before network because endpoint overrides must be backend paths, not URLs
+- live backend timeout guard: ok — `PRODUCT_API_TIMEOUT_MS=0 pnpm run check:ipavo-live-backend` fails before network because timeout must be positive
+- secret scan: ok — working-tree scan reported one likely false-positive redacted diagnostic assignment in `apps/product-integration/src/proxy-config.ts`; no confirmed leak
+- product typecheck: ok — `pnpm --filter @dao-style-viz/product-integration-example typecheck`
+- product lint: ok — `pnpm --filter @dao-style-viz/product-integration-example lint`
+- product tests: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 6 files / 19 tests, 0 failed
+- product build: ok — `pnpm --filter @dao-style-viz/product-integration-example build` with expected ECharts bundle-size warning, now `909.69 kB`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`824.27 kB`) and product integration (`909.69 kB`) apps
+- budget check: ok — `pnpm run check:bundle-budget`
+- whitespace: ok — `git diff --check`
+
+## Workbench Layout And Palette Follow-up
+
+**Completed:** 2026-05-09 18:05 CST
+**Roadmap Items:** ITS-ai-dashboard-builder-011, ITS-ai-dashboard-builder-003, and layout/palette design evidence
+
+### Files touched
+
+- `docs/design.md` — adds the ipavo-style product console slot pattern and `ipavo-console-light` prebuilt palette.
+- `packages/ai-dashboard-ai-catalog/src/create-layout-catalog.ts` — exports the `ipavo-console-overview` layout preset matching the reference screenshot structure.
+- `packages/ai-dashboard-ai-catalog/src/create-theme-catalog.ts` — exports the `ipavo-console-light` palette as a light product-console alternate.
+- `packages/ai-dashboard-ai-catalog/src/__tests__/catalog.test.ts` — verifies the ipavo layout preset and palette are present in JSON-safe catalog output.
+- `apps/product-integration/src/dashboards/ipavo-overview.ts` — switches the dashboard-level chart palette to the 8-color light-console palette while keeping local chart overrides.
+- `.idea-to-ship/ai-dashboard-builder/workbench-agent-bridge-architecture.md` — records the catalog-sufficient and chart-extension workbench modes.
+
+### Decisions made
+
+- Treat `docs/design.md` as the design evidence source for generated layouts and palettes.
+- Keep layout presets as catalog metadata, not hardcoded prompt prose, so the future workbench can expose them in UI controls.
+- Use a global palette by default and reserve `props.palette` for deliberate per-chart overrides such as the compact CPU/memory trend cards.
+
+### Verification
+
+- catalog typecheck: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog typecheck`
+- catalog lint: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog lint`
+- catalog tests: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` ran 1 file / 9 tests
+- product typecheck: ok — `pnpm --filter @dao-style-viz/product-integration-example typecheck`
+- product lint: ok — `pnpm --filter @dao-style-viz/product-integration-example lint`
+- product tests: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 6 files / 19 tests
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 18 files / 86 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`824.27 kB`) and product integration (`909.69 kB`) apps
+- budget check: ok — `pnpm run check:bundle-budget`
+- live pilot preflight: blocked as expected — `pnpm run check:ipavo-live-pilot` still requires real backend URL, JWT, and allowlist
+- live backend smoke: blocked as expected — `pnpm run check:ipavo-live-backend` stops before network because `PRODUCT_API_URL` is missing
+- local preview health: ok — product integration dev server returned HTTP 200 during verification and was stopped afterward
+- secret scan: false positive only — working-tree scan reports the redacted `PRODUCT_AUTH_TOKEN` diagnostic assignment in `proxy-config.ts`; no confirmed secret leak
+- whitespace: ok — `git diff --check`
+
+## Completion Audit Refresh
+
+**Completed:** 2026-05-09 19:01 CST
+**Roadmap Items:** Full-roadmap completion audit
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/completion-audit.md` — refreshes the audit timestamp and records that the roadmap completion gate now covers markdown/source auth-material safety.
+- `.idea-to-ship/ai-dashboard-builder/test-plan.md` — corrects the product proxy/live-SDK regression count to 12 listed checks.
+
+### Verification
+
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 18 files / 86 tests, 0 failed
+- completion gate: blocked as expected — `pnpm run check:roadmap-completion` passes 21 artifact checks, 24 markdown auth-material checks, 5 source auth-material checks, and fails only on the ITS-003 live ipavo pilot/backend gates
+- budget check: ok — `pnpm run check:bundle-budget`
+- secret scan: false positive only — working-tree scan reports the redacted `PRODUCT_AUTH_TOKEN` diagnostic assignment in `proxy-config.ts`; no confirmed secret leak
+- whitespace: ok — `git diff --check`
+
+## Roadmap Completion Gate Follow-up
+
+**Completed:** 2026-05-09 18:35 CST
+**Roadmap Items:** ITS-ai-dashboard-builder-003 and full-roadmap completion audit
+
+### Files touched
+
+- `scripts/check-roadmap-completion.mjs` — checks required roadmap artifacts, key source/test files, root package scripts, product SDK dependency, live env example placeholder values, external blocker register structure/status, evidence freshness, markdown/source auth-material safety, audit verdict consistency, and then runs the live ipavo pilot/backend gates.
+- `package.json` — adds `check:roadmap-completion`.
+- `apps/product-integration/src/__tests__/roadmap-completion-script.test.ts` — verifies the completion gate passes artifact/source/script/product-SDK/env-example placeholder/external-blocker/status/evidence-freshness/markdown-and-source auth-material/audit-verdict surface checks and remains blocked on live ipavo env without token leakage.
+- `.idea-to-ship/ai-dashboard-builder/external-blockers.md` — records EB-001 through EB-005 as the owner/status handoff for live backend inputs, final GO, release-candidate cleanliness, registry publishing, and post-v0.1 workbench/chart-browser UI.
+- `.idea-to-ship/ai-dashboard-builder/release-gate.md`, `.idea-to-ship/ai-dashboard-builder/test-plan.md`, `.idea-to-ship/ai-dashboard-builder/completion-audit.md`, `.idea-to-ship/ai-dashboard-builder/roadmap.md` — record the executable completion gate and current blocked status.
+
+### Decisions made
+
+- Keep `pnpm run check:roadmap-completion` separate from the v0.1 internal source release gate because it is stricter: it requires the live ipavo backend/JWT run unless the roadmap is explicitly revised.
+- Do not print child live-check output from the completion gate; failed checks tell the operator which script to rerun, preserving the existing redaction behavior.
+- Keep `completion-audit.md` verdict consistency inside the gate: while live gates are blocked, the audit must remain open; after live gates pass, a stale `Not complete` verdict must block completion.
+- Track remaining non-code holds in `external-blockers.md` rather than scattering owner/status details across release gate, audit, and live input docs.
+
+### Verification
+
+- evidence freshness: ok — stale test-count evidence search covers all roadmap markdown artifacts and has no matches outside the completion-gate guard patterns
+- completion gate syntax: ok — `node --check scripts/check-roadmap-completion.mjs`
+- completion gate: blocked as expected — `pnpm run check:roadmap-completion` passes artifact/source/package-script/product-SDK/env-example placeholder/external-blocker/status/evidence-freshness/markdown-and-source auth-material/audit-verdict checks and fails only on the ITS-003 live ipavo pilot/backend gates
+- product typecheck: ok — `pnpm --filter @dao-style-viz/product-integration-example typecheck`
+- product lint: ok — `pnpm --filter @dao-style-viz/product-integration-example lint`
+- product tests: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 6 files / 19 tests
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 18 files / 86 tests, 0 failed
+- budget check: ok — `pnpm run check:bundle-budget`
+- secret scan: false positive only — working-tree scan reports the redacted `PRODUCT_AUTH_TOKEN` diagnostic assignment in `proxy-config.ts`; no confirmed secret leak
 - whitespace: ok — `git diff --check`

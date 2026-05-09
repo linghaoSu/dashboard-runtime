@@ -58,6 +58,9 @@ export type GeneratedChartGateResult = {
 export type GeneratedChartGateOptions = DependencyAllowlistOptions &
   AstSafetyScanOptions & {
     packageDir?: string;
+    previewParentOrigin?: string;
+    previewOrigin?: string;
+    previewSessionId?: string;
   };
 
 export function validateGeneratedChartPackage(
@@ -107,7 +110,12 @@ export function validateGeneratedChartPackage(
         ? undefined
         : createGeneratedChartPreviewContract(
             generatedPackage.manifest,
-            sampleDataResult.data
+            sampleDataResult.data,
+            {
+              parentOrigin: options.previewParentOrigin,
+              previewOrigin: options.previewOrigin,
+              sessionId: options.previewSessionId
+            }
           )
   };
 }
