@@ -11,7 +11,7 @@
 - [x] Stage 4 — AI Catalog + Config Validation Gate
 - [x] Stage 5 — Runtime Event + Refresh Hardening
 - [x] Stage 6 — Chart + Basic Widget Coverage
-- [ ] Stage 7 — Generated Chart Sandbox Gate
+- [x] Stage 7 — Generated Chart Sandbox Gate
 - [ ] Stage 8 — Product Integration Example
 
 ## Stage 1 Pre-Stage Notes
@@ -552,5 +552,75 @@
 - typecheck: ok — `pnpm -r --if-present typecheck`
 - lint: ok — `pnpm -r --if-present lint`
 - tests: ok — `pnpm -r --if-present test` ran 11 files / 42 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
+- whitespace: ok — `git diff --check`
+
+## Stage 7 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 6 is complete and the worktree is clean before Stage 7 starts.
+- `packages/ai-dashboard-sandbox` does not exist yet.
+- The architecture calls for a generated chart package schema, dependency allowlist, AST safety scan, type/lint/build hooks, iframe preview contract, fixture tests, and a disabled-by-default generated registry.
+- The open architecture questions still defer exact CSP and UI-hosted `postMessage` details. Stage 7 should therefore define a preview contract and gate helpers, not build a full management UI.
+
+### Assumptions
+
+- Add `@dao-style-viz/ai-dashboard-sandbox` as a framework-neutral TypeScript package. It validates generated Vue chart package artifacts but does not render them in the main runtime.
+- Represent generated chart files as an in-memory file map for the gate. This keeps tests deterministic and avoids executing arbitrary generated code.
+- Implement AST scanning with the existing TypeScript compiler API instead of adding a new parser dependency.
+- Treat typecheck, lint, and bundle build as hook command contracts plus result aggregation. Stage 7 defines the commands and validation result shape; a host/CLI can execute them in a controlled process.
+- Keep the generated widget registry disabled by default. A caller must explicitly pass human approval and a completed approval-gate result before generated widgets are exposed.
+- Define iframe preview as a serializable contract with sandbox attributes, sample data, and a strict message envelope. Exact CSP strings and UI wiring remain product-host decisions.
+
+## Stage 7 — Generated Chart Sandbox Gate
+
+**Completed:** 2026-05-09 13:23 CST
+
+### Files touched
+
+- `packages/ai-dashboard-sandbox/package.json` — adds the sandbox package scripts and runtime dependencies.
+- `packages/ai-dashboard-sandbox/tsconfig.json`, `packages/ai-dashboard-sandbox/tsconfig.build.json` — add package typecheck/build config.
+- `packages/ai-dashboard-sandbox/src/schemas.ts` — defines strict generated chart manifest, package.json, file map, and package Zod schemas.
+- `packages/ai-dashboard-sandbox/src/dependency-allowlist.ts` — checks manifest/package dependencies against an explicit allowlist.
+- `packages/ai-dashboard-sandbox/src/ast-scan.ts` — scans generated TypeScript, Vue script blocks, and Vue template expressions for forbidden imports, dynamic import, and forbidden browser/network APIs.
+- `packages/ai-dashboard-sandbox/src/hooks.ts` — defines typecheck, lint, and bundle build hook command contracts plus result aggregation.
+- `packages/ai-dashboard-sandbox/src/preview-contract.ts` — defines iframe preview sandbox attributes and strict preview message schemas.
+- `packages/ai-dashboard-sandbox/src/gate.ts` — combines schema validation, required-file checks, dependency scan, AST scan, hook plan creation, and preview contract generation.
+- `packages/ai-dashboard-sandbox/src/generated-registry.ts` — adds a disabled-by-default generated widget registry gate requiring validation and approval.
+- `packages/ai-dashboard-sandbox/src/__tests__/sandbox.test.ts` — covers allowed and blocked generated chart fixtures, hook/preview contracts, and registry approval behavior.
+- `packages/ai-dashboard-sandbox/src/index.ts` — exports the sandbox package API.
+- `tsconfig.base.json` — adds the sandbox package path alias.
+- `pnpm-lock.yaml` — records the new workspace package.
+- `.idea-to-ship/ai-dashboard-builder/implementation-log.md` — records Stage 7 assumptions and completion.
+
+### Decisions made during implementation
+
+- Keep validation in-process and deterministic. The gate accepts an in-memory generated package file map and does not execute arbitrary generated code.
+- Use TypeScript's compiler API for AST safety scanning. This avoids adding a parser dependency and supports `.ts` plus Vue SFC script blocks.
+- Scan Vue template expressions as generated code too. Template event handlers and bindings can execute browser/network APIs just like `<script>` blocks.
+- Keep generated package schemas strict so lifecycle scripts such as `postinstall` fail validation instead of being silently stripped.
+- Allow subpath imports from allowlisted packages, such as `echarts/charts`, by normalizing imports to package names before checking the allowlist.
+- Reject generated package `devDependencies` by default. The host sandbox should supply toolchain binaries instead of letting generated packages choose arbitrary tooling.
+- Represent typecheck, lint, and build as command hooks, not direct subprocess execution. This keeps the package usable from either a CLI or a management UI host.
+- Keep generated widget registration opt-in. Disabled returns an empty registry; enabled registration requires explicit human approval, a passing validation gate, and a completed approval-gate result that includes hook and preview status.
+
+### Deviations from architecture.md
+
+- Stage 7 defines an iframe preview contract and message envelope but does not implement a concrete preview frame UI. The architecture's CSP and `postMessage` protocol details are still open questions, so the product host should own the final UI wiring.
+- Stage 7 defines type/lint/build hooks but does not execute them inside `validateGeneratedChartPackage`. Hook execution must happen in a controlled host/CLI process and feed results into `evaluateGeneratedChartApprovalGate`.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- Exact CSP policy, preview origin checks, and management UI review flow remain undecided architecture questions.
+- The demo production build still emits the expected ECharts bundle-size warning at about `821.42 kB` for the main JS chunk.
+
+### Verification
+
+- install: ok — `pnpm install`
+- sandbox typecheck/lint/test/build: ok — package-local checks passed
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 12 files / 55 tests, 0 failed
 - build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
 - whitespace: ok — `git diff --check`

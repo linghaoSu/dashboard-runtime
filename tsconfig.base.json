@@ -34,6 +34,9 @@
       ],
       "@dao-style-viz/ai-dashboard-ai-catalog": [
         "packages/ai-dashboard-ai-catalog/src/index.ts"
+      ],
+      "@dao-style-viz/ai-dashboard-sandbox": [
+        "packages/ai-dashboard-sandbox/src/index.ts"
       ]
     }
   }
