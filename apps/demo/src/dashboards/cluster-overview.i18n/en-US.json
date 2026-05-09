@@ -1,0 +1,16 @@
+{
+  "dashboard": {
+    "clusterOverview": {
+      "name": "Cluster Overview",
+      "widget": {
+        "cpuUsage": {
+          "title": "CPU Usage"
+        }
+      },
+      "state": {
+        "empty": "No data",
+        "error": "Failed to load"
+      }
+    }
+  }
+}

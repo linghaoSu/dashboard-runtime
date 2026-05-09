@@ -36,7 +36,7 @@ export const clusterOverviewDashboard: DashboardConfig = {
       id: "cpu-usage",
       type: "GaugeChart",
       title: {
-        key: "widget.cpuUsage.title",
+        key: "dashboard.clusterOverview.widget.cpuUsage.title",
         defaultMessage: "CPU Usage"
       },
       layout: { x: 40, y: 40, w: 360, h: 220 },
@@ -61,7 +61,7 @@ export const clusterOverviewDashboard: DashboardConfig = {
       id: "pod-status",
       type: "DonutChart",
       title: {
-        key: "widget.podStatus.title",
+        key: "dashboard.clusterOverview.widget.podStatus.title",
         defaultMessage: "Pod Status"
       },
       layout: { x: 420, y: 40, w: 360, h: 220 },

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createTranslator } from "@dao-style-viz/ai-dashboard-runtime";
 import { BigScreenRuntime } from "@dao-style-viz/ai-dashboard-vue";
 import { computed, ref } from "vue";
 import { clusterDataSources } from "./data-sources/cluster";
@@ -16,24 +17,18 @@ const runtime = computed(() => ({
       clusterId: "demo-cluster"
     }
   },
-  messages,
-  t(key: string, values?: Record<string, unknown>) {
-    const message = messages[locale.value]?.[key] ?? messages["en-US"]?.[key] ?? key;
-    if (!values) {
-      return message;
-    }
-
-    return message.replace(/\{([^}]+)\}/g, (_, token: string) =>
-      values[token] === undefined ? `{${token}}` : String(values[token])
-    );
-  }
+  messages
 }));
+
+const title = computed(() =>
+  createTranslator(runtime.value)("dashboard.clusterOverview.name")
+);
 </script>
 
 <template>
   <main class="demo-page">
     <header class="demo-toolbar">
-      <strong>{{ runtime.t("dashboard.clusterOverview.name") }}</strong>
+      <strong>{{ title }}</strong>
       <button type="button" @click="locale = locale === 'en-US' ? 'zh-CN' : 'en-US'">
         {{ locale }}
       </button>

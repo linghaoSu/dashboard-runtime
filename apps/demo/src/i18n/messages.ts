@@ -1,14 +1,23 @@
-export const messages: Record<string, Record<string, string>> = {
+import {
+  mergeLocaleMessages,
+  type LocaleMessages
+} from "@dao-style-viz/ai-dashboard-runtime";
+import { clusterOverviewMessages } from "../dashboards/cluster-overview.i18n";
+
+const projectMessages: LocaleMessages = {
   "en-US": {
-    "dashboard.clusterOverview.name": "Cluster Overview",
-    "widget.cpuUsage.title": "CPU Usage",
-    "state.empty": "No data",
-    "state.error": "Failed to load"
+    app: {
+      name: "AI Dashboard Demo"
+    }
   },
   "zh-CN": {
-    "dashboard.clusterOverview.name": "集群概览",
-    "widget.cpuUsage.title": "CPU 使用率",
-    "state.empty": "暂无数据",
-    "state.error": "加载失败"
+    app: {
+      name: "AI 大屏演示"
+    }
   }
 };
+
+export const messages = mergeLocaleMessages(
+  projectMessages,
+  clusterOverviewMessages
+);

@@ -30,7 +30,7 @@ export const clusterOverviewDashboard: DashboardConfig = {
       id: "cpu-usage",
       type: "MetricValue",
       title: {
-        key: "widget.cpuUsage.title",
+        key: "dashboard.clusterOverview.widget.cpuUsage.title",
         defaultMessage: "CPU Usage"
       },
       layout: { x: 32, y: 32, w: 280, h: 160 },
@@ -42,11 +42,11 @@ export const clusterOverviewDashboard: DashboardConfig = {
         },
         fallback: {
           emptyText: {
-            key: "state.empty",
+            key: "dashboard.clusterOverview.state.empty",
             defaultMessage: "No data"
           },
           errorText: {
-            key: "state.error",
+            key: "dashboard.clusterOverview.state.error",
             defaultMessage: "Failed to load"
           }
         }

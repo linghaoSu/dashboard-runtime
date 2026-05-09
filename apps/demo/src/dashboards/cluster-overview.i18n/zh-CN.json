@@ -1,0 +1,16 @@
+{
+  "dashboard": {
+    "clusterOverview": {
+      "name": "集群概览",
+      "widget": {
+        "cpuUsage": {
+          "title": "CPU 使用率"
+        }
+      },
+      "state": {
+        "empty": "暂无数据",
+        "error": "加载失败"
+      }
+    }
+  }
+}

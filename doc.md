@@ -116,6 +116,7 @@ AI 生成代码时，只允许生成符合标准接口的 chart widget：
 * 数字、日期、时间、百分比格式化
 
 配置层不直接写死业务文案，优先使用 i18n key。
+创建或生成 dashboard 配置时，必须同时生成 dashboard 自己的 locale JSON 资源文件，供项目侧合并到已有 i18n messages 中；DashboardConfig 只引用 key，不内联整份文案表，新增 key 应放在 dashboard namespace 下以降低项目侧冲突。
 
 ---
 
@@ -469,7 +470,7 @@ export const clusterOverviewDashboard: DashboardConfig = {
       id: 'cpu-usage',
       type: 'GaugeChart',
       title: {
-        key: 'widget.cpuUsage.title',
+        key: 'dashboard.clusterOverview.widget.cpuUsage.title',
         defaultMessage: 'CPU Usage',
       },
       layout: { x: 40, y: 40, w: 360, h: 220 },
@@ -494,7 +495,7 @@ export const clusterOverviewDashboard: DashboardConfig = {
       id: 'pod-status',
       type: 'DonutChart',
       title: {
-        key: 'widget.podStatus.title',
+        key: 'dashboard.clusterOverview.widget.podStatus.title',
         defaultMessage: 'Pod Status',
       },
       layout: { x: 420, y: 40, w: 360, h: 220 },
@@ -1059,7 +1060,7 @@ export type I18nText =
 
 ```ts
 title: {
-  key: 'widget.cpuUsage.title',
+  key: 'dashboard.clusterOverview.widget.cpuUsage.title',
   defaultMessage: 'CPU Usage',
 }
 ```
@@ -1154,15 +1155,16 @@ AI 生成 DashboardConfig 时必须：
 
 1. 所有 title / description 使用 i18n key。
 2. 提供 defaultMessage。
-3. 不在图表 option 中硬编码 tooltip 文案。
-4. props 中如有单位、枚举展示名，应使用 i18n key 或由 formatter 处理。
-5. 生成组件时必须通过 `t` 和 `format` 获取文案与格式化结果。
+3. 同时输出按 locale 拆分的 JSON 文案资源，例如 `cluster-overview.i18n/zh-CN.json` 与 `cluster-overview.i18n/en-US.json`，供项目侧 merge。
+4. 不在图表 option 中硬编码 tooltip 文案。
+5. props 中如有单位、枚举展示名，应使用 i18n key 或由 formatter 处理。
+6. 生成组件时必须通过 `t` 和 `format` 获取文案与格式化结果。
 
 示例：
 
 ```ts
 title: {
-  key: 'widget.nodeHealth.title',
+  key: 'dashboard.clusterOverview.widget.nodeHealth.title',
   defaultMessage: 'Node Health',
 }
 ```
@@ -1282,7 +1284,7 @@ AI 生成 dashboard 时需要输入：
   "intent": "Show cluster resource usage, pod status, node health, and alerts.",
   "widgets": [
     {
-      "titleKey": "widget.cpuUsage.title",
+      "titleKey": "dashboard.clusterOverview.widget.cpuUsage.title",
       "dataSource": "cluster.cpuUsage",
       "widget": "GaugeChart",
       "reason": "CPU usage is a single percentage metric. GaugeChart is suitable."
@@ -1590,6 +1592,9 @@ product-a/
 
       dashboards/
         cluster-overview.dashboard.ts
+        cluster-overview.i18n/
+          zh-CN.json
+          en-US.json
 
       i18n/
         zh-CN.json
@@ -1875,12 +1880,14 @@ Generate a DashboardConfig based on the approved dashboard plan.
 Rules:
 - Must conform to DashboardConfig schema.
 - Use i18n text objects for title and description.
+- Also generate locale JSON resources for every new i18n key used by the config.
+- Keep generated i18n keys under the dashboard namespace to avoid host-project merge collisions.
 - Params must match the selected dataSource paramsSchema.
 - Props must match the selected widget propsSchema.
 - Layout must fit within the canvas.
 - refresh.intervalMs must not be lower than 5000.
 - Do not output executable JavaScript code.
-- Output JSON only.
+- Output DashboardConfig JSON and locale JSON resources only.
 ```
 
 ### 19.3 Chart Component Prompt

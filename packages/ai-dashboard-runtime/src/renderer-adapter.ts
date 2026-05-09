@@ -1,4 +1,5 @@
 import type { WidgetConfig } from "@dao-style-viz/ai-dashboard-schema";
+import type { LocaleMessages } from "./i18n-runtime.js";
 
 export type DashboardTheme = {
   name: string;
@@ -11,7 +12,7 @@ export type RuntimeInput = {
   timezone?: string;
   route?: unknown;
   user?: unknown;
-  messages?: Record<string, Record<string, string>>;
+  messages?: LocaleMessages;
   t?: (key: string, values?: Record<string, unknown>) => string;
 };
 

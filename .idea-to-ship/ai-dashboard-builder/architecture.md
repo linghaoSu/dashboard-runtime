@@ -204,7 +204,7 @@ export const clusterDataSources = defineDataSources({
 - `packages/ai-dashboard-runtime/src/data-source.ts` — `DataSourceDefinition`, `defineDataSources`, `createSdkDataSource`, query context.
 - `packages/ai-dashboard-runtime/src/widget-registry.ts` — framework-neutral `WidgetDefinition`, `defineWidget`, registry types.
 - `packages/ai-dashboard-runtime/src/renderer-adapter.ts` — renderer-independent widget runtime props, emitted event types, and adapter contract.
-- `packages/ai-dashboard-runtime/src/i18n-runtime.ts` — `resolveI18nText`, runtime translator contract, and host i18n adapter boundary.
+- `packages/ai-dashboard-runtime/src/i18n-runtime.ts` — `resolveI18nText`, `mergeLocaleMessages`, runtime translator contract, and host i18n adapter boundary.
 - `packages/ai-dashboard-runtime/src/formatters.ts` — `Intl`-based number/date/percent formatters.
 - `packages/ai-dashboard-runtime/src/data-loader.ts` — params resolution, params validation, query execution, output validation.
 - `packages/ai-dashboard-runtime/src/refresh-manager.ts` — interval refresh and cancellation primitives.
@@ -229,7 +229,10 @@ export const clusterDataSources = defineDataSources({
 - `apps/demo/src/mock-sdk.ts` — mock proto-style static service methods.
 - `apps/demo/src/data-sources/cluster.ts` — demo `createSdkDataSource` registrations.
 - `apps/demo/src/dashboards/cluster-overview.ts` — example DashboardConfig.
-- `apps/demo/src/i18n/messages.ts` — zh-CN/en-US demo messages.
+- `apps/demo/src/dashboards/cluster-overview.i18n/en-US.json` — dashboard-owned English messages to merge into the host project i18n messages.
+- `apps/demo/src/dashboards/cluster-overview.i18n/zh-CN.json` — dashboard-owned Chinese messages to merge into the host project i18n messages.
+- `apps/demo/src/dashboards/cluster-overview.i18n/index.ts` — dashboard message export map.
+- `apps/demo/src/i18n/messages.ts` — demo project messages plus merged dashboard messages.
 - `apps/demo/src/App.vue` — renders the Vue `BigScreenRuntime`.
 
 ### Data Flow
@@ -268,6 +271,16 @@ DataSourceRegistry + WidgetRegistry
   -> DashboardPlan
   -> DashboardConfig
   -> schema + catalog validation before runtime sees it
+```
+
+Dashboard config packaging flow:
+
+```text
+dashboard config file
+  + dashboard-owned locale JSON files
+  -> project imports dashboard messages
+  -> mergeLocaleMessages(projectMessages, dashboardMessages)
+  -> host vue-i18n composer / runtime t function sees dashboard keys
 ```
 
 Generated chart flow, later stage:
@@ -336,9 +349,23 @@ export type RuntimeInput = {
   timezone?: string;
   route?: unknown;
   user?: unknown;
-  messages?: Record<string, Record<string, string>>;
+  messages?: LocaleMessages;
   t?: (key: string, values?: Record<string, unknown>) => string;
 };
+
+export type LocaleMessages = Record<string, LocaleMessageObject>;
+export type LocaleMessage =
+  | string
+  | number
+  | boolean
+  | null
+  | LocaleMessageObject
+  | LocaleMessage[];
+export type LocaleMessageObject = { [key: string]: LocaleMessage };
+
+export function mergeLocaleMessages(
+  ...sources: Array<LocaleMessages | undefined>
+): LocaleMessages;
 
 export type RuntimeContext = RuntimeInput & {
   context: Record<string, unknown>;
@@ -366,6 +393,8 @@ export type BigScreenRuntimeProps = {
   onEvent?: (event: WidgetRuntimeEvent) => void;
 };
 ```
+
+Dashboard-owned i18n files are not embedded in `DashboardConfig`; the config only references i18n keys. The adjacent JSON resources are build-time artifacts owned by the dashboard package and are merged into the host application's existing i18n message source. Generated keys should stay under the dashboard namespace to avoid collisions with existing project messages.
 
 `globalFilters` are resolved before `context`; `context` may reference `runtime.*` and `globalFilters.*`; widget params may reference `runtime.*`, `context.*`, and `globalFilters.*`. MVP does not support refs from `globalFilters` back into `context`, and cyclic refs are invalid.
 
@@ -571,6 +600,7 @@ Rollout path:
 - DataSource helper: unit tests with mocked static service methods and Zod parse failures.
 - Data loader: unit tests for params resolution, output validation, abort propagation, and error surfacing.
 - Runtime core: unit tests for refs, data loading, event dispatch, refresh, host i18n adapter fallback behavior, and validation without Vue imports.
+- i18n merge: unit tests for merging dashboard locale JSON into project messages without overwriting unrelated project keys.
 - Vue renderer: Vue Test Utils tests for multiple widgets, error boundaries, loading/error/empty states, locale switch, widget dataSchema compatibility, and event dispatch mapping.
 - Vue ECharts widgets: component tests can mock `vue-echarts` and assert option inputs, not canvas pixels.
 - Catalog: snapshot/structural tests ensuring no function fields or implementation source are exported.

@@ -154,3 +154,41 @@
 - build: ok — `pnpm -r --if-present build`
 - tests: ok — `pnpm -r --if-present test` ran 4 files / 11 tests, 0 failed
 - demo server: started — `pnpm --dir apps/demo exec vite --host 127.0.0.1 --port 5173`
+
+## Stage 2 Follow-up — Dashboard i18n JSON Resources
+
+**Completed:** 2026-05-08 18:52 CST
+
+### Files touched
+
+- `packages/ai-dashboard-runtime/src/i18n-runtime.ts` — adds nested JSON-compatible `LocaleMessages`, deep merge, and dot-path fallback lookup.
+- `packages/ai-dashboard-runtime/src/renderer-adapter.ts` — types runtime `messages` through the shared locale message contract.
+- `packages/ai-dashboard-runtime/src/__tests__/i18n-runtime.test.ts` — covers dashboard message merge and translator lookup.
+- `apps/demo/src/dashboards/cluster-overview.ts` — uses dashboard-namespaced i18n keys.
+- `apps/demo/src/dashboards/cluster-overview.i18n/*` — adds per-locale dashboard JSON resources.
+- `apps/demo/src/i18n/messages.ts` — merges project messages with dashboard messages.
+- `apps/demo/src/App.vue` — reuses runtime translator for the demo header.
+- `packages/ai-dashboard-schema/src/__fixtures__/cluster-overview.ts` — aligns fixture keys with the dashboard namespace convention.
+- `tsconfig.base.json` — enables JSON module imports for dashboard locale resources.
+- `doc.md`, `requirements.md`, `architecture.md` — document the config-plus-locale-resource packaging contract.
+
+### Decisions made during implementation
+
+- Keep dashboard locale resources adjacent to the dashboard config under `<dashboard>.i18n/`.
+- Support nested vue-i18n-style JSON objects, not only flat string maps, because the referenced host locale loader builds nested message objects from JSON files.
+- Keep generated keys under the dashboard namespace to reduce merge collisions with project messages.
+
+### Deviations from architecture.md
+
+- None. The architecture was updated to make the i18n resource packaging contract explicit.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- None.
+
+### Verification
+
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- build: ok — `pnpm -r --if-present build`
+- tests: ok — `pnpm -r --if-present test` ran 5 files / 13 tests, 0 failed
