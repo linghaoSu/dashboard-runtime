@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createSdkDataSource } from "../data-source.js";
 import type { RuntimeContext } from "../renderer-adapter.js";
 
@@ -43,5 +43,74 @@ describe("createSdkDataSource", () => {
       value: 72,
       unit: "%"
     });
+  });
+
+  it("rejects invalid params before calling the SDK method", async () => {
+    const call = vi.fn(async () => ({
+      cpuUsage: 72
+    }));
+    const source = createSdkDataSource({
+      name: "CPU Usage",
+      paramsSchema: z.object({
+        clusterId: z.string()
+      }),
+      outputSchema: z.object({
+        value: z.number()
+      }),
+      request: (params) => ({
+        id: params.clusterId
+      }),
+      call,
+      transform: (response) => ({
+        value: response.cpuUsage
+      })
+    });
+
+    await expect(
+      source.query({
+        params: {} as { clusterId: string },
+        runtime
+      })
+    ).rejects.toThrow();
+    expect(call).not.toHaveBeenCalled();
+  });
+
+  it("rejects transformed output that fails the output schema", async () => {
+    type Output = {
+      value: number;
+    };
+    const source = createSdkDataSource<
+      { clusterId: string },
+      { id: string },
+      { cpuUsage: string },
+      Output
+    >({
+      name: "CPU Usage",
+      paramsSchema: z.object({
+        clusterId: z.string()
+      }),
+      outputSchema: z.object({
+        value: z.number()
+      }),
+      request: (params) => ({
+        id: params.clusterId
+      }),
+      call: async () => ({
+        cpuUsage: "bad"
+      }),
+      transform: (response) =>
+        ({
+          value: response.cpuUsage
+        }) as unknown as Output
+    });
+
+    await expect(
+      source.query({
+        params: {
+          clusterId: "cluster-1"
+        },
+        runtime
+      })
+    ).rejects.toThrow();
   });
 });

@@ -4,10 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:deps": "pnpm --filter @dao-style-viz/ai-dashboard-schema build && pnpm --filter @dao-style-viz/ai-dashboard-runtime build && pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog build && pnpm --filter @dao-style-viz/ai-dashboard-vue build && pnpm --filter @dao-style-viz/ai-dashboard-widgets build && pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue build",
+    "predev": "pnpm run build:deps",
     "dev": "vite --host 127.0.0.1 --port 5174",
+    "prebuild": "pnpm run build:deps",
     "build": "vue-tsc --noEmit -p tsconfig.json && vite build",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "lint": "eslint \"src/**/*.{ts,vue}\"",
+    "pretest": "pnpm run build:deps",
     "test": "vitest run src/__tests__"
   },
   "dependencies": {

@@ -692,3 +692,162 @@
 - build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo and product integration apps
 - whitespace: ok — `git diff --check`
 - dev server: started — `http://127.0.0.1:5174/`
+
+## Post-Stage Release Gate Follow-up
+
+**Completed:** 2026-05-09 14:48 CST
+**Roadmap Items:** ITS-ai-dashboard-builder-008, ITS-ai-dashboard-builder-001
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/test-plan.md` — maps v0.1 requirements to user stories, acceptance criteria, scenarios, test matrices, traceability, command evidence, and known gaps.
+- `.idea-to-ship/ai-dashboard-builder/release-gate.md` — defines v0.1 internal go/no-go criteria, source-based consumption model, required evidence, accepted warnings, no-go conditions, final-candidate runbook, and sign-off roles.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — marks ITS-ai-dashboard-builder-008 and ITS-ai-dashboard-builder-001 complete while keeping final v0.1 GO blocked by final-candidate checks and sign-off.
+- `packages/ai-dashboard-runtime/src/__tests__/data-source.test.ts` — adds failure-path coverage for invalid params before SDK calls and invalid transformed output after SDK calls.
+- `apps/product-integration/src/__tests__/tenant-capacity.test.ts` — adds product SDK wrapper failure-path coverage for unknown tenant workspaces.
+
+### Decisions made
+
+- Treat v0.1 as an internal source/commit-based readiness release. Registry publishing and external package-manager consumption are out of scope until ITS-ai-dashboard-builder-010 reviews package privacy, exports, CSS exports, package contents, and consumer install behavior.
+- Keep the current release verdict at HOLD even though the release gate is now defined. Final GO requires the adoption guide from ITS-ai-dashboard-builder-002, final-candidate checks, and platform-lead sign-off.
+- Accept existing ECharts and standalone playground chunk warnings for internal v0.1 evidence only. Performance and bundle thresholds remain assigned to ITS-ai-dashboard-builder-007.
+
+### Verification
+
+- runtime test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-runtime test` ran 6 files / 15 tests, 0 failed
+- product integration test: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 1 file / 5 tests, 0 failed
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 13 files / 62 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo and product integration apps
+- playground build: ok — `pnpm --dir playground/playground-ui run build` with existing `input-placeholder` pseudo-class warnings
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Adoption Guide Follow-up
+
+**Completed:** 2026-05-09 15:06 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-002
+
+### Files touched
+
+- `docs/ai-dashboard-v0.1-adoption.md` — documents the product integration path for v0.1 adopters, including package/style imports, recommended app layout, widget registry, SDK-backed dataSource wrappers, DashboardConfig refs/events, dashboard-owned i18n merge, validation before rendering, runtime wiring, test coverage, and v0.1 non-goals.
+- `.idea-to-ship/ai-dashboard-builder/release-gate.md` — marks the adoption guide criterion as PASS while keeping release verdict at HOLD until final-candidate checks and sign-off.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — marks ITS-ai-dashboard-builder-002 complete.
+
+### Decisions made
+
+- Place the adoption guide under `docs/` because it is product-facing documentation, while `.idea-to-ship/ai-dashboard-builder/*` remains the planning and gate artifact set.
+- Keep the guide source-based and v0.1-scoped. It explicitly avoids registry publishing instructions because publishing is owned by ITS-ai-dashboard-builder-010.
+- Point product teams at `apps/product-integration` as the canonical v0.1 integration example and require validation before runtime rendering.
+
+### Verification
+
+- docs/source review: ok — guide content is derived from `apps/product-integration` package, screen, dashboard, dataSource, i18n, validation, widget, and test files.
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Layout And Palette Follow-up
+
+**Completed:** 2026-05-09 15:27 CST
+
+### Files touched
+
+- `docs/design.md` — adds v0.1 layout and palette design evidence for dashboard generation and review.
+- `packages/ai-dashboard-schema/src/dashboard-config.ts` — adds optional `canvas.colors` and `canvas.chartPalette`.
+- `packages/ai-dashboard-runtime/src/renderer-adapter.ts`, `packages/ai-dashboard-vue/src/BigScreenRuntime.vue` — pass global canvas theme colors and chart palette to widgets through `DashboardTheme`.
+- `packages/ai-dashboard-echarts-vue/src/*` — adds global chart palette support and per-chart `props.palette` overrides across ECharts widgets.
+- `packages/ai-dashboard-ai-catalog/src/create-layout-catalog.ts` — adds layout rationale, grid metadata, design evidence, and a `tenant-ops-command` preset.
+- `packages/ai-dashboard-ai-catalog/src/create-theme-catalog.ts` — adds prebuilt chart palettes and palette alternates with design evidence.
+- `packages/ai-dashboard-ai-catalog/src/prompt-templates.ts` — tells generation to use layout/theme catalogs, `canvas.chartPalette`, and deliberate chart-level overrides.
+- `apps/product-integration/src/dashboards/tenant-capacity.ts` — demonstrates global dashboard chart palette and a local chart palette override.
+
+### Decisions made
+
+- Keep layout execution as the existing fixed canvas plus absolute widget slots and scale modes. The new design evidence documents how those slots should be generated and reviewed.
+- Use `canvas.chartPalette` for dashboard-wide chart colors so all chart widgets share one aesthetic baseline.
+- Use `props.palette` for per-chart overrides, validated by each ECharts widget props schema.
+- Pre-generate mixed-hue palettes instead of single-hue variations to avoid flat, one-note dashboards.
+
+### Verification
+
+- schema test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-schema test` ran 1 file / 7 tests
+- AI catalog test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` ran 1 file / 8 tests
+- ECharts test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue test` ran 1 file / 13 tests
+- product integration test: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 1 file / 5 tests
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 13 files / 67 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`822.33 kB`) and product integration (`888.75 kB`) apps
+- whitespace: ok — `git diff --check`
+
+## Post-Stage Ipavo Product Pilot Follow-up
+
+**Completed:** 2026-05-09 16:31 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-003
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md` — records the ipavo reference dashboard, real `@daocloud-proto/*` SDK replacement path, JWT proxy boundary, manager-facing workbench direction, local Codex/OpenCode bridge direction, and chart extension flow.
+- `apps/product-integration/src/dashboards/ipavo-overview.ts` — adds an ipavo-style DashboardConfig matching the screenshot card layout.
+- `apps/product-integration/src/data-sources/ipavo-overview.ts` — adds SDK-shaped dataSources for pod statistics, CPU/memory history, health status, alert status, cluster count, resource usage, and ability overview.
+- `apps/product-integration/src/product-sdk/generated/ipavo-overview.ts` — models the `IPavo` static generated SDK shape locally; real pilots should replace this with `@daocloud-proto/ipavo`.
+- `apps/product-integration/src/widgets/ipavo/*` — adds product-owned ipavo presentation widgets for visuals that exceed the generic chart/widget set.
+- `apps/product-integration/src/dashboards/ipavo-overview.i18n/*`, `apps/product-integration/src/i18n/messages.ts` — adds dashboard-owned ipavo locale resources.
+- `apps/product-integration/src/screens/TenantCapacityScreen.vue` — adds a dashboard selector so the product integration app can render the ipavo overview or tenant capacity dashboard.
+- `apps/product-integration/vite.config.ts` — adds optional `/apis` proxy config using `PRODUCT_API_URL` and `PRODUCT_AUTH_TOKEN`.
+- `packages/ai-dashboard-vue/src/WidgetShell.vue`, `packages/ai-dashboard-vue/src/WidgetRenderer.vue` — allow dashboard theme colors to control widget shell background, border, shadow, and text for light product dashboards.
+- `packages/ai-dashboard-echarts-vue/src/schemas.ts`, `packages/ai-dashboard-echarts-vue/src/LineChart.vue`, `packages/ai-dashboard-echarts-vue/src/AreaChart.vue` — add optional axis visibility controls so compact ipavo-style sparkline cards do not show a full y-axis.
+- `docs/ai-dashboard-v0.1-adoption.md` — documents real `@daocloud-proto/*` SDK package replacement and JWT proxy boundaries.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — updates ITS-003 and adds manager-facing workbench, server proxy, and chart extension follow-up items.
+
+### Decisions made
+
+- Use ipavo as the concrete product pilot reference because the user supplied both the source path and screenshot target.
+- Keep real backend/JWT execution out of DashboardConfig. URL/token values belong to host/server proxy configuration, and AI-facing catalogs must not include auth headers or SDK implementation.
+- Treat custom ipavo visuals as host-owned widgets. The generic widget catalog can cover charts and basic lists, but the screenshot's honeycomb, health summary, alert summary, cluster list, resource donut row, and ability overview need product-specific presentation components.
+- Record the manager-facing workbench as a post-v0.1 direction: a web UI that connects to the user's local Codex/OpenCode-style agent rather than owning an LLM provider loop.
+
+### Verification
+
+- product typecheck: ok — `pnpm --filter @dao-style-viz/product-integration-example typecheck`
+- product lint: ok — `pnpm --filter @dao-style-viz/product-integration-example lint`
+- product tests: ok — `pnpm --filter @dao-style-viz/product-integration-example test` ran 1 file / 7 tests, 0 failed
+- product build: ok — `pnpm --filter @dao-style-viz/product-integration-example build` with expected ECharts bundle-size warning, now `907.66 kB`
+- Vue runtime typecheck: ok — `pnpm --filter @dao-style-viz/ai-dashboard-vue typecheck`
+- ECharts widget typecheck/test: ok — `pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue typecheck`; `pnpm --filter @dao-style-viz/ai-dashboard-echarts-vue test`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 13 files / 69 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`823.47 kB`) and product integration (`907.66 kB`) apps
+- whitespace: ok — `git diff --check`
+- dev server: started — `http://127.0.0.1:5174/`
+
+## Post-Stage Package Publishing Surface Follow-up
+
+**Completed:** 2026-05-09 16:04 CST
+**Roadmap Item:** ITS-ai-dashboard-builder-010
+
+### Files touched
+
+- `.idea-to-ship/ai-dashboard-builder/package-publishing-surface.md` — documents publishable vs non-publishable workspace projects, package exports, CSS exports, build order, pack evidence, no-go conditions, and registry blockers.
+- `packages/ai-dashboard-widgets/tsconfig.build.json` — pins declaration emit to the package `src` root and resolves internal runtime/Vue types from built package declarations.
+- `.idea-to-ship/ai-dashboard-builder/roadmap.md` — marks ITS-ai-dashboard-builder-010 complete while keeping registry publishing blocked.
+- `.idea-to-ship/ai-dashboard-builder/release-gate.md` — points package-publishing no-go decisions at the new package surface artifact.
+- `docs/ai-dashboard-v0.1-adoption.md` — links the v0.1 package caveat to the package surface artifact.
+
+### Decisions made
+
+- Keep `private: true` on all packages for v0.1. The supported release model remains source/commit based, with tarball QA available for package-surface validation.
+- Use `pnpm pack` as the package evidence command because it validates pnpm workspace dependency rewriting from `workspace:*` to `0.1.0`.
+- Treat registry publishing as blocked until dependency peer policy, `publishConfig`, external consumer install verification, and release-candidate checks are complete.
+
+### Verification
+
+- widgets build: ok — `pnpm --filter @dao-style-viz/ai-dashboard-widgets build`
+- package pack: ok — `pnpm --filter <package> pack --json --pack-destination /tmp/ai-dashboard-packs` for schema, runtime, vue, widgets, echarts-vue, ai-catalog, and sandbox
+- tarball metadata: ok — internal workspace dependencies are rewritten to `0.1.0`; package tarballs retain `private: true`
+- package contents: ok — widgets tarball no longer includes nested declaration copies from schema/runtime/vue packages
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 13 files / 69 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with expected ECharts bundle-size warnings in demo (`823.47 kB`) and product integration (`907.66 kB`) apps
+- whitespace: ok — `git diff --check`

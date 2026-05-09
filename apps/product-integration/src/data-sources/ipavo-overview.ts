@@ -1,0 +1,342 @@
+import {
+  createSdkDataSource,
+  defineDataSources
+} from "@dao-style-viz/ai-dashboard-runtime";
+import { lineChartDataSchema } from "@dao-style-viz/ai-dashboard-echarts-vue";
+import { z } from "zod";
+import {
+  IPavo,
+  type EmptyRequest,
+  type GetAlertSummaryResponse,
+  type GetPodSummaryRequest,
+  type GetPodSummaryResponse,
+  type GetResourceSummaryResponse,
+  type GetResourceUsageResponse,
+  type ListProductsResponse
+} from "../product-sdk/generated/ipavo-overview";
+import {
+  ipavoAbilityOverviewDataSchema,
+  ipavoAlertStatusDataSchema,
+  ipavoClusterCountDataSchema,
+  ipavoHealthStatusDataSchema,
+  ipavoPodStatisticsDataSchema,
+  ipavoResourceUsageDataSchema
+} from "../widgets/ipavo";
+
+// Real ipavo pilots should replace the local mock above with:
+// import { IPavo } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo.pb";
+// Backend URL and JWT auth headers belong to the host/server proxy, not
+// DashboardConfig or AI-facing catalog output.
+const emptyParamsSchema = z.object({});
+
+const legend = [
+  { label: "90~100%", color: "#32d475" },
+  { label: "80~90%", color: "#ffcc5a" },
+  { label: "60~80%", color: "#ff8787" },
+  { label: "40~60%", color: "#f03e3e" },
+  { label: "0~40%", color: "#c92a2a" },
+  { label: "未知", color: "#c9ced6" }
+];
+
+export const ipavoOverviewDataSources = defineDataSources({
+  "ipavo.podStatistics": createSdkDataSource<
+    Record<string, never>,
+    GetPodSummaryRequest,
+    GetPodSummaryResponse,
+    z.infer<typeof ipavoPodStatisticsDataSchema>
+  >({
+    name: "Ipavo Pod Statistics",
+    description: "Pod health distribution by cluster or namespace",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: ipavoPodStatisticsDataSchema,
+    compatibleWidgets: ["IpavoPodStatistics"],
+    examples: [
+      {
+        params: {},
+        output: {
+          cells: [{ id: "cluster-1", label: "minquan-dev", status: "healthy" }],
+          legend,
+          totalPods: 278,
+          runningPods: 241,
+          otherPods: 37
+        }
+      }
+    ],
+    request: () => ({ type: "BY_CLUSTER" }),
+    call: (request) => IPavo.GetPodSummary(request),
+    transform: (response) => {
+      const cells = response.items.flatMap((item, itemIndex) => {
+        const total = item.podCount.total;
+        const healthy = item.podCount.healthy;
+        const unhealthy = Math.max(total - healthy, 0);
+        const healthyCells = Math.max(Math.round((healthy / total) * 14), 1);
+        const unhealthyCells = Math.max(Math.round((unhealthy / total) * 4), 1);
+
+        return [
+          ...Array.from({ length: healthyCells }, (_, index) => ({
+            id: `${item.cluster}-healthy-${itemIndex}-${index}`,
+            label: item.cluster,
+            status: "healthy" as const
+          })),
+          ...Array.from({ length: unhealthyCells }, (_, index) => ({
+            id: `${item.cluster}-warning-${itemIndex}-${index}`,
+            label: item.cluster,
+            status: "warning" as const
+          }))
+        ];
+      });
+
+      return {
+        cells,
+        legend,
+        totalPods: 278,
+        runningPods: 241,
+        otherPods: 37
+      };
+    }
+  }),
+  "ipavo.cpuUsage": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    GetResourceUsageResponse,
+    z.infer<typeof lineChartDataSchema>
+  >({
+    name: "Ipavo CPU Usage",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: lineChartDataSchema,
+    compatibleWidgets: ["LineChart", "AreaChart"],
+    examples: [{ params: {}, output: [{ time: "15:00", value: 9.2 }] }],
+    request: () => ({}),
+    call: (request) => IPavo.GetResourceUsage(request),
+    transform: (response) => toLineData(response.cpu.history, (value) => value)
+  }),
+  "ipavo.memoryUsage": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    GetResourceUsageResponse,
+    z.infer<typeof lineChartDataSchema>
+  >({
+    name: "Ipavo Memory Usage",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: lineChartDataSchema,
+    compatibleWidgets: ["LineChart", "AreaChart"],
+    examples: [{ params: {}, output: [{ time: "15:00", value: 48.2 }] }],
+    request: () => ({}),
+    call: (request) => IPavo.GetResourceUsage(request),
+    transform: (response) =>
+      toLineData(response.memory.history, (value) => value / 1024 ** 3)
+  }),
+  "ipavo.healthStatus": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    GetResourceSummaryResponse,
+    z.infer<typeof ipavoHealthStatusDataSchema>
+  >({
+    name: "Ipavo Health Status",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: ipavoHealthStatusDataSchema,
+    compatibleWidgets: ["IpavoHealthStatus"],
+    examples: [
+      {
+        params: {},
+        output: {
+          status: "healthy",
+          label: "健康",
+          items: []
+        }
+      }
+    ],
+    request: () => ({}),
+    call: (request) => IPavo.GetResourceSummary(request),
+    transform: (response) => {
+      const items = [
+        toHealthItem("集群", "C", response.clusterCount, response.threshold),
+        toHealthItem("节点", "N", response.nodeCount, response.threshold),
+        toHealthItem("容器组", "P", response.podCount, response.threshold)
+      ];
+      const healthy = items.every((item) => item.status === "healthy");
+
+      return {
+        status: healthy ? "healthy" : "unhealthy",
+        label: healthy ? "健康" : "不健康",
+        items
+      };
+    }
+  }),
+  "ipavo.alertStatus": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    GetAlertSummaryResponse,
+    z.infer<typeof ipavoAlertStatusDataSchema>
+  >({
+    name: "Ipavo Alert Status",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: ipavoAlertStatusDataSchema,
+    compatibleWidgets: ["IpavoAlertStatus"],
+    examples: [
+      {
+        params: {},
+        output: {
+          counts: [],
+          messages: []
+        }
+      }
+    ],
+    request: () => ({}),
+    call: (request) => IPavo.GetAlertSummary(request),
+    transform: (response) => ({
+      counts: [
+        {
+          label: "紧急",
+          value: response.alertCount.critical,
+          status: "critical",
+          color: "#dd5250"
+        },
+        {
+          label: "警告",
+          value: response.alertCount.warning,
+          status: "warning",
+          color: "#f4a62a"
+        },
+        {
+          label: "提示",
+          value: response.alertCount.info,
+          status: "info",
+          color: "#2497df"
+        }
+      ],
+      messages: response.alertMessages
+    })
+  }),
+  "ipavo.clusterCount": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    GetResourceSummaryResponse,
+    z.infer<typeof ipavoClusterCountDataSchema>
+  >({
+    name: "Ipavo Cluster Count",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: ipavoClusterCountDataSchema,
+    compatibleWidgets: ["IpavoClusterCount"],
+    examples: [{ params: {}, output: { clusters: [], nodes: 8 } }],
+    request: () => ({}),
+    call: (request) => IPavo.GetResourceSummary(request),
+    transform: (response) => ({
+      clusters: response.clusterItems,
+      nodes: response.nodeCount.total
+    })
+  }),
+  "ipavo.resourceUsage": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    GetResourceUsageResponse,
+    z.infer<typeof ipavoResourceUsageDataSchema>
+  >({
+    name: "Ipavo Resource Usage",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: ipavoResourceUsageDataSchema,
+    compatibleWidgets: ["IpavoResourceUsage"],
+    examples: [{ params: {}, output: { items: [] } }],
+    request: () => ({}),
+    call: (request) => IPavo.GetResourceUsage(request),
+    transform: (response) => ({
+      items: [
+        toUsageItem("CPU", response.cpu, "core"),
+        toUsageItem("内存", response.memory, "bytes"),
+        toUsageItem("容器组", response.pod, "count"),
+        toUsageItem("磁盘", response.disk, "bytes")
+      ]
+    })
+  }),
+  "ipavo.abilityOverview": createSdkDataSource<
+    Record<string, never>,
+    EmptyRequest,
+    ListProductsResponse,
+    z.infer<typeof ipavoAbilityOverviewDataSchema>
+  >({
+    name: "Ipavo Ability Overview",
+    category: "ipavo",
+    paramsSchema: emptyParamsSchema,
+    outputSchema: ipavoAbilityOverviewDataSchema,
+    compatibleWidgets: ["IpavoAbilityOverview"],
+    examples: [{ params: {}, output: { products: [] } }],
+    request: () => ({}),
+    call: (request) => IPavo.ListProducts(request),
+    transform: (response) => ({
+      products: response.items.map((item) => ({
+        title: item.title,
+        icon: item.title.slice(0, 1),
+        features: item.features
+      }))
+    })
+  })
+});
+
+function toLineData(
+  history: Array<{ timestamp: number; value: number }>,
+  readValue: (value: number) => number
+) {
+  return history.map((item) => ({
+    time: new Date(item.timestamp * 1000).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }),
+    value: readValue(item.value)
+  }));
+}
+
+function toHealthItem(
+  label: string,
+  icon: string,
+  count: { healthy: number; total: number },
+  threshold: number
+) {
+  const healthy = count.total === 0 || count.healthy / count.total > threshold;
+
+  return {
+    label,
+    icon,
+    healthy: count.healthy,
+    total: count.total,
+    status: healthy ? "healthy" as const : "unhealthy" as const
+  };
+}
+
+function toUsageItem(
+  label: string,
+  usage: { usage: number; total: number },
+  unit: "bytes" | "core" | "count"
+) {
+  const percent = usage.total === 0 ? 0 : usage.usage / usage.total;
+
+  return {
+    label,
+    percent,
+    usedLabel: formatUsage(usage.usage, unit),
+    totalLabel: formatUsage(usage.total, unit),
+    color: percent >= 0.8 ? "#dd5250" : percent >= 0.6 ? "#f4b434" : "#43a1e5"
+  };
+}
+
+function formatUsage(value: number, unit: "bytes" | "core" | "count") {
+  if (unit === "bytes") {
+    if (value >= 1024 ** 4) {
+      return `${(value / 1024 ** 4).toFixed(2)} TB`;
+    }
+    return `${(value / 1024 ** 3).toFixed(2)} GB`;
+  }
+
+  if (unit === "core") {
+    return `${Number(value.toFixed(3))} core`;
+  }
+
+  return String(Math.round(value));
+}

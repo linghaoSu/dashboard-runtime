@@ -1,0 +1,27 @@
+{
+  "dashboard": {
+    "ipavo": {
+      "name": "Ipavo Overview",
+      "widget": {
+        "podStatistics": "Pod Statistics",
+        "cpuUsage": "CPU Usage",
+        "memoryUsage": "Memory Usage",
+        "healthStatus": "Health Status",
+        "alert": "Alert",
+        "clusterCount": "Cluster Count",
+        "resourceUsage": "Resource Usage",
+        "funcList": "Function List"
+      },
+      "label": {
+        "pods": "Pods",
+        "running": "Running",
+        "other": "Other",
+        "cluster": "Cluster",
+        "node": "Node",
+        "used": "Used",
+        "usedValue": "Used",
+        "total": "Total"
+      }
+    }
+  }
+}

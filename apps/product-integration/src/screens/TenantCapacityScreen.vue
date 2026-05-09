@@ -2,8 +2,13 @@
 import { createTranslator } from "@dao-style-viz/ai-dashboard-runtime";
 import { BigScreenRuntime } from "@dao-style-viz/ai-dashboard-vue";
 import { computed, ref } from "vue";
+import { ipavoOverviewDataSources } from "../data-sources/ipavo-overview";
 import { tenantCapacityDataSources } from "../data-sources/tenant-capacity";
-import { tenantCapacityValidation } from "../dashboard-validation";
+import {
+  ipavoOverviewValidation,
+  tenantCapacityValidation
+} from "../dashboard-validation";
+import { ipavoOverviewDashboard } from "../dashboards/ipavo-overview";
 import { tenantCapacityDashboard } from "../dashboards/tenant-capacity";
 import { messages } from "../i18n/messages";
 import { productWidgetRegistry } from "../widgets";
@@ -11,6 +16,7 @@ import { productWidgetRegistry } from "../widgets";
 const locale = ref<"en-US" | "zh-CN">("en-US");
 const tenantId = ref("tenant-alpha");
 const workspaceId = ref("prod");
+const dashboardId = ref<"ipavo" | "tenant-capacity">("ipavo");
 
 const runtime = computed(() => ({
   locale: locale.value,
@@ -25,11 +31,26 @@ const runtime = computed(() => ({
 }));
 
 const translator = computed(() => createTranslator(runtime.value));
-const screenTitle = computed(() => translator.value("dashboard.tenantCapacity.name"));
+const activeDashboard = computed(() =>
+  dashboardId.value === "ipavo" ? ipavoOverviewDashboard : tenantCapacityDashboard
+);
+const activeDataSources = computed(() =>
+  dashboardId.value === "ipavo" ? ipavoOverviewDataSources : tenantCapacityDataSources
+);
+const activeValidation = computed(() =>
+  dashboardId.value === "ipavo" ? ipavoOverviewValidation : tenantCapacityValidation
+);
+const screenTitle = computed(() =>
+  translator.value(
+    dashboardId.value === "ipavo"
+      ? "dashboard.ipavo.name"
+      : "dashboard.tenantCapacity.name"
+  )
+);
 const validationIssues = computed(() =>
-  tenantCapacityValidation.success
+  activeValidation.value.success
     ? []
-    : tenantCapacityValidation.issues.map(
+    : activeValidation.value.issues.map(
         (issue) => `${issue.path.join(".")}: ${issue.message}`
       )
 );
@@ -43,6 +64,13 @@ const validationIssues = computed(() =>
         <strong>{{ screenTitle }}</strong>
       </div>
       <div class="product-screen__controls">
+        <label>
+          <span>Dashboard</span>
+          <select v-model="dashboardId">
+            <option value="ipavo">ipavo-overview</option>
+            <option value="tenant-capacity">tenant-capacity</option>
+          </select>
+        </label>
         <label>
           <span>Tenant</span>
           <select v-model="tenantId">
@@ -70,9 +98,9 @@ const validationIssues = computed(() =>
 
     <section v-else class="product-screen__stage">
       <BigScreenRuntime
-        :config="tenantCapacityDashboard"
+        :config="activeDashboard"
         :widgets="productWidgetRegistry"
-        :data-sources="tenantCapacityDataSources"
+        :data-sources="activeDataSources"
         :runtime="runtime"
       />
     </section>

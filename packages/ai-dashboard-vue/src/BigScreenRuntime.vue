@@ -56,9 +56,15 @@ const runtimeContext = computed(() => {
   });
 });
 
-const theme = computed<DashboardTheme>(() => ({
-  name: parsedConfig.value.config?.canvas.theme ?? "default"
-}));
+const theme = computed<DashboardTheme>(() => {
+  const canvas = parsedConfig.value.config?.canvas;
+
+  return {
+    name: canvas?.theme ?? "default",
+    colors: canvas?.colors,
+    palette: canvas?.chartPalette ? [...canvas.chartPalette] : undefined
+  };
+});
 
 const visibleWidgets = computed<WidgetConfig[]>(() => {
   const config = parsedConfig.value.config;

@@ -8,7 +8,9 @@ export const canvasConfigSchema = z
     height: z.number().int().positive(),
     scaleMode: z.enum(["fit", "fill", "scroll"]),
     theme: z.string().min(1),
-    background: z.string().optional()
+    background: z.string().optional(),
+    colors: z.record(z.string().min(1)).optional(),
+    chartPalette: z.array(z.string().min(1)).min(1).max(12).optional()
   })
   .strict();
 

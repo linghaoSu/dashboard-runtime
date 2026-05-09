@@ -179,7 +179,11 @@ describe("catalog creators", () => {
     expect(themeCatalog[0]?.tokens).toMatchObject({
       background: expect.any(String)
     });
+    expect(themeCatalog[0]?.chartPalette.length).toBeGreaterThan(5);
+    expect(themeCatalog[0]?.designEvidence?.source).toBe("docs/design.md");
     expect(layoutCatalog[0]?.slots.length).toBeGreaterThan(0);
+    expect(layoutCatalog[0]?.canvas.scaleMode).toBe("fit");
+    expect(layoutCatalog[0]?.designEvidence?.source).toBe("docs/design.md");
     expect(i18nCatalog.requiredResourceFiles).toEqual([
       "en-US.json",
       "zh-CN.json"

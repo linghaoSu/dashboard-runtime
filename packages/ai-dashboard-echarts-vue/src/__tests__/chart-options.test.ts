@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 import AreaChart from "../AreaChart.vue";
 import BarChart from "../BarChart.vue";
 import FunnelChart from "../FunnelChart.vue";
+import GaugeChart from "../GaugeChart.vue";
 import HeatmapChart from "../HeatmapChart.vue";
 import MapChart from "../MapChart.vue";
 import PieChart from "../PieChart.vue";
@@ -18,15 +19,26 @@ import { echartsWidgetRegistry } from "../echarts-widgets.js";
 type SeriesOption = {
   type?: string;
   areaStyle?: unknown;
+  colorBy?: string;
   data?: unknown[];
+  progress?: {
+    itemStyle?: {
+      color?: string;
+    };
+  };
 };
 
 type ChartOption = {
+  color?: string[];
   series?: SeriesOption[];
   radar?: {
     indicator?: unknown[];
   };
-  visualMap?: unknown;
+  visualMap?: {
+    inRange?: {
+      color?: string[];
+    };
+  };
 };
 
 const baseRuntime = {
@@ -174,12 +186,111 @@ describe("Stage 6 chart options", () => {
     expect(radarOption.radar?.indicator).toHaveLength(2);
     expect(heatmapOption.visualMap).toBeDefined();
   });
+
+  it("uses global chart palettes and lets chart props override them", () => {
+    const data = [
+      { name: "prod", value: 91 },
+      { name: "staging", value: 66 }
+    ];
+    const globalOption = mountChart(
+      BarChart,
+      data,
+      { xField: "name", yField: "value" },
+      {
+        theme: {
+          name: "test",
+          palette: ["#111827", "#22c55e"]
+        }
+      }
+    );
+    const overrideOption = mountChart(
+      BarChart,
+      data,
+      {
+        xField: "name",
+        yField: "value",
+        palette: ["#0ea5e9", "#8b5cf6"]
+      },
+      {
+        theme: {
+          name: "test",
+          palette: ["#111827", "#22c55e"]
+        }
+      }
+    );
+
+    expect(globalOption.color).toEqual(["#111827", "#22c55e"]);
+    expect(overrideOption.color).toEqual(["#0ea5e9", "#8b5cf6"]);
+    expect(globalOption.series?.[0]?.colorBy).toBe("data");
+  });
+
+  it("does not emit undefined heatmap colors when a short palette is provided", () => {
+    const option = mountChart(
+      HeatmapChart,
+      [
+        { x: "Mon", y: "00:00", value: 12 },
+        { x: "Mon", y: "01:00", value: 18 }
+      ],
+      {
+        palette: ["#0ea5e9"]
+      }
+    );
+
+    expect(option.visualMap?.inRange?.color).toEqual([
+      "#0ea5e9",
+      "#0ea5e9",
+      "#0ea5e9"
+    ]);
+  });
+
+  it("keeps gauge semantic success color unless the gauge has an explicit palette", () => {
+    const globalOption = mountChart(
+      GaugeChart,
+      {
+        label: "CPU",
+        value: 42
+      },
+      {},
+      {
+        theme: {
+          name: "test",
+          colors: {
+            success: "#16a34a"
+          },
+          palette: ["#111827"]
+        }
+      }
+    );
+    const overrideOption = mountChart(
+      GaugeChart,
+      {
+        label: "CPU",
+        value: 42
+      },
+      {
+        palette: ["#0ea5e9"]
+      },
+      {
+        theme: {
+          name: "test",
+          colors: {
+            success: "#16a34a"
+          },
+          palette: ["#111827"]
+        }
+      }
+    );
+
+    expect(globalOption.series?.[0]?.progress?.itemStyle?.color).toBe("#16a34a");
+    expect(overrideOption.series?.[0]?.progress?.itemStyle?.color).toBe("#0ea5e9");
+  });
 });
 
 function mountChart(
   component: Component,
   data: unknown,
-  props: Record<string, unknown>
+  props: Record<string, unknown>,
+  runtimeOverrides: Record<string, unknown> = {}
 ): ChartOption {
   let option: ChartOption | undefined;
   const EchartsContainerStub = defineComponent({
@@ -197,7 +308,10 @@ function mountChart(
   });
 
   shallowMount(component, {
-    props: runtimeProps("chart", data, props),
+    props: {
+      ...runtimeProps("chart", data, props),
+      ...runtimeOverrides
+    },
     global: {
       stubs: {
         EchartsContainer: EchartsContainerStub

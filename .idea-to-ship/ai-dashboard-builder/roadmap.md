@@ -2,7 +2,8 @@
 goal: "doc.md -> AI Dashboard Builder v0.1 planning"
 horizon: "0.1"
 generated_at: "2026-05-09 14:18 CST"
-repo_head: "355c833"
+last_updated: "2026-05-09 16:32 CST"
+repo_head: "b499297"
 dirty_worktree: "yes"
 mode: "slug"
 slug: "ai-dashboard-builder"
@@ -35,8 +36,9 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 - Removed: Candidate Brief-only approval blocker from the generated section.
 - Promoted: ITS-ai-dashboard-builder-001, ITS-ai-dashboard-builder-008, and ITS-ai-dashboard-builder-002 to Now.
 - Demoted: none.
-- Completed: none.
-- Needs Revalidation: roadmap was generated against a dirty worktree containing the Stage 8 product integration app and lockfile changes.
+- Completed: ITS-ai-dashboard-builder-008 produced `test-plan.md` with passing verification evidence; ITS-ai-dashboard-builder-001 produced `release-gate.md` with v0.1 go/no-go criteria and source-based internal consumption model; ITS-ai-dashboard-builder-002 produced `docs/ai-dashboard-v0.1-adoption.md`; ITS-ai-dashboard-builder-010 produced `package-publishing-surface.md` and fixed the widgets declaration output surface.
+- Added: ipavo product dashboard pilot reference and a post-v0.1 manager-facing workbench direction: server-side `/apis` proxy with JWT header injection, generated SDK packages such as `@daocloud-proto/*`, local Codex/OpenCode agent bridge, and chart extension flow through sandboxed generated widgets.
+- Needs Revalidation: v0.1 final GO still requires final-candidate checks, a reviewed release-candidate worktree, and platform-lead sign-off.
 
 ## Inputs
 
@@ -52,14 +54,14 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 | `.idea-to-ship/ai-dashboard-builder/code-review.md` | Full latest code review | Stage 7 safety review outcome and residual risk |
 | Workspace manifests | Root/package/app `package.json`, `pnpm-workspace.yaml` | Release surface, scripts, package privacy, workspace shape |
 
-- Repo HEAD: `355c833`.
-- Dirty worktree: yes. Stage 8 product integration files and `pnpm-lock.yaml` are present in the current diff.
+- Repo HEAD: `b499297`.
+- Dirty worktree: yes. Current diff contains release-gate/test-plan artifacts, roadmap/log updates, and focused regression tests; final GO requires a reviewed release-candidate worktree.
 - Excluded sources: git history beyond HEAD/status, TODO/FIXME mining, GitHub issues/PRs/milestones, and network/package registry data.
 
 ## Now
 
 ### ITS-ai-dashboard-builder-001 — Cut v0.1 internal release gate
-**Status:** Planned
+**Status:** Completed - gate definition complete; final release verdict remains HOLD until final-candidate checks and sign-off pass
 **Work Type:** Release
 **Evidence Class:** Explicit
 **Confidence:** High
@@ -68,12 +70,12 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 **Owner:** Frontend platform team (5 engineers)
 **Decision Owner:** Platform lead
 **Release Gate:** Entry: Stage 1-8 implementation and verification remain green; exit: v0.1 exit criteria, consumption model, required checks, owners, and no-go conditions are documented; evidence required: roadmap, test plan, and command output references; no-go conditions: failing root checks, unresolved high-risk safety gaps, or no approved distribution model.
-**Evidence Required:** `.idea-to-ship/ai-dashboard-builder/roadmap.md`; `.idea-to-ship/ai-dashboard-builder/test-plan.md`; `pnpm -r --if-present typecheck`; `pnpm -r --if-present lint`; `pnpm -r --if-present test`; `pnpm -r --if-present build`; user decision on distribution model.
+**Evidence Required:** `.idea-to-ship/ai-dashboard-builder/roadmap.md`; `.idea-to-ship/ai-dashboard-builder/test-plan.md`; `.idea-to-ship/ai-dashboard-builder/release-gate.md`; `pnpm -r --if-present typecheck`; `pnpm -r --if-present lint`; `pnpm -r --if-present test`; `pnpm -r --if-present build`; internal source/commit-based distribution model.
 **Dependencies:** ITS-ai-dashboard-builder-008 for objective acceptance evidence.
 **Risk:** medium - without a written release gate, v0.1 can ship with unclear quality, consumption, or no-go criteria.
 
 ### ITS-ai-dashboard-builder-008 — Produce v0.1 acceptance test plan artifact
-**Status:** Planned
+**Status:** Completed
 **Work Type:** Maintenance
 **Evidence Class:** Artifact
 **Confidence:** High
@@ -87,7 +89,7 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 **Risk:** medium - hidden test gaps can make the release gate subjective and let regressions pass through plausible local demos.
 
 ### ITS-ai-dashboard-builder-002 — Convert product integration example into v0.1 adoption guide
-**Status:** Planned
+**Status:** Completed
 **Work Type:** Docs
 **Evidence Class:** Artifact
 **Confidence:** High
@@ -96,38 +98,38 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 **Owner:** Frontend platform team (5 engineers)
 **Decision Owner:** None
 **Release Gate:** Entry: `apps/product-integration` compiles and its smoke tests pass; exit: adoption guide documents dataSource wrapper shape, dashboard config layout, dashboard-owned i18n merge, widget registry, package CSS imports, validation gate, and mocked-SDK replacement steps; evidence required: guide plus command output; no-go conditions: guide contradicts product example or omits i18n/validation wiring.
-**Evidence Required:** adoption guide markdown; `apps/product-integration` typecheck/lint/test/build commands; source links to product integration files.
+**Evidence Required:** `docs/ai-dashboard-v0.1-adoption.md`; `apps/product-integration` typecheck/lint/test/build commands; source links to product integration files.
 **Dependencies:** None.
 **Risk:** low - the main failure mode is product teams copying incomplete wiring and bypassing validation or locale packaging.
 
 ## Next
 
 ### ITS-ai-dashboard-builder-010 — Prepare package publishing surface
-**Status:** Planned
+**Status:** Completed - internal tarball/package surface prepared; registry publish remains blocked by explicit blockers
 **Work Type:** Release
 **Evidence Class:** Repo
-**Confidence:** Medium
-**Source Anchors:** user statement: approved Next priority; `package.json:4`; `packages/ai-dashboard-runtime/package.json:4`; `packages/ai-dashboard-runtime/package.json:8`; `packages/ai-dashboard-vue/package.json:15`; `packages/ai-dashboard-echarts-vue/package.json:15`; `packages/ai-dashboard-widgets/package.json:15`; `packages/ai-dashboard-sandbox/package.json:14`
+**Confidence:** High
+**Source Anchors:** user statement: approved Next priority; `.idea-to-ship/ai-dashboard-builder/package-publishing-surface.md`; `package.json:4`; `packages/ai-dashboard-runtime/package.json:4`; `packages/ai-dashboard-runtime/package.json:8`; `packages/ai-dashboard-vue/package.json:15`; `packages/ai-dashboard-echarts-vue/package.json:15`; `packages/ai-dashboard-widgets/package.json:15`; `packages/ai-dashboard-sandbox/package.json:14`; `packages/ai-dashboard-widgets/tsconfig.build.json`
 **Why Now / Why Next / Why Later:** Why Next: package manifests expose exports and dist files, but all packages are still private; publishing work should follow the v0.1 release gate so packaging decisions do not outrun acceptance criteria.
 **Owner:** Frontend platform team (5 engineers)
 **Decision Owner:** Platform lead
-**Release Gate:** Entry: ITS-ai-dashboard-builder-001 defines distribution model; exit: package privacy, exports, CSS exports, files, build order, and internal registry/source-consumption path are documented and verified; evidence required: package manifest review and build output; no-go conditions: package entrypoints fail after clean build or CSS imports are missing for Vue consumers.
-**Evidence Required:** package manifest diff/review; `pnpm -r --if-present build`; package contents check for each publishable package.
+**Release Gate:** Entry: ITS-ai-dashboard-builder-001 defines distribution model; exit: package privacy, exports, CSS exports, files, build order, and internal source/tarball QA path are documented and verified; evidence required: package manifest review, widgets declaration-output fix, and pack output; no-go conditions: package entrypoints fail after clean build, Vue package CSS imports are missing, or registry publishing is attempted before the blockers in `package-publishing-surface.md` are closed.
+**Evidence Required:** `.idea-to-ship/ai-dashboard-builder/package-publishing-surface.md`; `packages/ai-dashboard-widgets/tsconfig.build.json`; `pnpm --filter @dao-style-viz/ai-dashboard-widgets build`; `pnpm --filter <package> pack --json --pack-destination /tmp/ai-dashboard-packs` for each publishable package.
 **Dependencies:** ITS-ai-dashboard-builder-001 for the approved distribution model.
-**Risk:** medium - premature publishing can lock unstable package entrypoints or expose private packages with incomplete CSS/runtime contracts.
+**Risk:** medium - premature publishing can lock unstable package entrypoints or expose private packages with incomplete peer dependency and consumer install contracts.
 
 ### ITS-ai-dashboard-builder-003 — Choose and execute first real product SDK pilot
-**Status:** Planned
+**Status:** In Progress - ipavo-style local pilot implemented; real backend run blocked on product SDK package/backend/JWT access
 **Work Type:** Feature
 **Evidence Class:** Artifact
-**Confidence:** Medium
-**Source Anchors:** user statement: approved Next priority; `doc.md:5`; `doc.md:13`; `.idea-to-ship/ai-dashboard-builder/architecture.md:717`; `.idea-to-ship/ai-dashboard-builder/architecture.md:723`; `.idea-to-ship/ai-dashboard-builder/implementation-log.md:681`
-**Why Now / Why Next / Why Later:** Why Next: the local product example uses mocked generated-SDK calls, so one real product pilot is the next evidence step after release gates and adoption docs are in place.
+**Confidence:** High for local pilot shape; Medium for real backend execution
+**Source Anchors:** user statement: approved Next priority; user-provided screenshot; `/Users/sulinghao/workspaces/dce5/ipavo-ui/src/App.vue`; `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md`; `doc.md:5`; `doc.md:13`; `.idea-to-ship/ai-dashboard-builder/architecture.md:717`; `.idea-to-ship/ai-dashboard-builder/architecture.md:723`; `.idea-to-ship/ai-dashboard-builder/implementation-log.md:681`
+**Why Now / Why Next / Why Later:** Why Next: ipavo is now the concrete product reference, and the screenshot/dashboard source proves the target should be expressible as DashboardConfig plus product-owned dataSources/widgets before broader manager-facing generation is built.
 **Owner:** Frontend platform team (5 engineers) plus selected product frontend owner
 **Decision Owner:** Product/platform lead
-**Release Gate:** Entry: selected product owner, generated SDK access, and adoption guide exist; exit: one product dashboard registers real SDK-backed dataSources, renders through runtime, merges dashboard locale resources, and passes validation; evidence required: pilot branch/app commands and review notes; no-go conditions: SDK auth/business logic leaks into AI catalog or dashboard config.
-**Evidence Required:** pilot product source links; validation output; product app typecheck/lint/test/build; review confirming no query implementation leaks into catalog.
-**Dependencies:** ITS-ai-dashboard-builder-002 for adoption guidance; a selected pilot product and SDK access.
+**Release Gate:** Entry: ipavo reference source, screenshot, and adoption guide exist; exit: one product dashboard registers SDK-shaped dataSources, renders through runtime, merges dashboard locale resources, passes validation, documents real `@daocloud-proto/*` replacement, and keeps JWT/backend proxy outside DashboardConfig; evidence required: pilot artifact and product app commands; no-go conditions: SDK auth/business logic leaks into AI catalog or dashboard config.
+**Evidence Required:** `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md`; product source links; validation output; product app typecheck/lint/test/build; review confirming no query implementation leaks into catalog.
+**Dependencies:** ITS-ai-dashboard-builder-002 for adoption guidance; real `@daocloud-proto/ipavo` package access and backend/JWT values for live execution.
 **Risk:** high - real SDK integration can expose undocumented request/auth/i18n assumptions that the mocked example does not cover.
 
 ### ITS-ai-dashboard-builder-004 — Lock production config-error UX contract
@@ -202,6 +204,48 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 **Dependencies:** ITS-ai-dashboard-builder-002 for adoption guidance.
 **Risk:** low - deferring playground wiring may leave some DaoStyle host ergonomics untested, but it does not block the v0.1 core platform release gate.
 
+### ITS-ai-dashboard-builder-011 — Design manager-facing dashboard workbench and local agent bridge
+**Status:** New
+**Work Type:** Feature
+**Evidence Class:** Artifact
+**Confidence:** Medium
+**Source Anchors:** user statement: manager-facing web UI with chat generation, adjustment UI, local Codex/OpenCode connection; `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md`
+**Why Now / Why Next / Why Later:** Why Later: it is the productized direction after v0.1 proves DashboardConfig, product SDK dataSources, and validation; building it before the pilot path is stable would create a UI over moving contracts.
+**Owner:** Unassigned
+**Decision Owner:** Platform/product lead
+**Release Gate:** Entry: product pilot and generator workflow are documented; exit: workbench architecture defines chat flow, preview, edit controls, validation, local agent bridge protocol, file-write permissions, and approval checkpoints; no-go conditions: management UI stores LLM provider keys or bypasses local agent/user approval.
+**Evidence Required:** workbench architecture doc; local agent bridge protocol; threat model for file edits and token handling.
+**Dependencies:** ITS-ai-dashboard-builder-003 and ITS-ai-dashboard-builder-006.
+**Risk:** high - an agent bridge can edit product workspaces and must be explicitly permissioned, observable, and reversible.
+
+### ITS-ai-dashboard-builder-012 — Define backend proxy and credential handling for real SDK previews
+**Status:** New
+**Work Type:** Security
+**Evidence Class:** Artifact
+**Confidence:** High
+**Source Anchors:** user statement: backend URL/token entered in UI, server-side proxy, JWT auth header; `/Users/sulinghao/workspaces/dce5/ipavo-ui/rsbuild.config.ts`; `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md`
+**Why Now / Why Next / Why Later:** Why Later: v0.1 can document proxy knobs, but a real management UI must have a server-side credential boundary before users enter backend URLs and JWTs.
+**Owner:** Unassigned
+**Decision Owner:** Security/platform lead
+**Release Gate:** Entry: live backend preview is planned; exit: proxy service contract defines URL allowlist, JWT storage/lifetime, header injection, audit logging, request limits, and redaction; no-go conditions: DashboardConfig or AI prompt payloads contain tokens, cookies, or backend auth headers.
+**Evidence Required:** proxy contract; security review; integration test using a fake backend and fake JWT.
+**Dependencies:** ITS-ai-dashboard-builder-003.
+**Risk:** high - mishandled JWTs would turn a dashboard generator into a credential leak vector.
+
+### ITS-ai-dashboard-builder-013 — Build chart extension browser and generated widget promotion flow
+**Status:** New
+**Work Type:** Feature
+**Evidence Class:** Artifact
+**Confidence:** Medium
+**Source Anchors:** user statement: fetch/select additional ECharts charts, auto-generate new chart widgets when built-ins are insufficient; `.idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md`; `packages/ai-dashboard-sandbox`
+**Why Now / Why Next / Why Later:** Why Later: built-in charts should be preferred first; dynamic chart extension should only ship after sandbox preview and approval policy hardening.
+**Owner:** Unassigned
+**Decision Owner:** Platform lead plus security lead
+**Release Gate:** Entry: generated chart preview policy is hardened; exit: chart browser can select approved ECharts or other visualization patterns, generate a widget package, run sandbox gates, preview safely, and register only after human approval; no-go conditions: arbitrary chart dependencies or code execute without validation.
+**Evidence Required:** chart extension UX spec; sandbox pass/fail evidence; generated widget approval workflow.
+**Dependencies:** ITS-ai-dashboard-builder-005.
+**Risk:** high - chart generation combines remote code patterns, package dependencies, and preview execution.
+
 ## Milestones
 
 ### Milestone 1 — v0.1 Readiness Definition
@@ -243,7 +287,7 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 
 ## Critical Path
 
-For v0.1 readiness: ITS-ai-dashboard-builder-008 -> ITS-ai-dashboard-builder-001, with ITS-ai-dashboard-builder-002 running in parallel and required before product onboarding.
+For v0.1 readiness, the Now lane artifacts are complete: ITS-ai-dashboard-builder-008, ITS-ai-dashboard-builder-001, and ITS-ai-dashboard-builder-002. Final GO now depends on final-candidate checks, reviewed release-candidate diff, and platform-lead sign-off.
 
 ## Risks / Spikes
 
@@ -256,9 +300,9 @@ For v0.1 readiness: ITS-ai-dashboard-builder-008 -> ITS-ai-dashboard-builder-001
 
 | Slug/ID | Status | Next Action | Blockers | Evidence |
 |---|---|---|---|---|
-| ITS-ai-dashboard-builder-001 | Planned | Draft v0.1 release gate | Distribution decision | User-approved priority; implementation log verification |
-| ITS-ai-dashboard-builder-008 | Planned | Write `test-plan.md` | None | Requirements success criteria and architecture test hooks |
-| ITS-ai-dashboard-builder-002 | Planned | Write adoption guide | None | Product integration example |
+| ITS-ai-dashboard-builder-001 | Completed | Rerun final-candidate release gate before GO | Platform-lead sign-off | `release-gate.md`; test-plan command evidence |
+| ITS-ai-dashboard-builder-008 | Completed | Keep results current if checks change | None | `test-plan.md`; 13 files / 62 tests |
+| ITS-ai-dashboard-builder-002 | Completed | Use guide for first product pilot | Product owner and SDK access | `docs/ai-dashboard-v0.1-adoption.md`; product integration example |
 | ITS-ai-dashboard-builder-010 | Planned | Review package publishing surface | Distribution model | Package manifests |
 | ITS-ai-dashboard-builder-003 | Planned | Select real product pilot | Product owner and SDK access | Product integration example uses mocked SDK shape |
 | ITS-ai-dashboard-builder-004 | Planned | Decide config-error UX ownership | Platform/product decision | Architecture open question |

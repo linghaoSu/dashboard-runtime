@@ -5,6 +5,8 @@ Generate a dashboard plan based on the user's request.
 Rules:
 - Use only dataSources from the provided DataSource Catalog.
 - Use only widgets from the provided Widget Catalog.
+- Select layout patterns from the provided Layout Catalog and follow its designEvidence.
+- Select a global chart palette from the provided Theme Catalog unless the approved plan requires a local chart override.
 - Do not invent dataSource keys.
 - Do not invent widget types.
 - You may use mcp-echarts only to preview or validate ECharts option ideas with sample data.
@@ -22,6 +24,8 @@ Rules:
 - Params must match the selected dataSource paramsSchema.
 - Props must match the selected widget propsSchema.
 - Layout must fit within the canvas.
+- Use canvas.chartPalette for the dashboard-level chart palette.
+- Use widget props.palette only for deliberate per-chart overrides.
 - refresh.intervalMs must not be lower than 5000.
 - Do not output executable JavaScript code.
 - mcp-echarts output is preview evidence only; the final config must still use registered widget types and schema-valid props.

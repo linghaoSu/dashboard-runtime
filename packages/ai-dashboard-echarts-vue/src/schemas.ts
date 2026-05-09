@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const chartPaletteSchema = z.array(z.string().min(1)).min(1).max(12);
+
 export const lineChartDataItemSchema = z.record(
   z.union([z.string(), z.number(), z.boolean(), z.null()])
 );
@@ -13,7 +15,10 @@ export const lineChartPropsSchema = z.object({
   smooth: z.boolean().default(false),
   area: z.boolean().default(false),
   unit: z.string().optional(),
-  showLegend: z.boolean().default(true)
+  showLegend: z.boolean().default(true),
+  showXAxis: z.boolean().default(true),
+  showYAxis: z.boolean().default(true),
+  palette: chartPaletteSchema.optional()
 });
 
 export const barChartDataSchema = lineChartDataSchema;
@@ -41,7 +46,8 @@ export const gaugeChartPropsSchema = z.object({
   precision: z.number().int().nonnegative().default(1),
   unit: z.string().optional(),
   warningThreshold: z.number().optional(),
-  dangerThreshold: z.number().optional()
+  dangerThreshold: z.number().optional(),
+  palette: chartPaletteSchema.optional()
 });
 
 export const donutChartDataItemSchema = z.object({
@@ -56,7 +62,8 @@ export const donutChartPropsSchema = z.object({
   innerRadius: z.string().default("52%"),
   outerRadius: z.string().default("76%"),
   unit: z.string().optional(),
-  showLegend: z.boolean().default(true)
+  showLegend: z.boolean().default(true),
+  palette: chartPaletteSchema.optional()
 });
 
 export const pieChartDataSchema = donutChartDataSchema;
@@ -64,7 +71,8 @@ export const pieChartDataSchema = donutChartDataSchema;
 export const pieChartPropsSchema = z.object({
   radius: z.string().default("70%"),
   unit: z.string().optional(),
-  showLegend: z.boolean().default(true)
+  showLegend: z.boolean().default(true),
+  palette: chartPaletteSchema.optional()
 });
 
 export const radarChartDataItemSchema = z.object({
@@ -77,7 +85,8 @@ export const radarChartDataSchema = z.array(radarChartDataItemSchema);
 
 export const radarChartPropsSchema = z.object({
   max: z.number().positive().optional(),
-  unit: z.string().optional()
+  unit: z.string().optional(),
+  palette: chartPaletteSchema.optional()
 });
 
 export const heatmapChartDataItemSchema = z.object({
@@ -91,7 +100,8 @@ export const heatmapChartDataSchema = z.array(heatmapChartDataItemSchema);
 export const heatmapChartPropsSchema = z.object({
   unit: z.string().optional(),
   min: z.number().optional(),
-  max: z.number().optional()
+  max: z.number().optional(),
+  palette: chartPaletteSchema.optional()
 });
 
 export const scatterChartDataSchema = lineChartDataSchema;
@@ -102,14 +112,16 @@ export const scatterChartPropsSchema = z.object({
   sizeField: z.string().optional(),
   seriesField: z.string().optional(),
   unit: z.string().optional(),
-  showLegend: z.boolean().default(true)
+  showLegend: z.boolean().default(true),
+  palette: chartPaletteSchema.optional()
 });
 
 export const funnelChartDataSchema = donutChartDataSchema;
 
 export const funnelChartPropsSchema = z.object({
   unit: z.string().optional(),
-  sort: z.enum(["ascending", "descending", "none"]).default("descending")
+  sort: z.enum(["ascending", "descending", "none"]).default("descending"),
+  palette: chartPaletteSchema.optional()
 });
 
 export const mapChartDataItemSchema = z.object({
@@ -123,7 +135,8 @@ export const mapChartDataSchema = z.array(mapChartDataItemSchema);
 
 export const mapChartPropsSchema = z.object({
   unit: z.string().optional(),
-  symbolSize: z.number().positive().default(12)
+  symbolSize: z.number().positive().default(12),
+  palette: chartPaletteSchema.optional()
 });
 
 export type LineChartDataItem = z.infer<typeof lineChartDataItemSchema>;

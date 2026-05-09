@@ -9,10 +9,38 @@ describe("dashboardConfigSchema", () => {
     );
   });
 
+  it("accepts global theme colors and chart palette on the canvas", () => {
+    const result = dashboardConfigSchema.safeParse({
+      ...clusterOverviewDashboard,
+      canvas: {
+        ...clusterOverviewDashboard.canvas,
+        colors: {
+          primary: "#38bdf8",
+          text: "#dbeafe"
+        },
+        chartPalette: ["#38bdf8", "#22c55e", "#f59e0b"]
+      }
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("rejects a config without canvas settings", () => {
     const invalidConfig: unknown = {
       ...clusterOverviewDashboard,
       canvas: undefined
+    };
+
+    expect(dashboardConfigSchema.safeParse(invalidConfig).success).toBe(false);
+  });
+
+  it("rejects an empty global chart palette", () => {
+    const invalidConfig: unknown = {
+      ...clusterOverviewDashboard,
+      canvas: {
+        ...clusterOverviewDashboard.canvas,
+        chartPalette: []
+      }
     };
 
     expect(dashboardConfigSchema.safeParse(invalidConfig).success).toBe(false);

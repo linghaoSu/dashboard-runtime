@@ -2,9 +2,16 @@ export type LayoutPresetCatalogItem = {
   key: string;
   name: string;
   description?: string;
+  rationale?: string;
   canvas: {
     width: number;
     height: number;
+    scaleMode: "fit" | "fill" | "scroll";
+  };
+  grid?: {
+    margin: number;
+    gutter: number;
+    columns?: number;
   };
   slots: Array<{
     key: string;
@@ -18,6 +25,10 @@ export type LayoutPresetCatalogItem = {
     goodFor?: string[];
     notGoodFor?: string[];
   };
+  designEvidence?: {
+    source: string;
+    principles: string[];
+  };
 };
 
 export const defaultLayoutCatalog: LayoutPresetCatalogItem[] = [
@@ -25,9 +36,17 @@ export const defaultLayoutCatalog: LayoutPresetCatalogItem[] = [
     key: "overview-3-kpi-chart-table",
     name: "Overview KPI + Chart + Table",
     description: "Three KPI slots above one trend chart and one table/list slot",
+    rationale:
+      "Prioritizes KPI scanning, then gives the primary trend chart a dominant slot with a side detail panel.",
     canvas: {
       width: 1920,
-      height: 1080
+      height: 1080,
+      scaleMode: "fit"
+    },
+    grid: {
+      margin: 40,
+      gutter: 40,
+      columns: 12
     },
     slots: [
       { key: "kpi-1", x: 40, y: 40, w: 420, h: 180, recommendedCategories: ["metric"] },
@@ -39,15 +58,27 @@ export const defaultLayoutCatalog: LayoutPresetCatalogItem[] = [
     aiHints: {
       goodFor: ["cluster overview", "resource monitoring", "operations status"],
       notGoodFor: ["map-first dashboards", "single full-screen chart"]
+    },
+    designEvidence: {
+      source: "docs/design.md",
+      principles: ["top-row KPIs", "dominant primary chart", "aligned widget edges"]
     }
   },
   {
     key: "map-with-side-panel",
     name: "Map With Side Panel",
     description: "Large map/coordinate chart with a narrow side list",
+    rationale:
+      "Keeps the spatial view dominant while reserving a stable side slot for selected-region context.",
     canvas: {
       width: 1920,
-      height: 1080
+      height: 1080,
+      scaleMode: "fit"
+    },
+    grid: {
+      margin: 40,
+      gutter: 40,
+      columns: 12
     },
     slots: [
       { key: "map", x: 40, y: 40, w: 1240, h: 820, recommendedCategories: ["chart"] },
@@ -56,6 +87,43 @@ export const defaultLayoutCatalog: LayoutPresetCatalogItem[] = [
     aiHints: {
       goodFor: ["regional status", "site monitoring", "coordinate data"],
       notGoodFor: ["pure KPI dashboards"]
+    },
+    designEvidence: {
+      source: "docs/design.md",
+      principles: ["dominant primary chart", "side detail panel", "stable geometry"]
+    }
+  },
+  {
+    key: "tenant-ops-command",
+    name: "Tenant Ops Command",
+    description: "Filter band, status note, KPI row, alerts, and full-width diagnostic chart",
+    rationale:
+      "Optimized for product operations dashboards where filtering and status context precede diagnostics.",
+    canvas: {
+      width: 1440,
+      height: 900,
+      scaleMode: "fit"
+    },
+    grid: {
+      margin: 32,
+      gutter: 32,
+      columns: 12
+    },
+    slots: [
+      { key: "filter-band", x: 32, y: 28, w: 760, h: 88, recommendedCategories: ["filter"] },
+      { key: "status-note", x: 820, y: 28, w: 588, h: 88, recommendedCategories: ["status"] },
+      { key: "kpi-1", x: 32, y: 148, w: 320, h: 188, recommendedCategories: ["metric"] },
+      { key: "kpi-2", x: 384, y: 148, w: 320, h: 188, recommendedCategories: ["metric"] },
+      { key: "alerts", x: 736, y: 148, w: 672, h: 188, recommendedCategories: ["list"] },
+      { key: "primary-chart", x: 32, y: 372, w: 1376, h: 464, recommendedCategories: ["chart"] }
+    ],
+    aiHints: {
+      goodFor: ["tenant capacity", "SLO status", "product operations"],
+      notGoodFor: ["map-first dashboards", "dense BI tables"]
+    },
+    designEvidence: {
+      source: "docs/design.md",
+      principles: ["filter band first", "KPI scan row", "full-width diagnostic chart"]
     }
   }
 ];
@@ -68,12 +136,23 @@ export function createLayoutCatalog(
     canvas: {
       ...layout.canvas
     },
+    grid: layout.grid
+      ? {
+          ...layout.grid
+        }
+      : undefined,
     slots: layout.slots.map((slot) => ({
       ...slot,
       recommendedCategories: slot.recommendedCategories
         ? [...slot.recommendedCategories]
         : undefined
     })),
-    aiHints: layout.aiHints
+    aiHints: layout.aiHints,
+    designEvidence: layout.designEvidence
+      ? {
+          source: layout.designEvidence.source,
+          principles: [...layout.designEvidence.principles]
+        }
+      : undefined
   }));
 }

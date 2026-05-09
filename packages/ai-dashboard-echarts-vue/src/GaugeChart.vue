@@ -31,7 +31,7 @@ const gaugeColor = computed(() => {
     return runtimeProps.theme.colors?.warning ?? "#f59e0b";
   }
 
-  return runtimeProps.theme.colors?.success ?? "#22c55e";
+  return runtimeProps.props.palette?.[0] ?? runtimeProps.theme.colors?.success ?? "#22c55e";
 });
 
 const option = computed(() => {

@@ -4,7 +4,16 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-    "noEmit": false
+    "noEmit": false,
+    "rootDir": "src",
+    "paths": {
+      "@dao-style-viz/ai-dashboard-runtime": [
+        "packages/ai-dashboard-runtime/dist/index.d.ts"
+      ],
+      "@dao-style-viz/ai-dashboard-vue": [
+        "packages/ai-dashboard-vue/dist/index.d.ts"
+      ]
+    }
   },
   "exclude": ["src/**/*.test.ts"]
 }

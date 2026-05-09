@@ -25,7 +25,12 @@ const option = computed(() => {
   const values = runtimeProps.data.map((item) => item.value);
   const min = runtimeProps.props.min ?? Math.min(...values, 0);
   const max = runtimeProps.props.max ?? Math.max(...values, 1);
-  const palette = createEchartsPalette(runtimeProps.theme);
+  const palette = createEchartsPalette(runtimeProps.theme, runtimeProps.props.palette);
+  const visualMapColors = [
+    palette[0] ?? "#38bdf8",
+    palette[2] ?? palette[1] ?? palette[0] ?? "#f59e0b",
+    palette[3] ?? palette[2] ?? palette[1] ?? palette[0] ?? "#ef4444"
+  ];
   const textStyle = createEchartsTextStyle(runtimeProps.theme);
   const axisStyle = createEchartsAxisStyle(runtimeProps.theme);
   const formatNumber = (value: number) => runtimeProps.format.number(value);
@@ -62,7 +67,7 @@ const option = computed(() => {
       bottom: 0,
       textStyle,
       inRange: {
-        color: [palette[0], palette[2], palette[3]]
+        color: visualMapColors
       }
     },
     series: [

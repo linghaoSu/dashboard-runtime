@@ -202,6 +202,7 @@ onBeforeUnmount(() => {
   <WidgetShell
     :title="title"
     :layout="widget.layout"
+    :theme="theme"
     :loading="loading"
     :error="error"
     :empty="isEmpty"

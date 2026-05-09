@@ -26,13 +26,14 @@ const option = computed(() => {
   const categories = [
     ...new Set(runtimeProps.data.map((item) => readDimension(item, xField)))
   ];
-  const palette = createEchartsPalette(runtimeProps.theme);
+  const palette = createEchartsPalette(runtimeProps.theme, runtimeProps.props.palette);
   const textStyle = createEchartsTextStyle(runtimeProps.theme);
   const axisStyle = createEchartsAxisStyle(runtimeProps.theme);
   const formatNumber = (value: number) => runtimeProps.format.number(value);
-  const buildSeries = (name: string, values: number[]) => ({
+  const buildSeries = (name: string, values: number[], colorByData = false) => ({
     name,
     type: "bar",
+    colorBy: colorByData ? "data" : "series",
     stack: (runtimeProps.props.stack ?? false) ? "total" : undefined,
     data: values
   });
@@ -55,7 +56,8 @@ const option = computed(() => {
     : [
         buildSeries(
           runtimeProps.title ?? runtimeProps.t("chart.bar.series.default"),
-          runtimeProps.data.map((item) => readMetric(item, yField))
+          runtimeProps.data.map((item) => readMetric(item, yField)),
+          true
         )
       ];
   const horizontal = runtimeProps.props.orientation === "horizontal";

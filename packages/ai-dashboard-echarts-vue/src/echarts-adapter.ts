@@ -12,14 +12,36 @@ export function createEchartsInitOptions(locale: string): EchartsInitOptions {
   };
 }
 
-export function createEchartsPalette(theme: DashboardTheme): string[] {
+export const defaultEchartsPalette = [
+  "#38bdf8",
+  "#22c55e",
+  "#f59e0b",
+  "#ef4444",
+  "#a78bfa",
+  "#14b8a6",
+  "#f472b6",
+  "#eab308"
+];
+
+export function createEchartsPalette(
+  theme: DashboardTheme,
+  overridePalette?: string[]
+): string[] {
+  if (overridePalette?.length) {
+    return [...overridePalette];
+  }
+
+  if (theme.palette?.length) {
+    return [...theme.palette];
+  }
+
   return [
     theme.colors?.primary ?? "#38bdf8",
     theme.colors?.success ?? "#22c55e",
     theme.colors?.warning ?? "#f59e0b",
     theme.colors?.danger ?? "#ef4444",
     theme.colors?.accent ?? "#a78bfa",
-    "#14b8a6"
+    ...defaultEchartsPalette.slice(5)
   ];
 }
 

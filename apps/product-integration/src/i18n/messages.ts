@@ -2,6 +2,7 @@ import {
   mergeLocaleMessages,
   type LocaleMessages
 } from "@dao-style-viz/ai-dashboard-runtime";
+import { ipavoOverviewMessages } from "../dashboards/ipavo-overview.i18n";
 import { tenantCapacityMessages } from "../dashboards/tenant-capacity.i18n";
 
 const productMessages: LocaleMessages = {
@@ -19,5 +20,6 @@ const productMessages: LocaleMessages = {
 
 export const messages = mergeLocaleMessages(
   productMessages,
-  tenantCapacityMessages
+  tenantCapacityMessages,
+  ipavoOverviewMessages
 );

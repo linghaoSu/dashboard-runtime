@@ -24,7 +24,7 @@ const option = computed(() => {
   const yField = runtimeProps.props.yField ?? "y";
   const seriesField = runtimeProps.props.seriesField;
   const sizeField = runtimeProps.props.sizeField;
-  const palette = createEchartsPalette(runtimeProps.theme);
+  const palette = createEchartsPalette(runtimeProps.theme, runtimeProps.props.palette);
   const textStyle = createEchartsTextStyle(runtimeProps.theme);
   const axisStyle = createEchartsAxisStyle(runtimeProps.theme);
   const formatNumber = (value: number) => runtimeProps.format.number(value);

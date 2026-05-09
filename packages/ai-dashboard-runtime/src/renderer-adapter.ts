@@ -4,6 +4,7 @@ import type { LocaleMessages } from "./i18n-runtime.js";
 export type DashboardTheme = {
   name: string;
   colors?: Record<string, string>;
+  palette?: string[];
 };
 
 export type RuntimeInput = {

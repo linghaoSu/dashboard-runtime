@@ -19,7 +19,7 @@ const initOptions = computed(() =>
 );
 
 const option = computed(() => {
-  const palette = createEchartsPalette(runtimeProps.theme);
+  const palette = createEchartsPalette(runtimeProps.theme, runtimeProps.props.palette);
   const textStyle = createEchartsTextStyle(runtimeProps.theme);
   const formatNumber = (value: number) => runtimeProps.format.number(value);
   const seriesData = runtimeProps.data.map((item, index) => ({

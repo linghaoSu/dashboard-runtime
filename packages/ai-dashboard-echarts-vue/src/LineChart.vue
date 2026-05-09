@@ -26,7 +26,7 @@ const option = computed(() => {
   const categories = [
     ...new Set(runtimeProps.data.map((item) => readDimension(item, xField)))
   ];
-  const palette = createEchartsPalette(runtimeProps.theme);
+  const palette = createEchartsPalette(runtimeProps.theme, runtimeProps.props.palette);
   const textStyle = createEchartsTextStyle(runtimeProps.theme);
   const axisStyle = createEchartsAxisStyle(runtimeProps.theme);
   const formatNumber = (value: number) => runtimeProps.format.number(value);
@@ -78,19 +78,21 @@ const option = computed(() => {
       textStyle
     },
     grid: {
-      left: 36,
+      left: runtimeProps.props.showYAxis === false ? 8 : 36,
       right: 24,
       top: series.length > 1 ? 34 : 12,
-      bottom: 28,
+      bottom: runtimeProps.props.showXAxis === false ? 8 : 28,
       containLabel: true
     },
     xAxis: {
+      show: runtimeProps.props.showXAxis ?? true,
       type: "category",
       boundaryGap: false,
       data: categories,
       ...axisStyle
     },
     yAxis: {
+      show: runtimeProps.props.showYAxis ?? true,
       type: "value",
       ...axisStyle
     },

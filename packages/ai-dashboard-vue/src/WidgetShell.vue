@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { WidgetLayout } from "@dao-style-viz/ai-dashboard-schema";
-import { computed } from "vue";
+import type { DashboardTheme } from "@dao-style-viz/ai-dashboard-runtime";
+import { computed, type CSSProperties } from "vue";
 
 const props = defineProps<{
   title?: string;
   layout: WidgetLayout;
+  theme?: DashboardTheme;
   loading?: boolean;
   empty?: boolean;
   error?: Error | null;
@@ -12,12 +14,21 @@ const props = defineProps<{
   errorText?: string;
 }>();
 
-const shellStyle = computed(() => ({
+const shellStyle = computed<CSSProperties>(() => ({
   left: `${props.layout.x}px`,
   top: `${props.layout.y}px`,
   width: `${props.layout.w}px`,
   height: `${props.layout.h}px`,
-  zIndex: props.layout.zIndex ?? 1
+  zIndex: props.layout.zIndex ?? 1,
+  "--dao-widget-shell-bg":
+    props.theme?.colors?.widgetBackground ?? "rgb(15 23 42 / 72%)",
+  "--dao-widget-shell-border":
+    props.theme?.colors?.widgetBorder ?? "rgb(148 163 184 / 24%)",
+  "--dao-widget-shell-shadow": props.theme?.colors?.widgetShadow ?? "none",
+  "--dao-widget-shell-text": props.theme?.colors?.text ?? "#e5e7eb",
+  "--dao-widget-shell-header": props.theme?.colors?.heading ?? props.theme?.colors?.text ?? "#e5e7eb",
+  "--dao-widget-shell-state": props.theme?.colors?.muted ?? "#cbd5e1",
+  "--dao-widget-shell-error": props.theme?.colors?.danger ?? "#fca5a5"
 }));
 </script>
 
@@ -47,15 +58,17 @@ const shellStyle = computed(() => ({
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgb(148 163 184 / 24%);
+  border: 1px solid var(--dao-widget-shell-border);
   border-radius: 8px;
-  background: rgb(15 23 42 / 72%);
-  color: #e5e7eb;
+  background: var(--dao-widget-shell-bg);
+  box-shadow: var(--dao-widget-shell-shadow);
+  color: var(--dao-widget-shell-text);
 }
 
 .dao-widget-shell__header {
   flex: 0 0 auto;
   padding: 10px 12px 6px;
+  color: var(--dao-widget-shell-header);
   font-size: 16px;
   font-weight: 600;
 }
@@ -75,11 +88,11 @@ const shellStyle = computed(() => ({
   width: 100%;
   height: 100%;
   place-items: center;
-  color: #cbd5e1;
+  color: var(--dao-widget-shell-state);
   font-size: 14px;
 }
 
 .dao-widget-shell__state--error {
-  color: #fca5a5;
+  color: var(--dao-widget-shell-error);
 }
 </style>

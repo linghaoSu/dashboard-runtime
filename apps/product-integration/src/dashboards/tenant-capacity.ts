@@ -31,7 +31,27 @@ export const tenantCapacityDashboard: DashboardConfig = {
     height: 900,
     scaleMode: "fit",
     theme: "dao-dark",
-    background: "#08111f"
+    background: "#08111f",
+    colors: {
+      text: "#dbeafe",
+      primary: "#38bdf8",
+      success: "#22c55e",
+      warning: "#f59e0b",
+      danger: "#ef4444",
+      accent: "#a78bfa",
+      axis: "rgba(148, 163, 184, 0.35)",
+      grid: "rgba(148, 163, 184, 0.14)"
+    },
+    chartPalette: [
+      "#38bdf8",
+      "#22c55e",
+      "#f59e0b",
+      "#ef4444",
+      "#a78bfa",
+      "#14b8a6",
+      "#f472b6",
+      "#eab308"
+    ]
   },
   i18n: {
     namespace: "dashboard.tenantCapacity",
@@ -192,7 +212,8 @@ export const tenantCapacityDashboard: DashboardConfig = {
         xField: "namespace",
         yField: "value",
         unit: " cores",
-        showLegend: false
+        showLegend: false,
+        palette: ["#0ea5e9", "#10b981", "#f59e0b", "#8b5cf6"]
       }
     }
   ]
