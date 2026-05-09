@@ -12,6 +12,7 @@
   "dependencies": {
     "@dao-style-viz/ai-dashboard-runtime": "workspace:*",
     "@dao-style-viz/ai-dashboard-schema": "workspace:*",
+    "@dao-style-viz/ai-dashboard-ai-catalog": "workspace:*",
     "@dao-style-viz/ai-dashboard-echarts-vue": "workspace:*",
     "@dao-style-viz/ai-dashboard-vue": "workspace:*",
     "vue": "3.3.13",

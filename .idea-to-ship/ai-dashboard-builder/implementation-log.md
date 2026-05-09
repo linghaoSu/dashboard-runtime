@@ -8,7 +8,7 @@
 - [x] Stage 1 — Workspace + Schema Contracts
 - [x] Stage 2 — Runtime + Vue Tracer Bullet
 - [x] Stage 3 — Vue ECharts Widget Slice
-- [ ] Stage 4 — AI Catalog + Config Validation Gate
+- [x] Stage 4 — AI Catalog + Config Validation Gate
 - [ ] Stage 5 — Runtime Event + Refresh Hardening
 - [ ] Stage 6 — Basic Widgets Extraction
 - [ ] Stage 7 — Generated Chart Sandbox Gate
@@ -328,3 +328,99 @@
 ### Verification
 
 - docs/config: ok — source docs, requirements, and architecture agree on the MCP boundary
+
+## Stage 4 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 3 renders the Vue ECharts demo after the chart container sizing and CSS resolution fixes.
+- The optional `mcp-echarts` boundary is documented as generation-time assistance only.
+- `packages/ai-dashboard-ai-catalog` does not exist yet, and the demo does not expose catalog exports or a config validation gate.
+
+### Assumptions
+
+- Use a narrow custom Zod schema summarizer instead of a full JSON Schema converter for the MVP catalog. The catalog only needs AI-readable constraints, not a complete validator replacement.
+- Config validation should run after `DashboardConfig` schema parsing and before runtime rendering.
+- Static `params` can be checked against dataSource schemas immediately; params containing `$ref` are deferred to runtime because their final values depend on route, locale, filters, and context.
+- Enforce i18n key objects for user-facing text in AI-generated config by default. Trusted hand-written config can opt out with `requireI18nKeys: false` if needed.
+
+## Stage 4 — AI Catalog + Config Validation Gate
+
+**Completed:** 2026-05-09 10:46 CST
+
+### Files touched
+
+- `packages/ai-dashboard-ai-catalog/package.json` — adds the AI catalog package.
+- `packages/ai-dashboard-ai-catalog/tsconfig.json` — package typecheck config.
+- `packages/ai-dashboard-ai-catalog/tsconfig.build.json` — declaration/build config against built workspace packages.
+- `packages/ai-dashboard-ai-catalog/src/schema-summary.ts` — converts Zod schemas into JSON-safe summaries for AI prompts.
+- `packages/ai-dashboard-ai-catalog/src/create-data-source-catalog.ts` — exports dataSource metadata without `query`.
+- `packages/ai-dashboard-ai-catalog/src/create-widget-catalog.ts` — exports widget metadata without Vue components or renderer implementation.
+- `packages/ai-dashboard-ai-catalog/src/validate-dashboard-config.ts` — validates config against registered widgets, dataSources, layout bounds, i18n rules, props schemas, static params, compatibility, and refresh minimums.
+- `packages/ai-dashboard-ai-catalog/src/prompt-templates.ts` — adds dashboard plan, DashboardConfig, and chart component prompt templates with the `mcp-echarts` boundary.
+- `packages/ai-dashboard-ai-catalog/src/index.ts` — exports the package API.
+- `packages/ai-dashboard-ai-catalog/src/__tests__/catalog.test.ts` — covers catalog stripping and validation failures.
+- `apps/demo/src/catalog.ts` — exports demo dataSource/widget catalogs and validation result.
+- `apps/demo/package.json` — depends on the catalog package.
+- `apps/demo/vite.config.ts` — aliases the catalog package source for demo development.
+- `tsconfig.base.json` — adds the catalog package path alias.
+- `pnpm-lock.yaml` — locks the catalog package workspace entry.
+
+### Decisions made during implementation
+
+- Keep catalog exports JSON-safe and metadata-only. DataSource `query` functions and widget `component` references are omitted by construction.
+- Keep prompt templates in the catalog package for now because they depend directly on catalog shape and validation rules. A model-backed generator package can import or move them later.
+- Validate AI output against both the schema package and live registries so unknown widget/dataSource keys fail before runtime.
+- Reject interval refresh below `5000ms` by default, matching the requirements and architecture assumptions.
+- Treat `mcp-echarts` output as preview evidence in prompts; it still maps back to registered widget props or generated chart package files before platform gates.
+
+### Deviations from architecture.md
+
+- The MVP schema summarizer is intentionally narrower than complete JSON Schema generation. This is enough for prompt/catalog use and avoids overpromising validator-grade schema fidelity.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- Zod internals are inspected in the schema summarizer. That is acceptable for the first catalog slice but should be replaced or hardened if catalog schema fidelity becomes a public contract.
+- Runtime-level validation for `$ref`-resolved params remains in the data loader; the catalog validation gate only checks static params that contain no refs.
+
+### Verification
+
+- install: ok — `pnpm install`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
+- tests: ok — `pnpm -r --if-present test` ran 7 files / 17 tests, 0 failed
+- whitespace: ok — `git diff --check`
+
+## Stage 4 Follow-up — Full Template Playground Host
+
+**Completed:** 2026-05-09 10:53 CST
+
+### Files touched
+
+- `playground/playground-ui/` — generated standalone app from `@dao-style/cli@0.4.1` full template with `@dao-style/core`, `@dao-style/extend`, and `@dao-style/biz`.
+- `.idea-to-ship/ai-dashboard-builder/requirements.md` — records the full-template playground as the realistic host-app integration surface.
+- `.idea-to-ship/ai-dashboard-builder/architecture.md` — records the playground as a standalone host app outside the root pnpm workspace.
+- `doc.md` — documents the playground in the source design and MVP plan.
+
+### Decisions made during implementation
+
+- Keep the generated app under `playground/playground-ui` instead of `apps/playground-ui` so it does not become part of the root workspace's `apps/*` package set.
+- Remove the generated nested `.git` directory so the app remains part of this repository's working tree.
+- Install playground dependencies with `CI=true pnpm --dir playground/playground-ui install --ignore-workspace` because the CLI-generated postinstall/prepare hooks assume a standalone app.
+- Preserve the generated `src/plugins/vue-i18n` structure as the realistic host locale integration reference.
+
+### Deviations from architecture.md
+
+- Product integration scaffolding starts earlier than Stage 8 because the full-template host app is useful for validating package ergonomics before the later product-style example is complete.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- `@dao-style/cli create` initially failed its automatic install when run inside this root workspace because the workspace Node engine check conflicted with the npx process. A standalone `pnpm --dir ... install --ignore-workspace` with `CI=true` succeeded.
+- The playground build emits CSS warnings about `input-placeholder` pseudo-class syntax from the generated template/dependencies. The build still succeeds.
+
+### Verification
+
+- playground install: ok — `CI=true pnpm --dir playground/playground-ui install --ignore-workspace`
+- playground build: ok — `pnpm --dir playground/playground-ui run build` with non-blocking generated CSS warnings
+- whitespace: ok — `git diff --check`

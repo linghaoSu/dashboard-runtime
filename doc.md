@@ -195,6 +195,14 @@ AI 生成代码时，只允许生成符合标准接口的 chart widget：
 @dao-style-viz/ai-dashboard-sandbox
 ```
 
+同时保留一个 standalone playground：
+
+```text
+playground/playground-ui
+```
+
+该应用通过 `@dao-style/cli` full template 生成，包含 `@dao-style/core`、`@dao-style/extend`、`@dao-style/biz` 和项目侧 vue-i18n 插件结构，用于模拟真实业务项目接入。它不默认纳入根 pnpm workspace，避免示例宿主影响平台包的基础构建链路。
+
 ### 5.1 ai-dashboard-schema
 
 负责定义：
@@ -1599,9 +1607,21 @@ packages/
       ast-scan.ts
       preview-frame.vue
       index.ts
+
+playground/
+  playground-ui/
+    src/
+      plugins/
+        vue-i18n/
+      App.vue
+      main.ts
+    rsbuild.config.ts
+    package.json
 ```
 
 ### 16.2 业务产品接入
+
+`playground/playground-ui` 是通过 `@dao-style/cli` full template 生成的真实宿主形态，用于提前验证平台包在 DaoStyle 项目依赖、插件和 i18n 结构中的接入方式。正式产品接入示例仍可按下列结构组织：
 
 ```text
 product-a/
@@ -1710,10 +1730,11 @@ product-a/
 2. 实现 Widget Catalog 导出。
 3. 定义 AI prompt template。
 4. 定义可选 `mcp-echarts` 辅助链路，用于 ECharts option 预览 / 校验。
-5. 先生成 Dashboard Plan。
-6. 再生成 DashboardConfig。
-7. 对 AI 输出做 schema 校验。
-8. 提供自动修复 prompt。
+5. 准备 `@dao-style/cli` full template playground，用于模拟真实项目侧接入。
+6. 先生成 Dashboard Plan。
+7. 再生成 DashboardConfig。
+8. 对 AI 输出做 schema 校验。
+9. 提供自动修复 prompt。
 
 验收标准：
 
@@ -1721,6 +1742,7 @@ product-a/
 * AI 只能引用已注册 dataSource 和 widget。
 * AI 生成 config 可以被 Runtime 渲染。
 * 生成的 title 使用 i18n key + defaultMessage。
+* Playground 能独立 install / build，不依赖根 workspace 成员身份。
 
 ### Phase 5：AI 图表组件生成 Sandbox
 

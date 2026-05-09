@@ -46,6 +46,7 @@ There is no existing package manager, build system, source tree, test runner, li
 - Keep schema, dataSource, ref resolution, catalog, and validation contracts free of Vue imports so another renderer can be added without rewriting those contracts.
 - The Vue renderer should integrate with a host-provided `vue-i18n` composer or `t` function instead of owning global locale installation; standalone demo messages are only a fallback for local verification.
 - `mcp-echarts` can be used as an optional local MCP helper for AI chart generation. It can generate ECharts option/image artifacts and validate option syntax, but it is not a runtime dependency and cannot bypass schema, registry, or sandbox checks.
+- A realistic host playground lives under `playground/playground-ui`, generated from `@dao-style/cli` full template with `@dao-style/core`, `@dao-style/extend`, and `@dao-style/biz`. It stays outside the root pnpm workspace so it behaves like an independent product app.
 
 ## Alternatives Considered
 
@@ -236,6 +237,7 @@ export const clusterDataSources = defineDataSources({
 - `apps/demo/src/dashboards/cluster-overview.i18n/index.ts` — dashboard message export map.
 - `apps/demo/src/i18n/messages.ts` — demo project messages plus merged dashboard messages.
 - `apps/demo/src/App.vue` — renders the Vue `BigScreenRuntime`.
+- `playground/playground-ui/` — standalone full-template Vue 3.3.x host app for validating package ergonomics in a realistic DaoStyle project shell.
 
 ### Data Flow
 
@@ -622,6 +624,7 @@ Rollout path:
 - Catalog: snapshot/structural tests ensuring no function fields or implementation source are exported.
 - Generator MCP adapter: contract tests or fixtures proving `mcp-echarts` output is treated as preview/validation evidence only and cannot skip DashboardConfig/sandbox validation.
 - Demo app: smoke test verifies one config renders multiple widget shells and locale toggle changes text.
+- Playground app: standalone install/build verifies the generated full-template host remains independent from the root workspace and can host future product-style integration tests.
 - Sandbox stage: fixture tests for allowed and blocked generated chart packages.
 
 ## Staged Implementation Plan
@@ -629,7 +632,7 @@ Rollout path:
 1. **Stage 1 — Workspace + Schema Contracts**: Create pnpm workspace, TypeScript/Vitest/ESLint setup, schema package, config fixtures, and schema tests. No runtime rendering yet.
 2. **Stage 2 — Runtime + Vue Tracer Bullet**: Implement framework-neutral ref resolver with explicit scope order, i18n runtime, formatters, dataSource registry/helper, widget registry, data loader, widget dataSchema compatibility validation, renderer adapter contracts, Vue `ScreenCanvas`, Vue `WidgetShell`, Vue `WidgetRenderer`, Vue `BigScreenRuntime`, and a demo with mocked SDK and one simple non-ECharts Vue widget.
 3. **Stage 3 — Vue ECharts Widget Slice**: Add `ai-dashboard-echarts-vue` with LineChart, GaugeChart, DonutChart, widget metadata, ECharts locale/theme adapter, and demo dashboard updates.
-4. **Stage 4 — AI Catalog + Config Validation Gate**: Add catalog package, JSON schema conversion, prompt templates, optional `mcp-echarts` generation-assist contract, validation helpers for unknown dataSource/widget, i18n text enforcement, layout bounds, and minimum refresh interval.
+4. **Stage 4 — AI Catalog + Config Validation Gate**: Add catalog package, JSON schema conversion, prompt templates, optional `mcp-echarts` generation-assist contract, validation helpers for unknown dataSource/widget, i18n text enforcement, layout bounds, minimum refresh interval, and a standalone `@dao-style/cli` full-template playground host.
 5. **Stage 5 — Runtime Event + Refresh Hardening**: Implement event dispatcher mapping from widget-emitted triggers to configured `setFilter`, `refreshWidget`, and `emit` actions; finish interval refresh behavior, request cancellation on filter/locale/dashboard changes, and dependsOnLocale reload tests.
 6. **Stage 6 — Basic Widgets Extraction**: Extract reusable Vue MetricCard, RankingList, ScrollTable, AlarmList, FilterBar, and TimeRangePicker into `ai-dashboard-widgets` once the runtime widget shell contract is stable; keep component internals behind the framework marker so future renderer packages can provide equivalents.
 7. **Stage 7 — Generated Chart Sandbox Gate**: Add generated chart package schema, dependency allowlist, AST safety scan, type/lint/build hooks, iframe preview contract, fixture tests, and a disabled-by-default generated registry.
@@ -639,7 +642,7 @@ Each stage is independently shippable: the build and tests should pass, and the 
 
 ## Open Questions
 
-- Confirm whether `pnpm` is the desired package manager and whether this repo should use Turborepo, plain pnpm scripts, or another build orchestrator.
+- Confirm whether `pnpm` is the desired package manager and whether this repo should use Turborepo, plain pnpm scripts, or another build orchestrator. Current implementation uses root pnpm workspaces plus a standalone playground app outside workspace membership.
 - Decide the exact minimum refresh interval. The design assumes `5000ms` because the source document used it as an example.
 - Decide whether trusted hand-written configs below the refresh minimum should be rejected or clamped; AI output should be rejected.
 - Decide if config-level validation errors should render in production UI or be handled by the host application.

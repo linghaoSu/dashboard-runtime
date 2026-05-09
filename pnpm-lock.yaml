@@ -47,6 +47,9 @@ importers:
 
   apps/demo:
     dependencies:
+      '@dao-style-viz/ai-dashboard-ai-catalog':
+        specifier: workspace:*
+        version: link:../../packages/ai-dashboard-ai-catalog
       '@dao-style-viz/ai-dashboard-echarts-vue':
         specifier: workspace:*
         version: link:../../packages/ai-dashboard-echarts-vue
@@ -69,6 +72,18 @@ importers:
       vue-tsc:
         specifier: ^2.2.12
         version: 2.2.12(typescript@5.9.3)
+
+  packages/ai-dashboard-ai-catalog:
+    dependencies:
+      '@dao-style-viz/ai-dashboard-runtime':
+        specifier: workspace:*
+        version: link:../ai-dashboard-runtime
+      '@dao-style-viz/ai-dashboard-schema':
+        specifier: workspace:*
+        version: link:../ai-dashboard-schema
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
 
   packages/ai-dashboard-echarts-vue:
     dependencies:

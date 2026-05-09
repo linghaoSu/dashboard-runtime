@@ -37,6 +37,7 @@
 - 从第一版支持 dashboard、widget、metadata、tooltip、空状态、错误状态、数字、日期、时间、百分比和单位的国际化。
 - 支持 locale 变化后重新解析配置、重新渲染文案，并对声明依赖 locale 的 dataSource 重新请求。
 - 提供 MVP 阶段的包结构、业务接入示例、prompt template 和 agent 任务拆分。
+- 提供基于 `@dao-style/cli` full template 的 standalone playground，用于模拟真实 `@dao-style/core` / `@dao-style/extend` / `@dao-style/biz` 项目侧接入。
 
 ## Out of Scope / Non-Goals
 
@@ -105,6 +106,7 @@
 49. `mcp-echarts` 输出只能作为生成和审核辅助材料；进入 runtime 的仍必须是 DashboardConfig 或通过 sandbox gate 的 chart widget package。
 50. 平台必须提供至少一个业务接入示例，展示如何注册 proto TS SDK dataSource 并通过 DashboardConfig 使用。
 51. MVP 必须能通过手写 DashboardConfig 跑通 Runtime 渲染、DataSource 调用 proto TS SDK、ECharts Widget 展示、locale 切换重新请求并更新展示。
+52. Playground 必须作为 standalone app 保留，不默认纳入 root pnpm workspace，以便模拟真实产品项目依赖、插件和 vue-i18n 接入方式。
 
 ## Non-Functional Requirements
 
@@ -132,6 +134,7 @@
 - `Dashboard i18n resources are mergeable → verify: demo/project messages merge with dashboard locale JSON and translator resolves dashboard keys`.
 - `Generated chart safety gate blocks unsafe code → verify: fixtures containing fetch, localStorage, eval, dynamic import, v-html, or non-whitelisted dependencies fail AST/dependency scan`.
 - `Generated chart preview is gated by validation → verify: only components passing type check, lint, AST scan, schema validation, bundle build, and sandbox preview can be registered`.
+- `Full-template playground stays buildable → verify: @dao-style/cli generated playground installs and builds independently from the root workspace`.
 
 ## Open Questions
 
@@ -156,6 +159,7 @@
 - `packages/ai-dashboard-generator/` — dashboard plan/config 生成、patch、修复与 chart proposal。
 - `packages/ai-dashboard-sandbox/` — generated chart 编译、AST scan、依赖白名单、preview frame、manifest/schema 校验。
 - `docs/mcp-echarts.md` — 可选 MCP ECharts 接入方式、边界和使用约束。
+- `playground/playground-ui/` — `@dao-style/cli` full template 生成的 standalone Vue 3.3.x 宿主应用，用于验证真实项目侧插件、依赖和 i18n 接入。
 - `product-a/src/big-screen/data-sources/` — 业务产品 dataSource 接入示例。
 - `product-a/src/big-screen/dashboards/` — 业务产品 dashboard config 示例。
 - `product-a/src/big-screen/dashboards/<dashboard>.i18n/` — dashboard 随附的 locale JSON，用于 merge 到项目侧 i18n messages。

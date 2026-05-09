@@ -15,6 +15,12 @@ export default defineConfig({
       "@dao-style-viz/ai-dashboard-vue": fileURLToPath(
         new URL("../../packages/ai-dashboard-vue/src/index.ts", import.meta.url)
       ),
+      "@dao-style-viz/ai-dashboard-ai-catalog": fileURLToPath(
+        new URL(
+          "../../packages/ai-dashboard-ai-catalog/src/index.ts",
+          import.meta.url
+        )
+      ),
       "@dao-style-viz/ai-dashboard-echarts-vue": fileURLToPath(
         new URL(
           "../../packages/ai-dashboard-echarts-vue/src/index.ts",
