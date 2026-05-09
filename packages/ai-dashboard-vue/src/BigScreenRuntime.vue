@@ -29,6 +29,7 @@ const emit = defineEmits<{
 }>();
 
 const globalFilterOverrides = ref<Record<string, unknown>>({});
+const refreshRequests = ref<Record<string, number>>({});
 
 const parsedConfig = computed(() => {
   const result = dashboardConfigSchema.safeParse(props.config);
@@ -89,11 +90,22 @@ const visibleWidgets = computed<WidgetConfig[]>(() => {
   });
 });
 
+const widgetIds = computed(() =>
+  parsedConfig.value.config?.widgets.map((widget) => widget.id) ?? []
+);
+
 function handleRuntimeEvent(event: WidgetRuntimeEvent) {
   if (event.type === "setFilter") {
     globalFilterOverrides.value = {
       ...globalFilterOverrides.value,
       [event.payload.key]: event.payload.value
+    };
+  }
+
+  if (event.type === "refreshWidget" && widgetIds.value.includes(event.targetWidgetId)) {
+    refreshRequests.value = {
+      ...refreshRequests.value,
+      [event.targetWidgetId]: (refreshRequests.value[event.targetWidgetId] ?? 0) + 1
     };
   }
 
@@ -114,6 +126,8 @@ function handleRuntimeEvent(event: WidgetRuntimeEvent) {
       :data-sources="dataSources"
       :runtime="runtimeContext"
       :theme="theme"
+      :refresh-key="refreshRequests[widget.id] ?? 0"
+      :known-widget-ids="widgetIds"
       @runtime-event="handleRuntimeEvent"
     />
   </ScreenCanvas>

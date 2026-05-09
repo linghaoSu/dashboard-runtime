@@ -16,7 +16,8 @@
   "scripts": {
     "build": "vue-tsc --declaration --emitDeclarationOnly -p tsconfig.build.json && vite build",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
-    "lint": "eslint \"src/**/*.{ts,vue}\""
+    "lint": "eslint \"src/**/*.{ts,vue}\"",
+    "test": "vitest run src/__tests__ --environment jsdom"
   },
   "dependencies": {
     "@dao-style-viz/ai-dashboard-runtime": "workspace:*",
@@ -24,6 +25,7 @@
     "vue": "3.3.13"
   },
   "devDependencies": {
-    "vue-tsc": "^2.2.12"
+    "vue-tsc": "^2.2.12",
+    "zod": "^3.23.8"
   }
 }

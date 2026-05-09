@@ -26,6 +26,8 @@ const props = defineProps<{
   dataSources: DataSourceRegistry;
   runtime: RuntimeContext;
   theme: DashboardTheme;
+  refreshKey?: number;
+  knownWidgetIds?: readonly string[];
 }>();
 
 const emit = defineEmits<{
@@ -36,7 +38,8 @@ const data = ref<unknown>();
 const loading = ref(false);
 const error = ref<Error | null>(null);
 let abortController: AbortController | undefined;
-let refreshTimer: ReturnType<typeof window.setInterval> | undefined;
+let loadVersion = 0;
+let refreshTimer: number | undefined;
 
 const translator = computed(() => createTranslator(props.runtime));
 const title = computed(() => resolveI18nText(props.widget.title, translator.value));
@@ -81,7 +84,10 @@ const runtimeProps = computed<WidgetRuntimeProps>(() => ({
 
 async function load() {
   abortController?.abort();
-  abortController = new AbortController();
+  const controller = new AbortController();
+  abortController = controller;
+  loadVersion += 1;
+  const currentLoadVersion = loadVersion;
 
   if (!props.widget.data) {
     data.value = undefined;
@@ -98,26 +104,43 @@ async function load() {
       dataSources: props.dataSources,
       widgets: props.widgets,
       runtime: props.runtime,
-      signal: abortController.signal
+      signal: controller.signal
     });
 
-    if (!abortController.signal.aborted) {
+    if (isCurrentLoad(controller, currentLoadVersion)) {
       data.value = result;
     }
   } catch (caught) {
-    if (!abortController.signal.aborted) {
+    if (isCurrentLoad(controller, currentLoadVersion)) {
       error.value = caught instanceof Error ? caught : new Error(String(caught));
     }
   } finally {
-    if (!abortController.signal.aborted) {
+    if (isCurrentLoad(controller, currentLoadVersion)) {
       loading.value = false;
     }
   }
 }
 
 function handleWidgetEmit(event: WidgetEmittedEvent) {
-  const runtimeEvents = dispatchWidgetEvent(props.widget, event, props.runtime);
-  runtimeEvents.forEach((runtimeEvent) => emit("runtime-event", runtimeEvent));
+  try {
+    const runtimeEvents = dispatchWidgetEvent(props.widget, event, props.runtime, {
+      knownWidgetIds: props.knownWidgetIds
+    });
+    runtimeEvents.forEach((runtimeEvent) => emit("runtime-event", runtimeEvent));
+  } catch (caught) {
+    error.value = caught instanceof Error ? caught : new Error(String(caught));
+  }
+}
+
+function isCurrentLoad(
+  controller: AbortController,
+  version: number
+): boolean {
+  return (
+    abortController === controller &&
+    loadVersion === version &&
+    !controller.signal.aborted
+  );
 }
 
 watch(
@@ -131,6 +154,19 @@ watch(
     void load();
   },
   { deep: true, immediate: true }
+);
+
+watch(
+  () => props.refreshKey,
+  (refreshKey, previousRefreshKey) => {
+    if (
+      refreshKey !== undefined &&
+      previousRefreshKey !== undefined &&
+      refreshKey !== previousRefreshKey
+    ) {
+      void load();
+    }
+  }
 );
 
 watch(

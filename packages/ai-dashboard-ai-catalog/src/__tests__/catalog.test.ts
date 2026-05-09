@@ -224,4 +224,97 @@ describe("validateDashboardConfig", () => {
       ])
     );
   });
+
+  it("rejects refresh events that target unknown widgets", () => {
+    const baseWidget = validConfig.widgets[0];
+    if (!baseWidget) {
+      throw new Error("Expected fixture widget");
+    }
+
+    const result = validateDashboardConfig(
+      {
+        ...validConfig,
+        widgets: [
+          {
+            ...baseWidget,
+            events: [
+              {
+                trigger: "refresh",
+                action: "refreshWidget",
+                target: "missing-widget"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        dataSources,
+        widgets
+      }
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "unknown_event_target"
+    );
+  });
+
+  it("rejects setFilter events without a valid key/value payload", () => {
+    const baseWidget = validConfig.widgets[0];
+    if (!baseWidget) {
+      throw new Error("Expected fixture widget");
+    }
+
+    const result = validateDashboardConfig(
+      {
+        ...validConfig,
+        widgets: [
+          {
+            ...baseWidget,
+            events: [
+              {
+                trigger: "change",
+                action: "setFilter",
+                payload: {
+                  key: 42
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        dataSources,
+        widgets
+      }
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "invalid_event_payload"
+    );
+  });
+
+  it("rejects config ref cycles before runtime queries", () => {
+    const result = validateDashboardConfig(
+      {
+        ...validConfig,
+        context: {
+          a: {
+            $ref: "context.b"
+          },
+          b: {
+            $ref: "context.a"
+          }
+        }
+      },
+      {
+        dataSources,
+        widgets
+      }
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain("ref_cycle");
+  });
 });

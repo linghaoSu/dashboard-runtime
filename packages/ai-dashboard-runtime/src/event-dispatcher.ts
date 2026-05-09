@@ -9,10 +9,15 @@ import type {
   WidgetRuntimeEvent
 } from "./renderer-adapter.js";
 
+export type DispatchWidgetEventOptions = {
+  knownWidgetIds?: readonly string[];
+};
+
 export function dispatchWidgetEvent(
   widget: WidgetConfig,
   emitted: WidgetEmittedEvent,
-  runtime: RuntimeContext
+  runtime: RuntimeContext,
+  options: DispatchWidgetEventOptions = {}
 ): WidgetRuntimeEvent[] {
   const matchingEvents =
     widget.events?.filter((event) => event.trigger === emitted.trigger) ?? [];
@@ -42,12 +47,16 @@ export function dispatchWidgetEvent(
           }
         };
       }
-      case "refreshWidget":
+      case "refreshWidget": {
+        const targetWidgetId = eventConfig.target ?? widget.id;
+        assertKnownWidgetTarget(targetWidgetId, options.knownWidgetIds);
+
         return {
           type: "refreshWidget",
           sourceWidgetId: emitted.sourceWidgetId,
-          targetWidgetId: eventConfig.target ?? widget.id
+          targetWidgetId
         };
+      }
       case "emit":
         return {
           type: "emit",
@@ -57,4 +66,16 @@ export function dispatchWidgetEvent(
         };
     }
   });
+}
+
+function assertKnownWidgetTarget(
+  targetWidgetId: string,
+  knownWidgetIds: readonly string[] | undefined
+) {
+  if (knownWidgetIds && !knownWidgetIds.includes(targetWidgetId)) {
+    throw new DashboardRuntimeError(
+      `refreshWidget target not found: ${targetWidgetId}`,
+      { targetWidgetId }
+    );
+  }
 }

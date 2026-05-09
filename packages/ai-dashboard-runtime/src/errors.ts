@@ -14,3 +14,10 @@ export class RefResolutionError extends DashboardRuntimeError {
     this.name = "RefResolutionError";
   }
 }
+
+export class RefCycleError extends DashboardRuntimeError {
+  constructor(readonly path: string[]) {
+    super(`Ref cycle detected: ${path.join(" -> ")}`, { path });
+    this.name = "RefCycleError";
+  }
+}

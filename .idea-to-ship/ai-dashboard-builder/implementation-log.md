@@ -9,7 +9,7 @@
 - [x] Stage 2 — Runtime + Vue Tracer Bullet
 - [x] Stage 3 — Vue ECharts Widget Slice
 - [x] Stage 4 — AI Catalog + Config Validation Gate
-- [ ] Stage 5 — Runtime Event + Refresh Hardening
+- [x] Stage 5 — Runtime Event + Refresh Hardening
 - [ ] Stage 6 — Basic Widgets Extraction
 - [ ] Stage 7 — Generated Chart Sandbox Gate
 - [ ] Stage 8 — Product Integration Example
@@ -423,4 +423,70 @@
 
 - playground install: ok — `CI=true pnpm --dir playground/playground-ui install --ignore-workspace`
 - playground build: ok — `pnpm --dir playground/playground-ui run build` with non-blocking generated CSS warnings
+- whitespace: ok — `git diff --check`
+
+## Stage 5 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 4 and the full-template playground follow-up are complete.
+- `packages/ai-dashboard-runtime/src/event-dispatcher.ts` maps configured widget events, but `event.payload.*` refs are not yet part of the ref root and `refreshWidget` targets are not validated.
+- `packages/ai-dashboard-vue/src/BigScreenRuntime.vue` applies `setFilter` events and forwards runtime events, but it does not route `refreshWidget` events back to target widget renderers.
+- `packages/ai-dashboard-vue/src/WidgetRenderer.vue` reloads on widget/runtime changes and aborts previous requests, but the async guard reads the mutable controller reference after newer loads can replace it.
+- `createRuntimeContext` resolves refs directly and does not detect config ref cycles before widgets start dataSource queries.
+- `validateDashboardConfig` checks catalog, i18n, layout, props, static params, and refresh minimums, but it does not validate event targets or config ref cycles.
+
+### Assumptions
+
+- Keep Stage 5 inside the existing schema/runtime/Vue/catalog packages; do not add new packages or change public package names.
+- Preserve the current `WidgetRuntimeEvent` union. `refreshWidget` remains a targeted reload signal and does not carry custom payload yet.
+- Validate `refreshWidget.target` against dashboard widget ids in the AI catalog gate and again at runtime for trusted configs that bypass validation.
+- Add `event.payload` to the `$ref` root for event dispatch; continue to resolve event payloads through the existing `$ref` resolver rather than adding an expression engine.
+- Detect cycles in `context.*` refs and disallow `globalFilters.*` refs that point back into `context.*`, because the architecture says global filters resolve before context.
+- Keep locale-change reload behavior conservative: widgets reload when runtime context changes, and dataSources that declare `dependsOnLocale` or params that reference locale continue to be covered by that runtime change.
+
+## Stage 5 — Runtime Event + Refresh Hardening
+
+**Completed:** 2026-05-09 12:33 CST
+
+### Files touched
+
+- `packages/ai-dashboard-runtime/src/errors.ts` — adds a typed ref-cycle runtime error.
+- `packages/ai-dashboard-runtime/src/ref-resolver.ts` — exposes ref collection/segment helpers and includes `event.payload` in event ref resolution.
+- `packages/ai-dashboard-runtime/src/runtime-context.ts` — resolves context refs through other context keys and fails cycles before widget queries start.
+- `packages/ai-dashboard-runtime/src/event-dispatcher.ts` — validates targeted `refreshWidget` events when known widget ids are supplied.
+- `packages/ai-dashboard-runtime/src/__tests__/event-dispatcher.test.ts` — covers event payload refs and unknown refresh targets.
+- `packages/ai-dashboard-runtime/src/__tests__/runtime-context.test.ts` — covers context ref chaining, cycle failures, and globalFilter back-ref rejection.
+- `packages/ai-dashboard-vue/package.json` — adds the Vue package test script and package-local Zod dev dependency for test schemas.
+- `packages/ai-dashboard-vue/src/BigScreenRuntime.vue` — routes `refreshWidget` runtime events to target widget reload keys.
+- `packages/ai-dashboard-vue/src/WidgetRenderer.vue` — reloads on targeted refresh keys, validates event dispatch against known widget ids, and guards stale aborted requests.
+- `packages/ai-dashboard-vue/src/__tests__/BigScreenRuntime.test.ts` — covers targeted refresh routing and locale-param reload behavior.
+- `packages/ai-dashboard-ai-catalog/src/validate-dashboard-config.ts` — rejects unknown refresh targets, invalid config refs, and context ref cycles in the AI validation gate.
+- `packages/ai-dashboard-ai-catalog/src/__tests__/catalog.test.ts` — covers event-target and ref-cycle validation failures.
+- `pnpm-lock.yaml` — records the Vue package test-only Zod dependency.
+- `.idea-to-ship/ai-dashboard-builder/implementation-log.md` — records Stage 5 assumptions and completion.
+
+### Decisions made during implementation
+
+- Keep `refreshWidget` as a reload signal with the existing `WidgetRuntimeEvent` shape; custom refresh payloads remain future work.
+- Resolve `event.payload.*` through the existing `$ref` resolver so event handling stays declarative and does not introduce an expression engine.
+- Validate refresh targets in both catalog validation and runtime dispatch. Catalog validation catches AI output early; runtime dispatch gives trusted configs a widget-level failure if they bypass the gate.
+- Validate `setFilter` event payload shape in the catalog gate so malformed AI output fails before user interaction.
+- Keep the small ref-walk helper local in the catalog validator so catalog tests do not depend on built runtime output order.
+- Add focused package tests for the Stage 5 behavioral contract because the stage explicitly calls out event/ref validation coverage.
+
+### Deviations from architecture.md
+
+- None.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- Demo production build still emits the expected ECharts chunk-size warning.
+
+### Verification
+
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
+- tests: ok — `pnpm -r --if-present test` ran 9 files / 27 tests, 0 failed
 - whitespace: ok — `git diff --check`

@@ -1,6 +1,6 @@
 import type { ConfigRef } from "@dao-style-viz/ai-dashboard-schema";
 import { RefResolutionError } from "./errors.js";
-import type { RefScope } from "./renderer-adapter.js";
+import type { EventRefScope, RefScope } from "./renderer-adapter.js";
 
 export function isConfigRef(value: unknown): value is ConfigRef {
   return (
@@ -31,9 +31,29 @@ export function resolveRefs<T>(value: T, scope: RefScope): T {
   return value;
 }
 
+export function collectConfigRefs(value: unknown): string[] {
+  if (isConfigRef(value)) {
+    return [value.$ref];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => collectConfigRefs(item));
+  }
+
+  if (isPlainObject(value)) {
+    return Object.values(value).flatMap((item) => collectConfigRefs(item));
+  }
+
+  return [];
+}
+
+export function getRefSegments(ref: string): string[] {
+  return ref.split(".").filter(Boolean);
+}
+
 export function getRefValue(ref: string, scope: RefScope): unknown {
   const root = createRefRoot(scope);
-  const segments = ref.split(".").filter(Boolean);
+  const segments = getRefSegments(ref);
   let current: unknown = root;
 
   for (const segment of segments) {
@@ -48,10 +68,13 @@ export function getRefValue(ref: string, scope: RefScope): unknown {
 }
 
 function createRefRoot(scope: RefScope): Record<string, unknown> {
+  const eventScope = scope as Partial<EventRefScope>;
+
   return {
     runtime: scope.runtime,
     route: scope.runtime.route,
     user: scope.runtime.user,
+    event: eventScope.event,
     context: scope.context,
     globalFilters: scope.globalFilters
   };
