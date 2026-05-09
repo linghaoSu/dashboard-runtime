@@ -7,6 +7,9 @@ import {
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { createDataSourceCatalog } from "../create-data-source-catalog.js";
+import { createI18nCatalog } from "../create-i18n-catalog.js";
+import { createLayoutCatalog } from "../create-layout-catalog.js";
+import { createThemeCatalog } from "../create-theme-catalog.js";
 import { createWidgetCatalog } from "../create-widget-catalog.js";
 import { validateDashboardConfig } from "../validate-dashboard-config.js";
 
@@ -156,6 +159,31 @@ describe("catalog creators", () => {
     expect(catalog[0]?.propsSchema).toMatchObject({
       kind: "object"
     });
+  });
+
+  it("exports theme, layout, and i18n metadata as JSON-safe catalog entries", () => {
+    const themeCatalog = createThemeCatalog();
+    const layoutCatalog = createLayoutCatalog();
+    const i18nCatalog = createI18nCatalog({
+      namespace: "dashboard",
+      defaultLocale: "en-US",
+      supportedLocales: ["en-US", "zh-CN"]
+    });
+    const serialized = JSON.stringify({
+      themeCatalog,
+      layoutCatalog,
+      i18nCatalog
+    });
+
+    expect(serialized).not.toContain("function");
+    expect(themeCatalog[0]?.tokens).toMatchObject({
+      background: expect.any(String)
+    });
+    expect(layoutCatalog[0]?.slots.length).toBeGreaterThan(0);
+    expect(i18nCatalog.requiredResourceFiles).toEqual([
+      "en-US.json",
+      "zh-CN.json"
+    ]);
   });
 });
 

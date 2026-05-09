@@ -10,7 +10,7 @@
 - [x] Stage 3 — Vue ECharts Widget Slice
 - [x] Stage 4 — AI Catalog + Config Validation Gate
 - [x] Stage 5 — Runtime Event + Refresh Hardening
-- [ ] Stage 6 — Basic Widgets Extraction
+- [x] Stage 6 — Chart + Basic Widget Coverage
 - [ ] Stage 7 — Generated Chart Sandbox Gate
 - [ ] Stage 8 — Product Integration Example
 
@@ -489,4 +489,68 @@
 - lint: ok — `pnpm -r --if-present lint`
 - build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
 - tests: ok — `pnpm -r --if-present test` ran 9 files / 27 tests, 0 failed
+- whitespace: ok — `git diff --check`
+
+## Stage 6 Pre-Stage Notes
+
+### Sanity Check
+
+- Stage 5 is complete and the worktree is clean before Stage 6 starts.
+- `packages/ai-dashboard-widgets` does not exist yet.
+- `packages/ai-dashboard-echarts-vue` currently provides `LineChart`, `GaugeChart`, and `DonutChart`; Stage 6 expects the remaining MVP chart types.
+- `packages/ai-dashboard-ai-catalog` exports dataSource/widget catalogs and config validation, but not theme, layout, or i18n catalog helpers.
+- The Vue renderer currently treats widgets without data bindings as empty. Stage 6 basic filter/layout widgets need no dataSource, so the renderer needs to render data-less widgets instead of forcing an empty state.
+
+### Assumptions
+
+- Keep Stage 6 as one stage, but implement the narrowest useful version of each required widget/chart/catalog item.
+- Add `@dao-style-viz/ai-dashboard-widgets` as a Vue widget package with the same Vite/vue-tsc pattern as `ai-dashboard-vue` and `ai-dashboard-echarts-vue`.
+- Basic widgets are presentation/control widgets only; they do not fetch data or own business behavior. Control widgets emit standard widget events and dashboard config decides how those events map to filters or host events.
+- Reuse existing ECharts option helpers and schemas where possible. Stage 6 adds chart breadth, not a full BI chart grammar.
+- MapChart will render coordinate data on an ECharts coordinate plane instead of bundling map geojson. Product hosts can provide richer map layers in a later generated/sandboxed chart path.
+- Theme, layout, and i18n catalog exports are static JSON-safe metadata helpers for AI prompts; they do not change runtime theming or layout semantics in this stage.
+
+## Stage 6 — Chart + Basic Widget Coverage
+
+**Completed:** 2026-05-09 13:09 CST
+
+### Files touched
+
+- `packages/ai-dashboard-widgets/*` — adds the basic Vue widget package, build config, schemas, registry, tests, and components for panels, metrics, status, rankings, tables, alarms, filters, and time range controls.
+- `packages/ai-dashboard-echarts-vue/src/*` — adds Bar, Area, Pie, Radar, Heatmap, Scatter, Funnel, and Map chart components, schemas, exports, registry metadata, option tests, and ECharts registration.
+- `packages/ai-dashboard-ai-catalog/src/create-theme-catalog.ts` — adds a JSON-safe default theme catalog helper.
+- `packages/ai-dashboard-ai-catalog/src/create-layout-catalog.ts` — adds a JSON-safe layout pattern catalog helper.
+- `packages/ai-dashboard-ai-catalog/src/create-i18n-catalog.ts` — adds a JSON-safe locale/key catalog helper.
+- `packages/ai-dashboard-ai-catalog/src/index.ts`, `packages/ai-dashboard-ai-catalog/src/__tests__/catalog.test.ts` — exports and tests the new catalog helpers.
+- `packages/ai-dashboard-vue/src/WidgetRenderer.vue` — renders widgets without data bindings instead of forcing an empty state.
+- `apps/demo/package.json`, `apps/demo/vite.config.ts`, `apps/demo/src/widgets/index.ts` — wires the basic widget registry into the demo source aliases and package dependencies.
+- `tsconfig.base.json` — adds the basic widget package path alias.
+- `pnpm-lock.yaml` — records the workspace package dependency updates.
+- `.idea-to-ship/ai-dashboard-builder/implementation-log.md` — records Stage 6 assumptions and completion.
+
+### Decisions made during implementation
+
+- Keep `@dao-style-viz/ai-dashboard-widgets` as a separate Vue package so non-chart widgets can evolve independently from ECharts integrations.
+- Treat filter and time range widgets as event emitters only. Dashboard config still owns how emitted payloads map to `setFilter`, `refreshWidget`, or host events.
+- Let data-less widgets render by passing `undefined` data through to components. Empty-state behavior remains for widgets that declare a data binding and receive no result rows/value.
+- Put static Panel content, FilterBar options, and TimeRangePicker options in props as well as optional data so layout/filter widgets can work without a dataSource.
+- Reuse the existing ECharts container, adapter, and option merge helpers so new chart components stay thin and registry-backed.
+- Add theme, layout, and i18n catalogs as static metadata helpers for generation prompts; runtime styling and layout behavior remain governed by existing dashboard config.
+
+### Deviations from architecture.md
+
+- `MapChart` renders coordinate points on an ECharts x/y coordinate plane and does not bundle map geojson or provide choropleth layers. Rich geo maps should be handled by host-supplied assets or the later generated chart sandbox path.
+
+### Adjacent issues noticed (NOT fixed here)
+
+- The demo production build still emits the expected ECharts bundle-size warning, now at about `821.42 kB` for the main JS chunk.
+- The new chart/widget registries increase demo bundle breadth because the demo imports the full registry eagerly. A later product slice may want lazy widget loading.
+
+### Verification
+
+- install: ok — `pnpm install`
+- typecheck: ok — `pnpm -r --if-present typecheck`
+- lint: ok — `pnpm -r --if-present lint`
+- tests: ok — `pnpm -r --if-present test` ran 11 files / 42 tests, 0 failed
+- build: ok — `pnpm -r --if-present build` with the expected ECharts bundle-size warning in the demo app
 - whitespace: ok — `git diff --check`

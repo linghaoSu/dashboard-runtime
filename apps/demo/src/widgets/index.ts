@@ -1,4 +1,5 @@
 import { echartsWidgetRegistry } from "@dao-style-viz/ai-dashboard-echarts-vue";
+import { basicWidgetRegistry } from "@dao-style-viz/ai-dashboard-widgets";
 import { defineVueWidget } from "@dao-style-viz/ai-dashboard-vue";
 import { z } from "zod";
 import MetricValue from "./MetricValue.vue";
@@ -15,6 +16,7 @@ type MetricValueProps = {
 
 export const widgetRegistry = {
   ...echartsWidgetRegistry,
+  ...basicWidgetRegistry,
   MetricValue: defineVueWidget<MetricValueData, MetricValueProps>({
     type: "MetricValue",
     name: "Metric Value",

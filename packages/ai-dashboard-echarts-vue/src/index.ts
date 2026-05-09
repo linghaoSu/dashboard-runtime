@@ -1,7 +1,15 @@
+export { default as AreaChart } from "./AreaChart.vue";
+export { default as BarChart } from "./BarChart.vue";
 export { default as DonutChart } from "./DonutChart.vue";
 export { default as EchartsContainer } from "./EchartsContainer.vue";
+export { default as FunnelChart } from "./FunnelChart.vue";
 export { default as GaugeChart } from "./GaugeChart.vue";
+export { default as HeatmapChart } from "./HeatmapChart.vue";
 export { default as LineChart } from "./LineChart.vue";
+export { default as MapChart } from "./MapChart.vue";
+export { default as PieChart } from "./PieChart.vue";
+export { default as RadarChart } from "./RadarChart.vue";
+export { default as ScatterChart } from "./ScatterChart.vue";
 export * from "./echarts-adapter.js";
 export * from "./echarts-widgets.js";
 export * from "./schemas.js";

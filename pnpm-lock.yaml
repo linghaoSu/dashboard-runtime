@@ -62,6 +62,9 @@ importers:
       '@dao-style-viz/ai-dashboard-vue':
         specifier: workspace:*
         version: link:../../packages/ai-dashboard-vue
+      '@dao-style-viz/ai-dashboard-widgets':
+        specifier: workspace:*
+        version: link:../../packages/ai-dashboard-widgets
       vue:
         specifier: 3.3.13
         version: 3.3.13(typescript@5.9.3)
@@ -143,6 +146,25 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.25.76
+
+  packages/ai-dashboard-widgets:
+    dependencies:
+      '@dao-style-viz/ai-dashboard-runtime':
+        specifier: workspace:*
+        version: link:../ai-dashboard-runtime
+      '@dao-style-viz/ai-dashboard-vue':
+        specifier: workspace:*
+        version: link:../ai-dashboard-vue
+      vue:
+        specifier: 3.3.13
+        version: 3.3.13(typescript@5.9.3)
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      vue-tsc:
+        specifier: ^2.2.12
+        version: 2.2.12(typescript@5.9.3)
 
 packages:
 

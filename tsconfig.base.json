@@ -26,6 +26,9 @@
       "@dao-style-viz/ai-dashboard-vue": [
         "packages/ai-dashboard-vue/src/index.ts"
       ],
+      "@dao-style-viz/ai-dashboard-widgets": [
+        "packages/ai-dashboard-widgets/src/index.ts"
+      ],
       "@dao-style-viz/ai-dashboard-echarts-vue": [
         "packages/ai-dashboard-echarts-vue/src/index.ts"
       ],

@@ -58,6 +58,10 @@ const format = computed(() =>
 );
 
 const isEmpty = computed(() => {
+  if (!props.widget.data) {
+    return false;
+  }
+
   if (data.value === undefined || data.value === null) {
     return true;
   }

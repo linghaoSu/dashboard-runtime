@@ -4,23 +4,23 @@
 **Reviewer:** Codex self-review fallback (`codex:codex-rescue` unavailable in this session)
 **Iterations:** 2
 **Result:** clean
-**Diff size:** 13 tracked files, +842/-76, plus 3 untracked test files before this review artifact
+**Diff size:** 14 tracked files, +538/-7, plus new Stage 6 package/component/test files
 
 ## Issues Raised & Resolution
 
 | # | Severity | File:line | Issue | Resolution |
 |---|---|---|---|---|
-| 1 | warning | `packages/ai-dashboard-ai-catalog/src/validate-dashboard-config.ts:146` | The AI validation gate checked `refreshWidget` targets but still allowed malformed `setFilter` event payloads, so a generated config could pass validation and fail only on user interaction. | Added `invalid_event_payload` validation for `setFilter` payload key/value shape and a catalog test covering invalid payloads. |
-| 2 | warning | `packages/ai-dashboard-vue/src/BigScreenRuntime.vue:102` | Stage 5 claimed targeted refresh and locale-param reload behavior, but there was no Vue component test exercising the actual renderer path. Runtime unit tests alone did not prove the watcher/routing behavior. | Added the Vue package test script and `BigScreenRuntime` tests for targeted `refreshWidget` routing and `runtime.locale` param reloads. |
+| 1 | warning | `packages/ai-dashboard-widgets/src/schemas.ts:19` | Stage 6 claims basic Panel/FilterBar/TimeRangePicker can work without a dataSource, but their content/options only lived in widget data. With `WidgetRenderer` now passing `undefined` for data-less widgets, these controls rendered empty and were not actually configurable from DashboardConfig props. | Added static props for Panel subtitle/content and FilterBar/TimeRangePicker options, updated the components and registry examples, and added Vue tests for data-less rendering/emits. |
+| 2 | warning | `.idea-to-ship/ai-dashboard-builder/architecture.md:734` | The architecture says Stage 6 chart/widget coverage needs component-level verification before MVP acceptance. The initial implementation only relied on typecheck/lint/build/existing tests, leaving the new chart option builders and static basic widgets untested. | Added ECharts option tests covering Bar, Area, Pie, Radar, Heatmap, Scatter, Funnel, and Map; added basic widget tests; added catalog tests for theme/layout/i18n JSON-safe exports. |
 
 ## Out-of-Scope Issues Skipped
 
-- Existing modified `architecture.md` and `design-review.md` were present before this review run. They were used as context and not treated as implementation defects.
-- The demo production build still reports the known ECharts chunk-size warning. This is already recorded in the implementation log and is not caused by the Stage 5 changes.
+- The demo production build still reports the known ECharts chunk-size warning. It is recorded in the implementation log and remains a bundle strategy issue for a later product slice.
+- `MapChart` is a coordinate scatter implementation rather than a geojson-backed choropleth. This is documented in the implementation log as an accepted Stage 6 limitation.
 
 ## Design Drift
 
-None after fixes. The Stage 5 implementation now covers event dispatch, targeted refresh routing, request cancellation guards, config ref cycle detection, event/config validation, and reload tests for the Vue runtime path.
+None after fixes. The remaining `MapChart` limitation is documented as an explicit Stage 6 deviation, and the missing component/catalog coverage was closed.
 
 ## Residual Open Issues
 

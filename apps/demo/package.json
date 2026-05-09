@@ -15,6 +15,7 @@
     "@dao-style-viz/ai-dashboard-ai-catalog": "workspace:*",
     "@dao-style-viz/ai-dashboard-echarts-vue": "workspace:*",
     "@dao-style-viz/ai-dashboard-vue": "workspace:*",
+    "@dao-style-viz/ai-dashboard-widgets": "workspace:*",
     "vue": "3.3.13",
     "zod": "^3.23.8"
   },
