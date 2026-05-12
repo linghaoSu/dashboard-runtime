@@ -7,17 +7,19 @@ const productRequire = createRequire(
   new URL("../apps/product-integration/package.json", import.meta.url)
 );
 const expectedPackage = "@daocloud-proto/ipavo";
-const expectedVersion = "0.13.0";
+const expectedVersion = "0.13.0-20";
 const requiredFiles = [
   "ipavo/v1alpha1/ipavo.pb.ts",
   "ipavo/v1alpha1/ipavo_type.pb.ts"
 ];
+const env = readMergedEnv(process.env);
+const liveEnv = readLiveEnv(env);
 
 const checks = [
   checkSdkPackage(),
-  checkBackendUrl(process.env.PRODUCT_API_URL),
-  checkToken(process.env.PRODUCT_AUTH_TOKEN),
-  checkAllowedHosts(process.env.PRODUCT_API_URL, process.env.PRODUCT_API_ALLOWED_HOSTS)
+  checkBackendUrl(liveEnv.apiUrl),
+  checkToken(liveEnv.authToken),
+  checkAllowedHosts(liveEnv.apiUrl, liveEnv.allowedHosts)
 ];
 
 let failed = false;
@@ -38,12 +40,79 @@ if (failed) {
       "",
       "Ipavo live pilot is not ready.",
       "Fix the failed checks above before claiming the live pilot is ready.",
-      "A ready live pilot requires @daocloud-proto/ipavo@0.13.0 in the product app,",
+      "A ready live pilot requires @daocloud-proto/ipavo@0.13.0-20 in the product app,",
       "PRODUCT_API_URL, PRODUCT_AUTH_TOKEN, and PRODUCT_API_ALLOWED_HOSTS.",
       "Do not put backend URLs, JWTs, cookies, or auth headers in DashboardConfig or AI prompt/catalog payloads."
     ].join("\n")
   );
   process.exitCode = 1;
+}
+
+function readLiveEnv(env) {
+  return {
+    apiUrl: readFirstEnv(env, ["PRODUCT_API_URL"]),
+    authToken: readFirstEnv(env, ["PRODUCT_AUTH_TOKEN"]),
+    allowedHosts: readFirstEnv(env, ["PRODUCT_API_ALLOWED_HOSTS"])
+  };
+}
+
+function readMergedEnv(env) {
+  if (env.PRODUCT_SKIP_ENV_FILE === "1") {
+    return env;
+  }
+
+  return {
+    ...readEnvFile(new URL("../apps/product-integration/.env.local", import.meta.url)),
+    ...env
+  };
+}
+
+function readEnvFile(fileUrl) {
+  let content = "";
+  try {
+    content = readFileSync(fileUrl, "utf8");
+  } catch {
+    return {};
+  }
+
+  const values = {};
+  for (const line of content.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const match = /^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/.exec(trimmed);
+    if (!match) {
+      continue;
+    }
+
+    values[match[1]] = unquoteEnvValue(match[2].trim());
+  }
+
+  return values;
+}
+
+function unquoteEnvValue(value) {
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    return value.slice(1, -1);
+  }
+
+  return value;
+}
+
+function readFirstEnv(env, names) {
+  for (const name of names) {
+    const value = env[name]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return undefined;
 }
 
 function checkSdkPackage() {
@@ -119,7 +188,7 @@ function checkBackendUrl(rawUrl) {
 }
 
 function checkToken(token) {
-  if (!token?.trim()) {
+  if (!isConfiguredSecret(token)) {
     return {
       ok: false,
       label: "PRODUCT_AUTH_TOKEN",
@@ -134,12 +203,18 @@ function checkToken(token) {
   };
 }
 
+function isConfiguredSecret(value) {
+  const trimmed = value?.trim();
+  return Boolean(trimmed && !["<jwt>", "<paste-jwt-here>"].includes(trimmed));
+}
+
 function checkAllowedHosts(rawUrl, rawAllowedHosts) {
   if (!rawAllowedHosts?.trim()) {
     return {
       ok: false,
       label: "PRODUCT_API_ALLOWED_HOSTS",
-      detail: "not configured; required before shared preview or release-candidate live pilot"
+      detail:
+        "not configured; an explicit allowlist is required before shared preview or release-candidate live pilot"
     };
   }
 

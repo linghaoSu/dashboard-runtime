@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -11,6 +11,7 @@ function runLiveBackendSmoke(env: Record<string, string> = {}) {
     cwd: repoRoot,
     env: {
       FORCE_COLOR: "0",
+      PRODUCT_SKIP_ENV_FILE: "1",
       ...env
     },
     encoding: "utf8"
@@ -47,6 +48,20 @@ describe("ipavo live backend smoke script", () => {
     expect(result.output).not.toContain("\n    at ");
   });
 
+  it("rejects invalid insecure TLS flags before network", () => {
+    const result = runLiveBackendSmoke({
+      PRODUCT_API_URL: "http://localhost:8080",
+      PRODUCT_AUTH_TOKEN: "fake.jwt.token",
+      PRODUCT_API_ALLOWED_HOSTS: "localhost:8080",
+      PRODUCT_API_INSECURE_TLS: "sometimes"
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.output).toContain("PRODUCT_API_INSECURE_TLS must be one of");
+    expect(result.output).not.toContain("fake.jwt.token");
+    expect(result.output).not.toContain("\n    at ");
+  });
+
   it("rejects invalid timeout values before network", () => {
     const result = runLiveBackendSmoke({
       PRODUCT_API_URL: "http://localhost:8080",
@@ -61,5 +76,29 @@ describe("ipavo live backend smoke script", () => {
     );
     expect(result.output).not.toContain("fake.jwt.token");
     expect(result.output).not.toContain("\n    at ");
+  });
+
+  it("rejects weak version response shapes", async () => {
+    const { isVersionInfo } = await import(
+      pathToFileURL(resolve(repoRoot, "scripts/ipavo-live-backend-shape.mjs")).href
+    );
+
+    expect(isVersionInfo({})).toBe(false);
+    expect(isVersionInfo({ gitVersion: "v0.0.0-test" })).toBe(true);
+  });
+
+  it("rejects weak resource summary response shapes", async () => {
+    const { isResourceSummary } = await import(
+      pathToFileURL(resolve(repoRoot, "scripts/ipavo-live-backend-shape.mjs")).href
+    );
+
+    expect(isResourceSummary({ clusterCount: {} })).toBe(false);
+    expect(
+      isResourceSummary({
+        clusterCount: { healthy: 2, total: 2 },
+        nodeCount: { healthy: 8, total: 8 },
+        podCount: { healthy: 241, total: 278 }
+      })
+    ).toBe(true);
   });
 });

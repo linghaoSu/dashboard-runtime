@@ -2,6 +2,7 @@ import { IPavo } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo.pb";
 import { displayType } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo_type.pb";
 
 const ipavoServiceMethods = [
+  "GetVersion",
   "GetResourceSummary",
   "GetAlertSummary",
   "GetResourceUsage",
@@ -11,7 +12,7 @@ const ipavoServiceMethods = [
 
 export const ipavoLiveSdkContract = {
   packageName: "@daocloud-proto/ipavo",
-  packageVersion: "0.13.0",
+  packageVersion: "0.13.0-20",
   serviceMethods: ipavoServiceMethods,
   podDisplayTypes: [displayType.BY_CLUSTER, displayType.BY_NAMESPACE]
 };

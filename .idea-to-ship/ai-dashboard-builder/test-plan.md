@@ -153,10 +153,10 @@ Verification commands:
 | Command | Result | Notes |
 |---|---|---|
 | `pnpm --filter @dao-style-viz/ai-dashboard-runtime test` | PASS | 6 files, 15 tests |
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 19 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
 | `pnpm -r --if-present build` | PASS with warnings | Vite warns demo main JS is 824.27 kB and product integration main JS is 909.69 kB after minification |
 | `pnpm --dir playground/playground-ui run build` | PASS with warnings | Rsbuild warns `input-placeholder` is not a valid pseudo-class; largest emitted JS chunk is 576.9 kB |
 | `git diff --check` | PASS | No whitespace errors |
@@ -181,11 +181,11 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-vue test` | PASS | 1 file, 4 tests |
 | `pnpm --filter @dao-style-viz/product-integration-example typecheck` | PASS | Host validation gate compiles |
 | `pnpm --filter @dao-style-viz/product-integration-example lint` | PASS | No lint findings |
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 19 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
 | `pnpm --filter @dao-style-viz/product-integration-example build` | PASS with warnings | Product integration main JS is 909.69 kB after minification |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
 | `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 
@@ -223,7 +223,7 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` | PASS | 1 file, 9 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
 | `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 | `git diff --check` | PASS | No whitespace errors |
@@ -247,7 +247,7 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-sandbox test` | PASS | 1 file, 15 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
 | `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 | `git diff --check` | PASS | No whitespace errors |
@@ -259,7 +259,7 @@ Additional verification:
 
 Decision evidence:
 
-- `.idea-to-ship/ai-dashboard-builder/playground-host-integration.md`: keeps the full-template playground as a standalone DaoStyle host reference for v0.1.
+- `release-gate.md`: keeps the full-template playground as a standalone DaoStyle host reference for v0.1.
 - `pnpm --dir playground/playground-ui run build`: PASS with known `input-placeholder` CSS warnings and largest JS chunk 576.9 kB.
 
 ## ITS-012 And ITS-013 Update
@@ -273,31 +273,31 @@ Added 12 product proxy and live-SDK regression tests:
 - `apps/product-integration/src/__tests__/proxy-config.test.ts`: fake backend URL and fake JWT create server-side bearer header injection.
 - `apps/product-integration/src/__tests__/proxy-config.test.ts`: unsupported URL schemes and non-allowlisted hosts are rejected.
 - `apps/product-integration/src/__tests__/proxy-config.test.ts`: proxy diagnostics redact URL and token values.
-- `apps/product-integration/src/__tests__/ipavo-live-contract.test.ts`: real `@daocloud-proto/ipavo@0.13.0` generated SDK imports expose expected static service methods and `displayType` values without calling the backend.
+- `apps/product-integration/src/__tests__/ipavo-live-contract.test.ts`: real `@daocloud-proto/ipavo@0.13.0-20` generated SDK imports expose expected static service methods and `displayType` values without calling the backend.
 - `apps/product-integration/src/__tests__/ipavo-live-backend-script.test.ts`: missing live backend env fails before network without stack output.
 - `apps/product-integration/src/__tests__/ipavo-live-backend-script.test.ts`: URL-shaped endpoint overrides are rejected before network and token output stays redacted.
 - `apps/product-integration/src/__tests__/ipavo-live-backend-script.test.ts`: invalid timeout values are rejected before network and token output stays redacted.
 - `apps/product-integration/src/__tests__/ipavo-live-pilot-script.test.ts`: fake local env lets the SDK/env preflight pass without printing the token.
 - `apps/product-integration/src/__tests__/ipavo-live-pilot-script.test.ts`: non-allowlisted backend hosts fail preflight without printing the token.
 - `apps/product-integration/src/__tests__/ipavo-live-pilot-script.test.ts`: unsupported backend URL schemes fail preflight without printing the token.
-- `apps/product-integration/src/__tests__/roadmap-completion-script.test.ts`: roadmap completion gate passes the artifact/source/script/product-SDK/env-example placeholder/external-blocker/status/evidence-freshness/markdown-and-source auth-material/audit-verdict surface and remains blocked on live ipavo env without leaking token values.
+- `apps/product-integration/src/__tests__/roadmap-completion-script.test.ts`: roadmap completion gate checks the core artifact/source/script/product-SDK/env-example/evidence-freshness/auth-material/live-gate surface and keeps token values redacted.
 
 Decision evidence:
 
-- `.idea-to-ship/ai-dashboard-builder/backend-proxy-credential-contract.md`: backend URLs and JWTs stay in the server-side proxy boundary.
-- `.idea-to-ship/ai-dashboard-builder/chart-extension-promotion-flow.md`: chart extension goes through candidate selection, generated package proposal, sandbox validation, secure preview, and human approval before registration.
+- `docs/ai-dashboard-v0.1-adoption.md`: backend URLs and JWTs stay in the server-side proxy boundary.
+- `docs/mcp-echarts.md`: chart extension goes through candidate selection, generated package proposal, sandbox validation, secure preview, and human approval before registration.
 
 Additional verification:
 
 | Command | Result | Notes |
 |---|---|---|
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 19 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
 | `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
-| `pnpm run check:roadmap-completion` | FAIL as expected | Artifact/source/script/product-SDK/env-example placeholder/external-blocker/status/evidence-freshness/markdown-and-source auth-material/audit-verdict surface passes; live ipavo backend/JWT gate remains blocked |
+| `pnpm run check:roadmap-completion` | PASS | Core artifact/source/script/product-SDK/env-example/evidence-freshness/auth-material/live-gate surface passes after live ipavo backend/JWT gate closes |
 | `git diff --check` | PASS | No whitespace errors |
 
 ## Workbench Layout And Palette Update
@@ -312,7 +312,7 @@ Added one catalog regression test:
 Decision evidence:
 
 - `docs/design.md`: documents the ipavo-style product-console slot pattern and prebuilt light-console palette.
-- `.idea-to-ship/ai-dashboard-builder/workbench-agent-bridge-architecture.md`: documents catalog-sufficient and chart-extension workbench modes.
+- `roadmap.md`: documents catalog-sufficient and chart-extension workbench modes.
 - `apps/product-integration/src/dashboards/ipavo-overview.ts`: uses a global 8-color dashboard palette while preserving per-chart `props.palette` overrides for compact trend cards.
 
 Additional verification:
@@ -324,13 +324,13 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` | PASS | 1 file, 9 tests |
 | `pnpm --filter @dao-style-viz/product-integration-example typecheck` | PASS | Updated dashboard palette compiles |
 | `pnpm --filter @dao-style-viz/product-integration-example lint` | PASS | No lint findings |
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 19 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 86 tests |
+| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
 | `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
-| `pnpm run check:ipavo-live-pilot` | FAIL as expected | Real backend URL, JWT, and allowlist are not configured |
-| `pnpm run check:ipavo-live-backend` | FAIL as expected | Stops before network because `PRODUCT_API_URL` is missing |
+| `pnpm run check:ipavo-live-pilot` | PASS | Real backend URL, JWT, and allowlist are configured through ignored local env; token output stays redacted |
+| `node scripts/check-ipavo-live-backend.mjs` | PASS | Live backend smoke reaches version and resource summary endpoints with explicit insecure TLS opt-in |
 | local preview health check | PASS, then stopped | Product integration dev server returned HTTP 200 during verification; port 5174 is no longer left listening |
 | `git diff --check` | PASS | No whitespace errors |

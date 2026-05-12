@@ -60,4 +60,4 @@ Forbidden inputs:
 - A schema-valid `DashboardConfig` plus dashboard locale JSON resources.
 - A generated chart widget package that passes typecheck, lint, AST safety scan, dependency allowlist, bundle build, CSP/origin/session-bound sandbox preview, and human approval.
 
-The chart extension promotion flow is documented in `.idea-to-ship/ai-dashboard-builder/chart-extension-promotion-flow.md`.
+For v0.1, generated chart promotion remains gated by `packages/ai-dashboard-sandbox`, dependency review, safe preview, and human approval before registration. The release decision is summarized in `.idea-to-ship/ai-dashboard-builder/release-gate.md`.

@@ -97,8 +97,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ai-dashboard-widgets
       '@daocloud-proto/ipavo':
-        specifier: 0.13.0
-        version: 0.13.0
+        specifier: 0.13.0-20
+        version: 0.13.0-20
       vue:
         specifier: 3.3.13
         version: 3.3.13(typescript@5.9.3)
@@ -262,8 +262,8 @@ packages:
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
 
-  '@daocloud-proto/ipavo@0.13.0':
-    resolution: {integrity: sha512-yvelr+EY7FhBhQXOCGvlMr7jIrcJBYgRb2SFzv5D8BpY16tRMV5w+NwF9naoXHWUBo9xuqpV+7I1iR4UU+w8Qw==}
+  '@daocloud-proto/ipavo@0.13.0-20':
+    resolution: {integrity: sha512-g1XHgCceWSsdkPC8vbiaRDKgqJKTQ7Rlsd0vGNYmBv/wxRG9lh5cOPGsq6rmcUoSb4DcCAVGNSZL1L0OJe8XCw==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -1801,7 +1801,7 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@daocloud-proto/ipavo@0.13.0': {}
+  '@daocloud-proto/ipavo@0.13.0-20': {}
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true

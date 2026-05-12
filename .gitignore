@@ -4,3 +4,5 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 .playwright-cli/
+.env.local
+*.env.local

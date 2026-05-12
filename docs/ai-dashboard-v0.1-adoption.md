@@ -17,7 +17,7 @@ The supported path is:
 4. Product app validates the config before rendering.
 5. Product app passes route/user/locale/runtime context into `BigScreenRuntime`.
 
-v0.1 is not a registry-published package release. All dashboard packages remain `private: true`; the reviewed package surface and remaining publish blockers are documented in `.idea-to-ship/ai-dashboard-builder/package-publishing-surface.md`.
+v0.1 is not a registry-published package release. All dashboard packages remain `private: true`; the release model and publish blockers are documented in `.idea-to-ship/ai-dashboard-builder/release-gate.md`.
 
 ## Reference Files
 
@@ -50,7 +50,7 @@ For a Vue 3.3.x product host, use the same package set as the product integratio
     "@dao-style-viz/ai-dashboard-schema": "workspace:*",
     "@dao-style-viz/ai-dashboard-vue": "workspace:*",
     "@dao-style-viz/ai-dashboard-widgets": "workspace:*",
-    "@daocloud-proto/ipavo": "0.13.0",
+    "@daocloud-proto/ipavo": "0.13.0-20",
     "vue": "3.3.13",
     "zod": "^3.23.8"
   }
@@ -59,7 +59,7 @@ For a Vue 3.3.x product host, use the same package set as the product integratio
 
 For v0.1, `workspace:*` is the only supported consumption mode inside this repository. Product teams evaluating from another repository should use the release candidate commit/branch as source evidence until package publishing is explicitly approved.
 
-Product SDK packages are product-owned dependencies. The ipavo pilot pins `@daocloud-proto/ipavo@0.13.0` only in `apps/product-integration`; dashboard platform packages must not depend on product SDK packages.
+Product SDK packages are product-owned dependencies. The ipavo pilot pins `@daocloud-proto/ipavo@0.13.0-20` only in `apps/product-integration`; dashboard platform packages must not depend on product SDK packages.
 
 ## Import Package Styles
 
@@ -396,7 +396,7 @@ const configErrorMode = computed(() =>
 );
 ```
 
-`BigScreenRuntime` also accepts optional `configErrorTitle` and `configErrorMessage` props for host-specific production copy. The v0.1 contract is documented in `.idea-to-ship/ai-dashboard-builder/config-error-ux-contract.md`.
+`BigScreenRuntime` also accepts optional `configErrorTitle` and `configErrorMessage` props for host-specific production copy. Product hosts should validate configs before rendering; the runtime fallback is only the last line of defense.
 
 ## Replace The Mock SDK With A Real SDK
 
@@ -416,13 +416,14 @@ PRODUCT_API_URL=http://localhost:8080
 PRODUCT_AUTH_TOKEN=<jwt>
 PRODUCT_API_ALLOWED_HOSTS=localhost:8080
 PRODUCT_API_TIMEOUT_MS=10000
+PRODUCT_API_INSECURE_TLS=false
 PRODUCT_IPAVO_VERSION_PATH=/apis/ipavo.io/v1alpha1/version
 PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH=/apis/ipavo.io/v1alpha1/resource/summary
 ```
 
-Use `apps/product-integration/.env.example` as the local template. Do not commit real backend URLs or JWT values.
+Use `apps/product-integration/.env.example` as the local template and put real local values in ignored `apps/product-integration/.env.local`. The live-check scripts and Vite config load `.env.local`; explicit shell env values still take precedence. For internal self-signed HTTPS endpoints, set `PRODUCT_API_INSECURE_TLS=true` only in `.env.local` or the local shell. Do not commit real backend URLs or JWT values.
 
-The proxy injects the JWT auth header server-side. `PRODUCT_API_ALLOWED_HOSTS` is optional for local-only testing but required for shared preview services. Do not put backend URLs, JWTs, cookies, or auth headers in DashboardConfig, local-agent tasks, or AI-facing catalog output. The credential contract is documented in `.idea-to-ship/ai-dashboard-builder/backend-proxy-credential-contract.md`.
+The proxy injects the JWT auth header server-side. `PRODUCT_API_ALLOWED_HOSTS` is required whenever `PRODUCT_API_URL` is set, including local testing. Do not put backend URLs, JWTs, cookies, or auth headers in DashboardConfig, local-agent tasks, or AI-facing catalog output.
 
 After setting the env values locally, run:
 
@@ -445,19 +446,19 @@ pnpm --filter @dao-style-viz/product-integration-example build
 ```
 
 For a full v0.1 release candidate, also run the release-gate commands in `.idea-to-ship/ai-dashboard-builder/release-gate.md`.
-Bundle budgets are tracked in `.idea-to-ship/ai-dashboard-builder/performance-bundle-budget.md` and checked with:
+Bundle budgets are part of that release gate and checked with:
 
 ```sh
 pnpm run check:bundle-budget
 ```
 
-`playground/playground-ui` is kept as a standalone DaoStyle full-template host reference only. Use `apps/product-integration` as the canonical dashboard wiring example for v0.1. The playground decision is recorded in `.idea-to-ship/ai-dashboard-builder/playground-host-integration.md`.
+`playground/playground-ui` is kept as a standalone DaoStyle full-template host reference only. Use `apps/product-integration` as the canonical dashboard wiring example for v0.1.
 
 ## AI Generation In v0.1
 
 v0.1 uses a local-agent-assisted workflow. The platform does not host its own LLM runtime. Product teams should run generation through a user-controlled local agent such as Codex or OpenCode, then commit only reviewed DashboardConfig and locale resources.
 
-The required path is documented in `.idea-to-ship/ai-dashboard-builder/generator-execution-path.md`: plan first, human approval, DashboardConfig and locale generation, `validateDashboardConfig`, product checks, and bundle budget checks. Backend URLs, JWTs, cookies, SDK implementation, and raw production responses must stay out of prompts, DashboardConfig, and AI catalog output.
+The required path is: plan first, human approval, DashboardConfig and locale generation, `validateDashboardConfig`, product checks, and bundle budget checks. Backend URLs, JWTs, cookies, SDK implementation, and raw production responses must stay out of prompts, DashboardConfig, and AI catalog output.
 
 ## Minimum Test Coverage For A New Product Dashboard
 

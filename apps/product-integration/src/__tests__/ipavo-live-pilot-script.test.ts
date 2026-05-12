@@ -11,6 +11,7 @@ function runLivePilotPreflight(env: Record<string, string> = {}) {
     cwd: repoRoot,
     env: {
       FORCE_COLOR: "0",
+      PRODUCT_SKIP_ENV_FILE: "1",
       ...env
     },
     encoding: "utf8"
@@ -31,7 +32,7 @@ describe("ipavo live pilot preflight script", () => {
     });
 
     expect(result.status).toBe(0);
-    expect(result.output).toContain("@daocloud-proto/ipavo@0.13.0");
+    expect(result.output).toContain("@daocloud-proto/ipavo@0.13.0-20");
     expect(result.output).toContain("[configured and redacted]");
     expect(result.output).not.toContain("fake.jwt.token");
   });

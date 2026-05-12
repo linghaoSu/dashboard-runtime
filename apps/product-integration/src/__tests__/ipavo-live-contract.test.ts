@@ -9,8 +9,9 @@ describe("ipavo live SDK contract", () => {
     expect(() => assertIpavoLiveSdkContract()).not.toThrow();
     expect(ipavoLiveSdkContract).toMatchObject({
       packageName: "@daocloud-proto/ipavo",
-      packageVersion: "0.13.0",
+      packageVersion: "0.13.0-20",
       serviceMethods: [
+        "GetVersion",
         "GetResourceSummary",
         "GetAlertSummary",
         "GetResourceUsage",

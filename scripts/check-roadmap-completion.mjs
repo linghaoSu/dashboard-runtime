@@ -12,20 +12,8 @@ const requiredArtifacts = [
   ".idea-to-ship/ai-dashboard-builder/roadmap.md",
   ".idea-to-ship/ai-dashboard-builder/release-gate.md",
   ".idea-to-ship/ai-dashboard-builder/test-plan.md",
+  ".idea-to-ship/ai-dashboard-builder/code-review.md",
   "docs/ai-dashboard-v0.1-adoption.md",
-  ".idea-to-ship/ai-dashboard-builder/package-publishing-surface.md",
-  ".idea-to-ship/ai-dashboard-builder/ipavo-product-pilot.md",
-  ".idea-to-ship/ai-dashboard-builder/completion-audit.md",
-  ".idea-to-ship/ai-dashboard-builder/external-blockers.md",
-  ".idea-to-ship/ai-dashboard-builder/live-pilot-input-request.md",
-  ".idea-to-ship/ai-dashboard-builder/config-error-ux-contract.md",
-  ".idea-to-ship/ai-dashboard-builder/performance-bundle-budget.md",
-  ".idea-to-ship/ai-dashboard-builder/generator-execution-path.md",
-  ".idea-to-ship/ai-dashboard-builder/generated-chart-preview-security-policy.md",
-  ".idea-to-ship/ai-dashboard-builder/playground-host-integration.md",
-  ".idea-to-ship/ai-dashboard-builder/workbench-agent-bridge-architecture.md",
-  ".idea-to-ship/ai-dashboard-builder/backend-proxy-credential-contract.md",
-  ".idea-to-ship/ai-dashboard-builder/chart-extension-promotion-flow.md",
   "docs/design.md",
   "docs/mcp-echarts.md"
 ];
@@ -34,6 +22,7 @@ const requiredSourceFiles = [
   "scripts/check-bundle-budget.mjs",
   "scripts/check-ipavo-live-pilot.mjs",
   "scripts/check-ipavo-live-backend.mjs",
+  "scripts/ipavo-live-backend-shape.mjs",
   "scripts/check-roadmap-completion.mjs",
   "apps/product-integration/src/dashboards/ipavo-overview.ts",
   "apps/product-integration/src/product-sdk/ipavo-live-contract.ts",
@@ -59,22 +48,16 @@ const requiredRootScripts = [
 
 const roadmapArtifactDir = ".idea-to-ship/ai-dashboard-builder";
 const expectedProductSdkDependencies = {
-  "@daocloud-proto/ipavo": "0.13.0"
+  "@daocloud-proto/ipavo": "0.13.0-20"
 };
 const requiredProductEnvKeys = [
   "PRODUCT_API_URL",
   "PRODUCT_API_ALLOWED_HOSTS",
   "PRODUCT_AUTH_TOKEN",
   "PRODUCT_API_TIMEOUT_MS",
+  "PRODUCT_API_INSECURE_TLS",
   "PRODUCT_IPAVO_VERSION_PATH",
   "PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH"
-];
-const requiredExternalBlockers = [
-  "EB-001",
-  "EB-002",
-  "EB-003",
-  "EB-004",
-  "EB-005"
 ];
 const authMaterialSafetyFiles = [
   "apps/product-integration/.env.example",
@@ -84,11 +67,20 @@ const authMaterialSafetyFiles = [
   "packages/ai-dashboard-ai-catalog/src/prompt-templates.ts"
 ];
 const staleEvidencePatterns = [
+  /6 files \/ 19 tests/,
+  /6 files \/ 23 tests/,
+  /6 files \/ 28 tests/,
   /17 test files \/ 86 tests/,
   /17 files \/ 86 tests/,
   /17 files, 86 tests/,
   /18 files \/ 87 tests/,
-  /18 files, 87 tests/
+  /18 files, 87 tests/,
+  /18 files \/ 90 tests/,
+  /18 files, 90 tests/,
+  /18 files \/ 94 tests/,
+  /18 files, 94 tests/,
+  /18 files \/ 95 tests/,
+  /18 files, 95 tests/
 ];
 const markdownAuthMaterialPatterns = [
   {
@@ -119,14 +111,11 @@ checkRequiredFiles("roadmap source/test surface", requiredSourceFiles);
 checkRequiredRootScripts();
 checkProductSdkSurface();
 checkProductEnvExampleSurface();
-checkExternalBlockersSurface();
 checkStaleEvidence();
 checkMarkdownAuthMaterialSafety();
 checkSourceAuthMaterialSafety();
 runGate("ITS-003 live pilot preflight", "scripts/check-ipavo-live-pilot.mjs");
 runGate("ITS-003 live backend smoke", "scripts/check-ipavo-live-backend.mjs");
-checkCompletionAuditVerdict();
-checkExternalBlockerStatus();
 
 if (failures.length) {
   console.error("FAIL roadmap completion gate");
@@ -238,6 +227,11 @@ function checkProductEnvExampleSurface() {
   if (Number(values.PRODUCT_API_TIMEOUT_MS) <= 0) {
     invalidPlaceholders.push("PRODUCT_API_TIMEOUT_MS must be positive");
   }
+  if (!["false", "0", "no"].includes(values.PRODUCT_API_INSECURE_TLS)) {
+    invalidPlaceholders.push(
+      "PRODUCT_API_INSECURE_TLS must stay disabled in .env.example"
+    );
+  }
   for (const key of [
     "PRODUCT_IPAVO_VERSION_PATH",
     "PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH"
@@ -284,38 +278,6 @@ function readEnvExampleValues(content) {
         return [line.slice(0, separatorIndex), line.slice(separatorIndex + 1)];
       })
   );
-}
-
-function checkExternalBlockersSurface() {
-  const blockersPath = ".idea-to-ship/ai-dashboard-builder/external-blockers.md";
-  const content = readFileSync(resolve(repoRoot, blockersPath), "utf8");
-  const missingBlockers = requiredExternalBlockers.filter(
-    (blocker) => !content.includes(blocker)
-  );
-  const missingLiveEnvKeys = [
-    "PRODUCT_API_URL",
-    "PRODUCT_AUTH_TOKEN",
-    "PRODUCT_API_ALLOWED_HOSTS"
-  ].filter((key) => !content.includes(key));
-
-  if (missingBlockers.length === 0 && missingLiveEnvKeys.length === 0) {
-    console.log(
-      `PASS external blocker register surface: ${requiredExternalBlockers.length} blockers`
-    );
-    return;
-  }
-
-  if (missingBlockers.length) {
-    failures.push(
-      `${blockersPath} is missing blocker IDs: ${missingBlockers.join(", ")}`
-    );
-  }
-
-  if (missingLiveEnvKeys.length) {
-    failures.push(
-      `${blockersPath} EB-001 is missing live env keys: ${missingLiveEnvKeys.join(", ")}`
-    );
-  }
 }
 
 function checkStaleEvidence() {
@@ -389,63 +351,6 @@ function getRoadmapMarkdownFiles() {
   return readdirSync(resolve(repoRoot, roadmapArtifactDir))
     .filter((file) => file.endsWith(".md"))
     .map((file) => `${roadmapArtifactDir}/${file}`);
-}
-
-function checkCompletionAuditVerdict() {
-  const auditPath = ".idea-to-ship/ai-dashboard-builder/completion-audit.md";
-  const content = readFileSync(resolve(repoRoot, auditPath), "utf8");
-  const saysNotComplete = /\*\*Verdict:\*\*\s+Not complete/i.test(content);
-
-  if (liveGateFailed) {
-    if (saysNotComplete) {
-      console.log(
-        "PASS completion audit verdict: still open while live gates are blocked"
-      );
-      return;
-    }
-
-    failures.push(
-      `${auditPath} must keep the verdict open while live gates are blocked`
-    );
-    return;
-  }
-
-  if (saysNotComplete) {
-    failures.push(`${auditPath} still says Not complete after live gates passed`);
-    return;
-  }
-
-  console.log("PASS completion audit verdict: live gates are no longer blocking");
-}
-
-function checkExternalBlockerStatus() {
-  const blockersPath = ".idea-to-ship/ai-dashboard-builder/external-blockers.md";
-  const content = readFileSync(resolve(repoRoot, blockersPath), "utf8");
-  const saysOpen = /\*\*Status:\*\*\s+Open\b/i.test(content);
-  const expectsFail = /Expected current result:\s+FAIL/i.test(content);
-
-  if (liveGateFailed) {
-    if (saysOpen && expectsFail) {
-      console.log(
-        "PASS external blocker status: open while live gates are blocked"
-      );
-      return;
-    }
-
-    failures.push(
-      `${blockersPath} must stay open and expect FAIL while live gates are blocked`
-    );
-    return;
-  }
-
-  if (saysOpen || expectsFail) {
-    failures.push(
-      `${blockersPath} still reports open/expected-fail after live gates passed`
-    );
-    return;
-  }
-
-  console.log("PASS external blocker status: live gates are no longer blocking");
 }
 
 function runGate(label, scriptPath) {

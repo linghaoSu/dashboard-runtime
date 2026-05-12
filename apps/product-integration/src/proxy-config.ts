@@ -2,6 +2,7 @@ export type ProductApiProxyEnv = {
   PRODUCT_API_URL?: string;
   PRODUCT_AUTH_TOKEN?: string;
   PRODUCT_API_ALLOWED_HOSTS?: string;
+  PRODUCT_API_INSECURE_TLS?: string;
 };
 
 export type ProductApiProxyConfig = {
@@ -18,20 +19,21 @@ export type ProductApiProxyConfig = {
 export function createProductApiProxyConfig(
   env: ProductApiProxyEnv
 ): ProductApiProxyConfig | undefined {
-  const rawTarget = env.PRODUCT_API_URL?.trim();
+  const resolvedEnv = resolveProductApiProxyEnv(env);
+  const rawTarget = resolvedEnv.apiUrl;
   if (!rawTarget) {
     return undefined;
   }
 
   const targetUrl = parseProductApiUrl(rawTarget);
-  assertAllowedHost(targetUrl, env.PRODUCT_API_ALLOWED_HOSTS);
+  assertAllowedHost(targetUrl, resolvedEnv.allowedHosts);
 
-  const token = env.PRODUCT_AUTH_TOKEN?.trim();
+  const token = resolvedEnv.authToken;
   return {
     "/apis": {
       target: normalizeTarget(targetUrl),
       changeOrigin: true,
-      secure: targetUrl.protocol === "https:",
+      secure: targetUrl.protocol === "https:" && !resolvedEnv.insecureTls,
       headers: token
         ? {
             Authorization: `Bearer ${token}`
@@ -42,11 +44,68 @@ export function createProductApiProxyConfig(
 }
 
 export function redactProductApiProxyEnv(env: ProductApiProxyEnv) {
+  const resolvedEnv = resolveProductApiProxyEnv(env);
+  const authTokenStatus = resolvedEnv.authToken ? "[redacted]" : "[unset]";
+
   return {
-    PRODUCT_API_URL: env.PRODUCT_API_URL ? "[configured]" : "[unset]",
-    PRODUCT_AUTH_TOKEN: env.PRODUCT_AUTH_TOKEN ? "[redacted]" : "[unset]",
-    PRODUCT_API_ALLOWED_HOSTS: env.PRODUCT_API_ALLOWED_HOSTS ? "[configured]" : "[unset]"
+    PRODUCT_API_URL: resolvedEnv.apiUrl ? "[configured]" : "[unset]",
+    PRODUCT_AUTH_TOKEN: authTokenStatus,
+    PRODUCT_API_ALLOWED_HOSTS: resolvedEnv.allowedHosts ? "[configured]" : "[unset]"
   };
+}
+
+function resolveProductApiProxyEnv(env: ProductApiProxyEnv) {
+  return {
+    apiUrl: readFirstEnv(env, ["PRODUCT_API_URL"]),
+    authToken: readSecretEnv(env, ["PRODUCT_AUTH_TOKEN"]),
+    allowedHosts: readFirstEnv(env, ["PRODUCT_API_ALLOWED_HOSTS"]),
+    insecureTls: readBooleanEnv(readFirstEnv(env, ["PRODUCT_API_INSECURE_TLS"]))
+  };
+}
+
+function readFirstEnv(
+  env: ProductApiProxyEnv,
+  names: Array<keyof ProductApiProxyEnv>
+) {
+  for (const name of names) {
+    const value = env[name]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function readSecretEnv(
+  env: ProductApiProxyEnv,
+  names: Array<keyof ProductApiProxyEnv>
+) {
+  const value = readFirstEnv(env, names);
+  if (!value || ["<jwt>", "<paste-jwt-here>"].includes(value)) {
+    return undefined;
+  }
+
+  return value;
+}
+
+function readBooleanEnv(value: string | undefined) {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized) {
+    return false;
+  }
+
+  if (["1", "true", "yes"].includes(normalized)) {
+    return true;
+  }
+
+  if (["0", "false", "no"].includes(normalized)) {
+    return false;
+  }
+
+  throw new Error(
+    "PRODUCT_API_INSECURE_TLS must be one of 1, true, yes, 0, false, or no when configured"
+  );
 }
 
 function parseProductApiUrl(rawTarget: string): URL {
@@ -71,7 +130,7 @@ function assertAllowedHost(targetUrl: URL, allowedHostsInput: string | undefined
     .filter(Boolean);
 
   if (!allowedHosts?.length) {
-    return;
+    throw new Error("PRODUCT_API_ALLOWED_HOSTS is required when PRODUCT_API_URL is set");
   }
 
   if (!allowedHosts.includes(targetUrl.host)) {

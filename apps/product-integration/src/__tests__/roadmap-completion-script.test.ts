@@ -11,6 +11,7 @@ function runRoadmapCompletionGate(env: Record<string, string> = {}) {
     cwd: repoRoot,
     env: {
       FORCE_COLOR: "0",
+      PRODUCT_SKIP_ENV_FILE: "1",
       ...env
     },
     encoding: "utf8"
@@ -23,7 +24,7 @@ function runRoadmapCompletionGate(env: Record<string, string> = {}) {
 }
 
 describe("roadmap completion gate script", () => {
-  it("keeps roadmap completion blocked until live ipavo env is provided", () => {
+  it("fails without live ipavo env and keeps auth material redacted", () => {
     const result = runRoadmapCompletionGate();
 
     expect(result.status).toBe(1);
@@ -32,16 +33,9 @@ describe("roadmap completion gate script", () => {
     expect(result.output).toContain("PASS root package script surface");
     expect(result.output).toContain("PASS product SDK dependency surface");
     expect(result.output).toContain("PASS product live env example surface");
-    expect(result.output).toContain("PASS external blocker register surface");
     expect(result.output).toContain("PASS roadmap evidence freshness");
     expect(result.output).toContain("PASS markdown auth-material safety");
     expect(result.output).toContain("PASS source auth-material safety");
-    expect(result.output).toContain(
-      "PASS completion audit verdict: still open while live gates are blocked"
-    );
-    expect(result.output).toContain(
-      "PASS external blocker status: open while live gates are blocked"
-    );
     expect(result.output).toContain("ITS-003 live pilot preflight failed");
     expect(result.output).toContain("ITS-003 live backend smoke failed");
     expect(result.output).toContain(

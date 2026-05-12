@@ -24,7 +24,7 @@ import {
   ipavoResourceUsageDataSchema
 } from "../widgets/ipavo";
 
-// The reference ipavo-ui pins @daocloud-proto/ipavo@0.13.0. Live pilots should
+// The reference ipavo-ui pins @daocloud-proto/ipavo@0.13.0-20. Live pilots should
 // replace the local fixture above with:
 // import { IPavo } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo.pb";
 // import type { ... } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo_type.pb";

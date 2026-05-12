@@ -30,17 +30,17 @@ Non-goals:
 
 ## Codebase Context
 
-This repository now contains the first four implementation stages:
+This repository now contains the v0.1 implementation baseline:
 
 - `doc.md` — original design document.
 - `.idea-to-ship/ai-dashboard-builder/requirements.md` — normalized requirements artifact.
-- `.idea-to-ship/ai-dashboard-builder/implementation-log.md` — staged implementation record. It is the source of truth for design drift and completed verification.
+- `.idea-to-ship/ai-dashboard-builder/code-review.md` — latest review record for design drift and completed verification.
 - Root pnpm workspace, TypeScript, Vitest, ESLint, package build configs, and `apps/demo`.
 - Implemented packages: `ai-dashboard-schema`, `ai-dashboard-runtime`, `ai-dashboard-vue`, `ai-dashboard-echarts-vue`, and `ai-dashboard-ai-catalog`.
 - `playground/playground-ui` — standalone `@dao-style/cli` full-template host app outside the root workspace.
 - `/Users/sulinghao/workspaces/dce5/amamba-ui/src/plugins/vue-i18n` — reference host-app locale integration supplied during implementation. It uses Vue I18n composition mode, dynamic locale loading, locale fallback resolution, and external package locale merging.
 
-Stages 1-4 should be treated as landed baseline, not design speculation. Remaining architecture work starts at Stage 5 and must preserve the current public package contracts unless `implementation-log.md` records an explicit accepted deviation.
+The implemented package and product-integration contracts should be treated as landed baseline, not design speculation. Future architecture work must preserve the current public package contracts unless `code-review.md` records an explicit accepted deviation.
 
 - Use root `pnpm` workspaces for platform packages and keep the full-template playground standalone.
 - Use TypeScript, Vue 3.3.x, Vite, Vitest, Vue Test Utils, ESLint, Zod, ECharts, and `vue-echarts`.
