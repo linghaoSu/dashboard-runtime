@@ -4,9 +4,9 @@
 **Roadmap Item:** ITS-ai-dashboard-builder-001
 **Gate Owner:** Frontend platform team
 **Decision Owner:** Platform lead
-**Current Evidence Head:** `c25a0e4` plus current final-candidate diff
+**Current Evidence Head:** `6d4539d`
 **Current Gate Definition Status:** COMPLETE
-**Current Release Verdict:** HOLD pending final-candidate diff review and sign-off
+**Current Release Verdict:** GO for v0.1 internal source/commit evaluation after user-requested sign-off on 2026-05-12
 
 ## Release Meaning
 
@@ -71,9 +71,9 @@ The version marker is `0.1.0` across the workspace packages, but that marker doe
 | RG-7 | Product-facing adoption guide exists and matches the product example | `docs/ai-dashboard-v0.1-adoption.md` | PASS |
 | RG-8 | Safety boundaries are not weakened | Code review, catalog tests, sandbox tests | PASS on 2026-05-12 |
 | RG-9 | Known warnings are triaged and assigned to roadmap owners | This release gate, `test-plan.md`, `roadmap.md` | PASS |
-| RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | PENDING review of current final-candidate diff |
+| RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | PASS on 2026-05-12; final candidate selected as `6d4539d` |
 
-Final v0.1 GO requires every row to be PASS. The required commands have been rerun on the current final-candidate diff; GO still requires owner review/sign-off and a selected commit or branch. Live ipavo PASS evidence is environment-bound because the real `PRODUCT_*` values live only in ignored `.env.local` or local shell state; a clean checkout must provide equivalent out-of-band inputs before reproducing the live rows.
+Final v0.1 GO is recorded for internal source/commit evaluation at `6d4539d`. The required commands have been rerun on the final-candidate diff and owner sign-off was recorded by user request on 2026-05-12. Live ipavo PASS evidence is environment-bound because the real `PRODUCT_*` values live only in ignored `.env.local` or local shell state; a clean checkout must provide equivalent out-of-band inputs before reproducing the live rows.
 
 ## No-Go Conditions
 
@@ -135,6 +135,6 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 
 | Role | Required For GO | Current |
 |---|---|---|
-| Frontend platform owner | Confirms required checks and docs are complete | Pending sign-off after checks passed |
-| Platform lead | Confirms release/consumption model and accepts known warnings | Pending sign-off |
-| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Pending sign-off after ITS-ai-dashboard-builder-003 live gate passed |
+| Frontend platform owner | Confirms required checks and docs are complete | Signed off by user request on 2026-05-12; checks and docs confirmed for `6d4539d` |
+| Platform lead | Confirms release/consumption model and accepts known warnings | GO by user request on 2026-05-12; internal source/commit consumption and known warnings accepted |
+| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Signed off by user request on 2026-05-12 after adoption guide and live gate evidence |
