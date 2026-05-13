@@ -20,7 +20,7 @@
 | 8 | warning | live SDK cancellation | Live browser ipavo calls dropped `ctx.signal`, so stale dashboard/filter/locale loads could continue auth-bearing `/apis` requests after abort. | Extended the ipavo overview client to accept `RequestInit`, forwarded `{ signal }` to generated SDK methods, and passed the runtime signal from every ipavo dataSource call. |
 | 9 | warning | adoption docs | The browser live-mode docs blurred generated SDK routes with smoke-script-only endpoint path and timeout overrides. | Clarified that `VITE_PRODUCT_IPAVO_DATA_MODE` selects browser mode, while `PRODUCT_IPAVO_*_PATH` and `PRODUCT_API_TIMEOUT_MS` only affect live smoke scripts. |
 | 10 | warning | live route coverage | The first live-client test covered only `GetResourceSummary`, leaving pod/resource/alert/product generated routes and query serialization untested. | Expanded `ipavo-overview-client.test.ts` to cover all five live overview routes and assert `AbortSignal` forwarding on each generated fetch. |
-| 11 | warning | release evidence | Updated test counts were tied to an uncommitted local diff while `release-gate.md` still named the historical GO commit. | Committed the reviewed diff as `c5fc6b4`, selected it as the release-candidate head, scoped old sign-off rows to historical `6d4539d`, and kept final GO/HOLD pending for platform-lead decision. |
+| 11 | warning | release evidence | Updated test counts were tied to an uncommitted local diff while `release-gate.md` still named the historical GO commit. | Committed the reviewed diff as `c5fc6b4`, selected it as the release-candidate head, scoped old sign-off rows to historical `6d4539d`, and recorded GO on 2026-05-13. |
 
 ## Design Drift
 
@@ -54,7 +54,7 @@ Verification run after this continuation:
 
 None for release-candidate `c5fc6b4`.
 
-Final GO/HOLD remains pending for platform-lead decision. Known non-blocking release-gate warnings remain documented in `release-gate.md`: Vite chunk-size warnings, standalone playground CSS pseudo-class warnings, and no coverage tooling.
+GO for v0.1 internal source/commit evaluation at `c5fc6b4` was recorded by user request on 2026-05-13. Known non-blocking release-gate warnings remain documented in `release-gate.md`: Vite chunk-size warnings, standalone playground CSS pseudo-class warnings, and no coverage tooling.
 
 ## Final Verdict
 

@@ -6,7 +6,7 @@
 **Decision Owner:** Platform lead
 **Current Evidence Head:** `c5fc6b4`
 **Current Gate Definition Status:** COMPLETE; release-candidate head selected
-**Current Release Verdict:** READY FOR GO/HOLD decision at `c5fc6b4`
+**Current Release Verdict:** GO for v0.1 internal source/commit evaluation at `c5fc6b4`
 
 ## Release Meaning
 
@@ -135,6 +135,6 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 
 | Role | Required For GO | Current |
 |---|---|---|
-| Frontend platform owner | Confirms required checks and docs are complete | Pending final sign-off for `c5fc6b4` |
-| Platform lead | Confirms release/consumption model and accepts known warnings | Pending GO/HOLD decision for `c5fc6b4` |
-| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Pending final sign-off for `c5fc6b4` |
+| Frontend platform owner | Confirms required checks and docs are complete | GO by user request on 2026-05-13 for `c5fc6b4` |
+| Platform lead | Confirms release/consumption model and accepts known warnings | GO by user request on 2026-05-13 for `c5fc6b4`; internal source/commit consumption and known warnings accepted |
+| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | GO by user request on 2026-05-13 for `c5fc6b4` |

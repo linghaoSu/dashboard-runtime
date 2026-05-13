@@ -39,7 +39,7 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 - Completed: ITS-ai-dashboard-builder-008 produced `test-plan.md` with passing verification evidence; ITS-ai-dashboard-builder-001 produced `release-gate.md` with v0.1 go/no-go criteria and source-based internal consumption model; ITS-ai-dashboard-builder-002 produced `docs/ai-dashboard-v0.1-adoption.md`; ITS-ai-dashboard-builder-010 produced `release-gate.md` and fixed the widgets declaration output surface; ITS-ai-dashboard-builder-004 locked the production config-error UX contract; ITS-ai-dashboard-builder-007 defined v0.1 performance and bundle budgets with a local budget check; ITS-ai-dashboard-builder-006 chose the local-agent-assisted generator execution path; ITS-ai-dashboard-builder-005 hardened generated chart preview CSP/origin/message policy; ITS-ai-dashboard-builder-009 validated the full-template playground as a reference-only host surface; ITS-ai-dashboard-builder-011 designed the manager workbench and local agent bridge; ITS-ai-dashboard-builder-012 defined backend proxy and JWT credential handling; ITS-ai-dashboard-builder-013 defined chart extension promotion flow.
 - Added: ipavo product dashboard pilot reference and a post-v0.1 manager-facing workbench direction: server-side `/apis` proxy with JWT header injection, generated SDK packages such as `@daocloud-proto/*`, local Codex/OpenCode agent bridge, and chart extension flow through sandboxed generated widgets.
 - Added: executable design evidence for the ipavo reference through the `ipavo-console-overview` layout preset and `ipavo-console-light` palette alternative.
-- Needs Decision: `c5fc6b4` is selected as the v0.1 release-candidate head with passing review/check evidence; final GO/HOLD still requires platform-lead sign-off.
+- GO Recorded: `c5fc6b4` is selected as the v0.1 release-candidate head with passing review/check evidence, and GO was recorded by user request on 2026-05-13.
 
 ## Inputs
 
@@ -54,13 +54,13 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 | Workspace manifests | Root/package/app `package.json`, `pnpm-workspace.yaml` | Release surface, scripts, package privacy, workspace shape |
 
 - Repo HEAD: `c5fc6b4`.
-- Dirty worktree: no at candidate selection time. `c5fc6b4` contains live ipavo browser mode, abort-signal propagation, expanded live-route tests, release-gate/test-plan/roadmap updates, and adoption-guide cleanup; final GO requires platform-lead sign-off.
+- Dirty worktree: no at candidate selection time. `c5fc6b4` contains live ipavo browser mode, abort-signal propagation, expanded live-route tests, release-gate/test-plan/roadmap updates, and adoption-guide cleanup; GO was recorded on 2026-05-13.
 - Excluded sources: git history beyond HEAD/status, TODO/FIXME mining, GitHub issues/PRs/milestones, and network/package registry data.
 
 ## Now
 
 ### ITS-ai-dashboard-builder-001 — Cut v0.1 internal release gate
-**Status:** Completed - gate definition complete; `c5fc6b4` selected as release-candidate head and awaiting platform-lead GO/HOLD
+**Status:** Completed - `c5fc6b4` selected as release-candidate head and GO recorded
 **Work Type:** Release
 **Evidence Class:** Explicit
 **Confidence:** High
@@ -286,7 +286,7 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 
 ## Critical Path
 
-For v0.1 readiness, the Now lane artifacts are complete: ITS-ai-dashboard-builder-008, ITS-ai-dashboard-builder-001, and ITS-ai-dashboard-builder-002. `c5fc6b4` is the reviewed release-candidate head; final GO now depends on platform-lead sign-off.
+For v0.1 readiness, the Now lane artifacts are complete: ITS-ai-dashboard-builder-008, ITS-ai-dashboard-builder-001, and ITS-ai-dashboard-builder-002. `c5fc6b4` is the reviewed release-candidate head, and GO was recorded on 2026-05-13.
 
 ## Risks / Spikes
 
@@ -299,7 +299,7 @@ For v0.1 readiness, the Now lane artifacts are complete: ITS-ai-dashboard-builde
 
 | Slug/ID | Status | Next Action | Blockers | Evidence |
 |---|---|---|---|---|
-| ITS-ai-dashboard-builder-001 | Completed | Record platform-lead GO/HOLD for `c5fc6b4` | Platform-lead sign-off | `release-gate.md`; test-plan command evidence |
+| ITS-ai-dashboard-builder-001 | Completed | Use `c5fc6b4` for v0.1 internal source/commit evaluation | None | `release-gate.md`; test-plan command evidence |
 | ITS-ai-dashboard-builder-008 | Completed | Keep results current if checks change | None | `test-plan.md`; 19 files / 95 tests |
 | ITS-ai-dashboard-builder-002 | Completed | Use guide for first product pilot | Product owner and SDK access | `docs/ai-dashboard-v0.1-adoption.md`; product integration example |
 | ITS-ai-dashboard-builder-010 | Completed | Internal package surface and pack evidence documented; registry publish remains blocked | `release-gate.md` | Registry blockers remain explicit |
