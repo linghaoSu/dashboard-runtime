@@ -4,9 +4,9 @@
 **Roadmap Item:** ITS-ai-dashboard-builder-001
 **Gate Owner:** Frontend platform team
 **Decision Owner:** Platform lead
-**Current Evidence Base:** `87cdec1` plus reviewed local diff on 2026-05-13
-**Current Gate Definition Status:** COMPLETE; current evidence is pending commit
-**Current Release Verdict:** PENDING for the current local diff until it is committed and selected as the release-candidate head
+**Current Evidence Head:** `c5fc6b4`
+**Current Gate Definition Status:** COMPLETE; release-candidate head selected
+**Current Release Verdict:** READY FOR GO/HOLD decision at `c5fc6b4`
 
 ## Release Meaning
 
@@ -64,16 +64,16 @@ The version marker is `0.1.0` across the workspace packages, but that marker doe
 |---|---|---|---|
 | RG-1 | v0.1 scope and non-goals are documented | `requirements.md`, `roadmap.md`, this release gate | PASS |
 | RG-2 | Acceptance criteria map to concrete tests, commands, and known gaps | `test-plan.md` | PASS |
-| RG-3 | Implementation remains green | `code-review.md`; final-candidate checks | PASS on reviewed local diff, 2026-05-13 |
-| RG-4 | Workspace typecheck, lint, tests, and build pass | `pnpm -r --if-present typecheck`, `lint`, `test`, `build` | PASS on reviewed local diff, 2026-05-13 |
-| RG-5 | Product integration example validates config, SDK wrappers, locale merge, and failure paths | `apps/product-integration` tests/build | PASS on reviewed local diff, 2026-05-13 |
+| RG-3 | Implementation remains green | `code-review.md`; final-candidate checks | PASS at `c5fc6b4` |
+| RG-4 | Workspace typecheck, lint, tests, and build pass | `pnpm -r --if-present typecheck`, `lint`, `test`, `build` | PASS at `c5fc6b4` |
+| RG-5 | Product integration example validates config, SDK wrappers, locale merge, and failure paths | `apps/product-integration` tests/build | PASS at `c5fc6b4` |
 | RG-6 | Standalone playground remains buildable outside the root workspace | `pnpm --dir playground/playground-ui run build` | PASS with warnings |
 | RG-7 | Product-facing adoption guide exists and matches the product example | `docs/ai-dashboard-v0.1-adoption.md` | PASS |
-| RG-8 | Safety boundaries are not weakened | Code review, catalog tests, sandbox tests | PASS on reviewed local diff, 2026-05-13 |
+| RG-8 | Safety boundaries are not weakened | Code review, catalog tests, sandbox tests | PASS at `c5fc6b4` |
 | RG-9 | Known warnings are triaged and assigned to roadmap owners | This release gate, `test-plan.md`, `roadmap.md` | PASS |
-| RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | PENDING until this reviewed local diff is committed or intentionally dropped |
+| RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | PASS at `c5fc6b4`; `main` is synced with `origin/main` |
 
-The previous v0.1 GO at `6d4539d` is historical. The current local diff adds live browser ipavo SDK mode, abort-signal propagation, route coverage, and refreshed evidence counts; it must be committed and selected as a new release-candidate head before GO can be claimed for this state. Live ipavo PASS evidence is environment-bound because the real `PRODUCT_*` values live only in ignored `.env.local` or local shell state; a clean checkout must provide equivalent out-of-band inputs before reproducing the live rows.
+The previous v0.1 GO at `6d4539d` is historical. `c5fc6b4` is the current v0.1 release-candidate head and includes live browser ipavo SDK mode, abort-signal propagation, route coverage, and refreshed evidence counts. Live ipavo PASS evidence is environment-bound because the real `PRODUCT_*` values live only in ignored `.env.local` or local shell state; a clean checkout must provide equivalent out-of-band inputs before reproducing the live rows.
 
 ## No-Go Conditions
 
@@ -135,6 +135,6 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 
 | Role | Required For GO | Current |
 |---|---|---|
-| Frontend platform owner | Confirms required checks and docs are complete | Historical sign-off for `6d4539d`; pending for current reviewed local diff until committed |
-| Platform lead | Confirms release/consumption model and accepts known warnings | Historical GO for `6d4539d`; pending for current reviewed local diff until committed |
-| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Historical sign-off for `6d4539d`; pending for current reviewed local diff until committed |
+| Frontend platform owner | Confirms required checks and docs are complete | Pending final sign-off for `c5fc6b4` |
+| Platform lead | Confirms release/consumption model and accepts known warnings | Pending GO/HOLD decision for `c5fc6b4` |
+| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Pending final sign-off for `c5fc6b4` |

@@ -3,8 +3,8 @@
 **Date:** 2026-05-13
 **Reviewer:** Multi-agent review (security/config, SDK/runtime cancellation, release gates/tests, docs/evidence consistency) + self-review
 **Iterations:** 2
-**Result:** clean after fixes for the reviewed local diff
-**Diff size:** Includes live browser ipavo SDK mode, cancellation propagation, live-route tests, and release evidence updates; use `git status --short` plus `git diff --stat` while the new client/test files remain untracked.
+**Result:** clean after fixes for release-candidate `c5fc6b4`
+**Diff size:** Included live browser ipavo SDK mode, cancellation propagation, live-route tests, and release evidence updates; committed in `c5fc6b4`.
 
 ## Issues Raised And Resolution
 
@@ -20,7 +20,7 @@
 | 8 | warning | live SDK cancellation | Live browser ipavo calls dropped `ctx.signal`, so stale dashboard/filter/locale loads could continue auth-bearing `/apis` requests after abort. | Extended the ipavo overview client to accept `RequestInit`, forwarded `{ signal }` to generated SDK methods, and passed the runtime signal from every ipavo dataSource call. |
 | 9 | warning | adoption docs | The browser live-mode docs blurred generated SDK routes with smoke-script-only endpoint path and timeout overrides. | Clarified that `VITE_PRODUCT_IPAVO_DATA_MODE` selects browser mode, while `PRODUCT_IPAVO_*_PATH` and `PRODUCT_API_TIMEOUT_MS` only affect live smoke scripts. |
 | 10 | warning | live route coverage | The first live-client test covered only `GetResourceSummary`, leaving pod/resource/alert/product generated routes and query serialization untested. | Expanded `ipavo-overview-client.test.ts` to cover all five live overview routes and assert `AbortSignal` forwarding on each generated fetch. |
-| 11 | warning | release evidence | Updated test counts were tied to an uncommitted local diff while `release-gate.md` still named the historical GO commit. | Marked the new evidence as reviewed local-diff evidence on top of `87cdec1`, scoped the old sign-off rows to historical `6d4539d`, and kept current GO pending until this diff is committed and selected as the release-candidate head. |
+| 11 | warning | release evidence | Updated test counts were tied to an uncommitted local diff while `release-gate.md` still named the historical GO commit. | Committed the reviewed diff as `c5fc6b4`, selected it as the release-candidate head, scoped old sign-off rows to historical `6d4539d`, and kept final GO/HOLD pending for platform-lead decision. |
 
 ## Design Drift
 
@@ -52,9 +52,9 @@ Verification run after this continuation:
 
 ## Residual Open Issues
 
-None for the reviewed local diff.
+None for release-candidate `c5fc6b4`.
 
-Release-candidate status remains pending until the reviewed local diff is committed and selected as the candidate head. Known non-blocking release-gate warnings remain documented in `release-gate.md`: Vite chunk-size warnings, standalone playground CSS pseudo-class warnings, and no coverage tooling.
+Final GO/HOLD remains pending for platform-lead decision. Known non-blocking release-gate warnings remain documented in `release-gate.md`: Vite chunk-size warnings, standalone playground CSS pseudo-class warnings, and no coverage tooling.
 
 ## Final Verdict
 
