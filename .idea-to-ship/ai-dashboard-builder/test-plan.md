@@ -153,11 +153,11 @@ Verification commands:
 | Command | Result | Notes |
 |---|---|---|
 | `pnpm --filter @dao-style-viz/ai-dashboard-runtime test` | PASS | 6 files, 15 tests |
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 7 files, 28 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Vite warns demo main JS is 824.27 kB and product integration main JS is 909.69 kB after minification |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Vite warns demo main JS is 824.27 kB and product integration main JS is 912.70 kB after minification |
 | `pnpm --dir playground/playground-ui run build` | PASS with warnings | Rsbuild warns `input-placeholder` is not a valid pseudo-class; largest emitted JS chunk is 576.9 kB |
 | `git diff --check` | PASS | No whitespace errors |
 
@@ -181,12 +181,12 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-vue test` | PASS | 1 file, 4 tests |
 | `pnpm --filter @dao-style-viz/product-integration-example typecheck` | PASS | Host validation gate compiles |
 | `pnpm --filter @dao-style-viz/product-integration-example lint` | PASS | No lint findings |
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
-| `pnpm --filter @dao-style-viz/product-integration-example build` | PASS with warnings | Product integration main JS is 909.69 kB after minification |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 7 files, 28 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example build` | PASS with warnings | Product integration main JS is 912.70 kB after minification |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 912.70 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 
 ## ITS-007 Update
@@ -223,8 +223,8 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` | PASS | 1 file, 9 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 912.70 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 | `git diff --check` | PASS | No whitespace errors |
 
@@ -247,8 +247,8 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-sandbox test` | PASS | 1 file, 15 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 912.70 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 | `git diff --check` | PASS | No whitespace errors |
 
@@ -291,11 +291,11 @@ Additional verification:
 
 | Command | Result | Notes |
 |---|---|---|
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 7 files, 28 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 912.70 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 | `pnpm run check:roadmap-completion` | PASS | Core artifact/source/script/product-SDK/env-example/evidence-freshness/auth-material/live-gate surface passes after live ipavo backend/JWT gate closes |
 | `git diff --check` | PASS | No whitespace errors |
@@ -324,11 +324,11 @@ Additional verification:
 | `pnpm --filter @dao-style-viz/ai-dashboard-ai-catalog test` | PASS | 1 file, 9 tests |
 | `pnpm --filter @dao-style-viz/product-integration-example typecheck` | PASS | Updated dashboard palette compiles |
 | `pnpm --filter @dao-style-viz/product-integration-example lint` | PASS | No lint findings |
-| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 6 files, 25 tests |
+| `pnpm --filter @dao-style-viz/product-integration-example test` | PASS | 7 files, 28 tests |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 909.69 kB |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo main JS is 824.27 kB; product integration main JS is 912.70 kB |
 | `pnpm run check:bundle-budget` | PASS | All v0.1 app/package asset budgets pass |
 | `pnpm run check:ipavo-live-pilot` | PASS | Real backend URL, JWT, and allowlist are configured through ignored local env; token output stays redacted |
 | `node scripts/check-ipavo-live-backend.mjs` | PASS | Live backend smoke reaches version and resource summary endpoints with explicit insecure TLS opt-in |

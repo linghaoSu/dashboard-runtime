@@ -2,8 +2,8 @@
 goal: "doc.md -> AI Dashboard Builder v0.1 planning"
 horizon: "0.1"
 generated_at: "2026-05-09 14:18 CST"
-last_updated: "2026-05-09 18:05 CST"
-repo_head: "b499297"
+last_updated: "2026-05-13 16:20 CST"
+repo_head: "87cdec1"
 dirty_worktree: "yes"
 mode: "slug"
 slug: "ai-dashboard-builder"
@@ -39,7 +39,7 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 - Completed: ITS-ai-dashboard-builder-008 produced `test-plan.md` with passing verification evidence; ITS-ai-dashboard-builder-001 produced `release-gate.md` with v0.1 go/no-go criteria and source-based internal consumption model; ITS-ai-dashboard-builder-002 produced `docs/ai-dashboard-v0.1-adoption.md`; ITS-ai-dashboard-builder-010 produced `release-gate.md` and fixed the widgets declaration output surface; ITS-ai-dashboard-builder-004 locked the production config-error UX contract; ITS-ai-dashboard-builder-007 defined v0.1 performance and bundle budgets with a local budget check; ITS-ai-dashboard-builder-006 chose the local-agent-assisted generator execution path; ITS-ai-dashboard-builder-005 hardened generated chart preview CSP/origin/message policy; ITS-ai-dashboard-builder-009 validated the full-template playground as a reference-only host surface; ITS-ai-dashboard-builder-011 designed the manager workbench and local agent bridge; ITS-ai-dashboard-builder-012 defined backend proxy and JWT credential handling; ITS-ai-dashboard-builder-013 defined chart extension promotion flow.
 - Added: ipavo product dashboard pilot reference and a post-v0.1 manager-facing workbench direction: server-side `/apis` proxy with JWT header injection, generated SDK packages such as `@daocloud-proto/*`, local Codex/OpenCode agent bridge, and chart extension flow through sandboxed generated widgets.
 - Added: executable design evidence for the ipavo reference through the `ipavo-console-overview` layout preset and `ipavo-console-light` palette alternative.
-- Needs Revalidation: v0.1 final GO still requires final-candidate checks, a reviewed release-candidate worktree, and platform-lead sign-off.
+- Needs Revalidation: the 2026-05-13 local diff has passing review/check evidence, but v0.1 final GO for this state still requires committing the diff, selecting that commit as the release-candidate head, and platform-lead sign-off.
 
 ## Inputs
 
@@ -53,14 +53,14 @@ write_target: ".idea-to-ship/ai-dashboard-builder/roadmap.md"
 | `.idea-to-ship/ai-dashboard-builder/code-review.md` | Full latest code review | Multi-agent review outcome and residual risk |
 | Workspace manifests | Root/package/app `package.json`, `pnpm-workspace.yaml` | Release surface, scripts, package privacy, workspace shape |
 
-- Repo HEAD: `b499297`.
-- Dirty worktree: yes. Current diff contains release-gate/test-plan/roadmap updates, focused regression tests, and documentation cleanup; final GO requires a reviewed release-candidate worktree.
+- Repo HEAD: `87cdec1`.
+- Dirty worktree: yes. Current diff contains live ipavo browser mode, abort-signal propagation, expanded live-route tests, release-gate/test-plan/roadmap updates, and adoption-guide cleanup; final GO requires a committed release-candidate head.
 - Excluded sources: git history beyond HEAD/status, TODO/FIXME mining, GitHub issues/PRs/milestones, and network/package registry data.
 
 ## Now
 
 ### ITS-ai-dashboard-builder-001 — Cut v0.1 internal release gate
-**Status:** Completed - gate definition complete; final release verdict remains HOLD until final-candidate checks and sign-off pass
+**Status:** Completed - gate definition complete; current local-diff evidence remains PENDING until committed and selected as the release-candidate head
 **Work Type:** Release
 **Evidence Class:** Explicit
 **Confidence:** High
@@ -300,7 +300,7 @@ For v0.1 readiness, the Now lane artifacts are complete: ITS-ai-dashboard-builde
 | Slug/ID | Status | Next Action | Blockers | Evidence |
 |---|---|---|---|---|
 | ITS-ai-dashboard-builder-001 | Completed | Rerun final-candidate release gate before GO | Platform-lead sign-off | `release-gate.md`; test-plan command evidence |
-| ITS-ai-dashboard-builder-008 | Completed | Keep results current if checks change | None | `test-plan.md`; 18 files / 92 tests |
+| ITS-ai-dashboard-builder-008 | Completed | Keep results current if checks change | None | `test-plan.md`; 19 files / 95 tests |
 | ITS-ai-dashboard-builder-002 | Completed | Use guide for first product pilot | Product owner and SDK access | `docs/ai-dashboard-v0.1-adoption.md`; product integration example |
 | ITS-ai-dashboard-builder-010 | Completed | Internal package surface and pack evidence documented; registry publish remains blocked | `release-gate.md` | Registry blockers remain explicit |
 | ITS-ai-dashboard-builder-003 | Completed | ipavo-style local pilot implemented and calibrated to `@daocloud-proto/ipavo@0.13.0-20`; live backend run passes through ignored local env | Product owner and backend access | Product integration ipavo dashboard, real SDK dependency/import test/preflight, pilot artifact, `docs/ai-dashboard-v0.1-adoption.md`, `release-gate.md`, and `pnpm run check:roadmap-completion` |

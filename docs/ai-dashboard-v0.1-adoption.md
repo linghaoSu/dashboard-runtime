@@ -421,6 +421,14 @@ PRODUCT_IPAVO_VERSION_PATH=/apis/ipavo.io/v1alpha1/version
 PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH=/apis/ipavo.io/v1alpha1/resource/summary
 ```
 
+The ipavo overview page uses mock fixture data by default so local UI smoke tests are deterministic. To make `pnpm --dir apps/product-integration dev` call the real generated ipavo SDK through the `/apis` proxy, add this non-secret browser flag to `apps/product-integration/.env.local`:
+
+```sh
+VITE_PRODUCT_IPAVO_DATA_MODE=live
+```
+
+Keep `VITE_PRODUCT_IPAVO_DATA_MODE=mock` or leave it unset for fixture-backed UI tests. The `VITE_` flag only selects the browser data mode; backend URL and JWT values must stay in `PRODUCT_*` env and are consumed by the Vite server proxy. The browser SDK uses the generated ipavo `/apis/ipavo.io/...` routes; `PRODUCT_IPAVO_VERSION_PATH`, `PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH`, and `PRODUCT_API_TIMEOUT_MS` are live smoke-script settings only.
+
 Use `apps/product-integration/.env.example` as the local template and put real local values in ignored `apps/product-integration/.env.local`. The live-check scripts and Vite config load `.env.local`; explicit shell env values still take precedence. For internal self-signed HTTPS endpoints, set `PRODUCT_API_INSECURE_TLS=true` only in `.env.local` or the local shell. Do not commit real backend URLs or JWT values.
 
 The proxy injects the JWT auth header server-side. `PRODUCT_API_ALLOWED_HOSTS` is required whenever `PRODUCT_API_URL` is set, including local testing. Do not put backend URLs, JWTs, cookies, or auth headers in DashboardConfig, local-agent tasks, or AI-facing catalog output.
@@ -432,7 +440,7 @@ pnpm run check:ipavo-live-pilot
 pnpm run check:ipavo-live-backend
 ```
 
-The live backend smoke validates status and response shape without printing tokens or response bodies. If a product backend maps those smoke endpoints differently, override `PRODUCT_IPAVO_VERSION_PATH` and `PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH`; they must be backend paths, not full URLs.
+The live backend smoke validates status and response shape without printing tokens or response bodies. If a product backend maps those smoke endpoints differently, override `PRODUCT_IPAVO_VERSION_PATH` and `PRODUCT_IPAVO_RESOURCE_SUMMARY_PATH`; they must be backend paths, not full URLs. Those overrides prove backend reachability for the smoke gate and do not rewrite the generated browser SDK routes.
 
 ## Required Product Checks
 
@@ -482,6 +490,6 @@ Use `apps/product-integration/src/__tests__/tenant-capacity.test.ts` as the mode
 ## Current Known Limits
 
 - Package publishing and clean external consumer install are not approved yet.
-- The product integration app uses mocked SDK data with real generated-SDK call shape.
+- The product integration app uses mocked SDK data by default; ipavo overview can be switched to live SDK requests with `VITE_PRODUCT_IPAVO_DATA_MODE=live` plus valid `PRODUCT_*` proxy env.
 - Performance and bundle budgets are quantified for v0.1 internal evaluation, but lazy loading is not implemented yet.
 - Generated chart preview CSP/origin/postMessage hardening is implemented for the sandbox gate; the productized chart browser UI is still deferred.

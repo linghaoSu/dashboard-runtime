@@ -69,6 +69,8 @@ const authMaterialSafetyFiles = [
 const staleEvidencePatterns = [
   /6 files \/ 19 tests/,
   /6 files \/ 23 tests/,
+  /6 files \/ 25 tests/,
+  /6 files, 25 tests/,
   /6 files \/ 28 tests/,
   /17 test files \/ 86 tests/,
   /17 files \/ 86 tests/,
@@ -77,6 +79,8 @@ const staleEvidencePatterns = [
   /18 files, 87 tests/,
   /18 files \/ 90 tests/,
   /18 files, 90 tests/,
+  /18 files \/ 92 tests/,
+  /18 files, 92 tests/,
   /18 files \/ 94 tests/,
   /18 files, 94 tests/,
   /18 files \/ 95 tests/,

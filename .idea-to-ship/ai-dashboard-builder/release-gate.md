@@ -1,12 +1,12 @@
 # v0.1 Internal Release Gate - ai-dashboard-builder
 
-**Date:** 2026-05-12
+**Date:** 2026-05-13
 **Roadmap Item:** ITS-ai-dashboard-builder-001
 **Gate Owner:** Frontend platform team
 **Decision Owner:** Platform lead
-**Current Evidence Head:** `6d4539d`
-**Current Gate Definition Status:** COMPLETE
-**Current Release Verdict:** GO for v0.1 internal source/commit evaluation after user-requested sign-off on 2026-05-12
+**Current Evidence Base:** `87cdec1` plus reviewed local diff on 2026-05-13
+**Current Gate Definition Status:** COMPLETE; current evidence is pending commit
+**Current Release Verdict:** PENDING for the current local diff until it is committed and selected as the release-candidate head
 
 ## Release Meaning
 
@@ -64,16 +64,16 @@ The version marker is `0.1.0` across the workspace packages, but that marker doe
 |---|---|---|---|
 | RG-1 | v0.1 scope and non-goals are documented | `requirements.md`, `roadmap.md`, this release gate | PASS |
 | RG-2 | Acceptance criteria map to concrete tests, commands, and known gaps | `test-plan.md` | PASS |
-| RG-3 | Implementation remains green | `code-review.md`; final-candidate checks | PASS on 2026-05-12 |
-| RG-4 | Workspace typecheck, lint, tests, and build pass | `pnpm -r --if-present typecheck`, `lint`, `test`, `build` | PASS on 2026-05-12 |
-| RG-5 | Product integration example validates config, SDK wrappers, locale merge, and failure paths | `apps/product-integration` tests/build | PASS on 2026-05-12 |
+| RG-3 | Implementation remains green | `code-review.md`; final-candidate checks | PASS on reviewed local diff, 2026-05-13 |
+| RG-4 | Workspace typecheck, lint, tests, and build pass | `pnpm -r --if-present typecheck`, `lint`, `test`, `build` | PASS on reviewed local diff, 2026-05-13 |
+| RG-5 | Product integration example validates config, SDK wrappers, locale merge, and failure paths | `apps/product-integration` tests/build | PASS on reviewed local diff, 2026-05-13 |
 | RG-6 | Standalone playground remains buildable outside the root workspace | `pnpm --dir playground/playground-ui run build` | PASS with warnings |
 | RG-7 | Product-facing adoption guide exists and matches the product example | `docs/ai-dashboard-v0.1-adoption.md` | PASS |
-| RG-8 | Safety boundaries are not weakened | Code review, catalog tests, sandbox tests | PASS on 2026-05-12 |
+| RG-8 | Safety boundaries are not weakened | Code review, catalog tests, sandbox tests | PASS on reviewed local diff, 2026-05-13 |
 | RG-9 | Known warnings are triaged and assigned to roadmap owners | This release gate, `test-plan.md`, `roadmap.md` | PASS |
-| RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | PASS on 2026-05-12; final candidate selected as `6d4539d` |
+| RG-10 | Final release candidate has no unreviewed local changes | `git status --short` before tagging/announcement | PENDING until this reviewed local diff is committed or intentionally dropped |
 
-Final v0.1 GO is recorded for internal source/commit evaluation at `6d4539d`. The required commands have been rerun on the final-candidate diff and owner sign-off was recorded by user request on 2026-05-12. Live ipavo PASS evidence is environment-bound because the real `PRODUCT_*` values live only in ignored `.env.local` or local shell state; a clean checkout must provide equivalent out-of-band inputs before reproducing the live rows.
+The previous v0.1 GO at `6d4539d` is historical. The current local diff adds live browser ipavo SDK mode, abort-signal propagation, route coverage, and refreshed evidence counts; it must be committed and selected as a new release-candidate head before GO can be claimed for this state. Live ipavo PASS evidence is environment-bound because the real `PRODUCT_*` values live only in ignored `.env.local` or local shell state; a clean checkout must provide equivalent out-of-band inputs before reproducing the live rows.
 
 ## No-Go Conditions
 
@@ -94,14 +94,14 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 
 | Evidence | Result | Notes |
 |---|---|---|
-| `.idea-to-ship/ai-dashboard-builder/test-plan.md` | PASS with documented warnings | 18 files, 92 tests |
+| `.idea-to-ship/ai-dashboard-builder/test-plan.md` | PASS with documented warnings | 19 files, 95 tests |
 | `docs/ai-dashboard-v0.1-adoption.md` | PASS | Product-facing guide based on `apps/product-integration`; includes SDK, proxy, validation, and generation workflow |
 | `docs/design.md` | PASS | Layout/palette guidance and DashboardConfig patterns are documented |
 | `docs/mcp-echarts.md` | PASS | Optional chart-generation helper stays generation-time only and cannot bypass sandbox validation |
 | `pnpm -r --if-present typecheck` | PASS | 9 workspace projects |
 | `pnpm -r --if-present lint` | PASS | 9 workspace projects |
-| `pnpm -r --if-present test` | PASS | 18 files, 92 tests |
-| `pnpm -r --if-present build` | PASS with warnings | Demo JS 824.27 kB, product integration JS 909.69 kB |
+| `pnpm -r --if-present test` | PASS | 19 files, 95 tests |
+| `pnpm -r --if-present build` | PASS with warnings | Demo JS 824.27 kB, product integration JS 912.70 kB |
 | `pnpm run check:bundle-budget` | PASS | Demo/product app and package JS/CSS assets are under v0.1 hard ceilings |
 | `pnpm run check:roadmap-completion` | PASS | Environment-bound PASS after live ipavo backend/JWT smoke closes EB-001 through ignored local env |
 | `pnpm --dir playground/playground-ui run build` | PASS with warnings | `input-placeholder` pseudo-class warning; largest JS chunk 576.9 kB |
@@ -135,6 +135,6 @@ The release must not be announced as v0.1 internal-ready if any of these are tru
 
 | Role | Required For GO | Current |
 |---|---|---|
-| Frontend platform owner | Confirms required checks and docs are complete | Signed off by user request on 2026-05-12; checks and docs confirmed for `6d4539d` |
-| Platform lead | Confirms release/consumption model and accepts known warnings | GO by user request on 2026-05-12; internal source/commit consumption and known warnings accepted |
-| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Signed off by user request on 2026-05-12 after adoption guide and live gate evidence |
+| Frontend platform owner | Confirms required checks and docs are complete | Historical sign-off for `6d4539d`; pending for current reviewed local diff until committed |
+| Platform lead | Confirms release/consumption model and accepts known warnings | Historical GO for `6d4539d`; pending for current reviewed local diff until committed |
+| Product frontend pilot owner | Confirms adoption guide is usable for first pilot | Historical sign-off for `6d4539d`; pending for current reviewed local diff until committed |

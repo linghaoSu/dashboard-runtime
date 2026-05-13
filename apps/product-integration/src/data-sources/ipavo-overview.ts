@@ -14,7 +14,7 @@ import {
   type GetResourceSummaryResponse,
   type GetResourceUsageResponse,
   type ListProductsResponse
-} from "../product-sdk/generated/ipavo-overview";
+} from "../product-sdk/ipavo-overview-client";
 import {
   ipavoAbilityOverviewDataSchema,
   ipavoAlertStatusDataSchema,
@@ -24,13 +24,16 @@ import {
   ipavoResourceUsageDataSchema
 } from "../widgets/ipavo";
 
-// The reference ipavo-ui pins @daocloud-proto/ipavo@0.13.0-20. Live pilots should
-// replace the local fixture above with:
-// import { IPavo } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo.pb";
-// import type { ... } from "@daocloud-proto/ipavo/ipavo/v1alpha1/ipavo_type.pb";
-// Backend URL and JWT auth headers belong to the host/server proxy, not
-// DashboardConfig or AI-facing catalog output.
+// Live mode uses @daocloud-proto/ipavo through the host /apis proxy. Backend URL
+// and JWT auth headers belong to the server-side proxy, not DashboardConfig or
+// AI-facing catalog output.
 const emptyParamsSchema = z.object({});
+
+function requestInitForSignal(
+  signal: AbortSignal | undefined
+): RequestInit | undefined {
+  return signal ? { signal } : undefined;
+}
 
 const legend = [
   { label: "90~100%", color: "#32d475" },
@@ -67,7 +70,8 @@ export const ipavoOverviewDataSources = defineDataSources({
       }
     ],
     request: () => ({ type: displayType.BY_CLUSTER }),
-    call: (request) => IPavo.GetPodSummary(request),
+    call: (request, ctx) =>
+      IPavo.GetPodSummary(request, requestInitForSignal(ctx.signal)),
     transform: (response) => {
       let totalPods = 0;
       let runningPods = 0;
@@ -121,7 +125,8 @@ export const ipavoOverviewDataSources = defineDataSources({
     compatibleWidgets: ["LineChart", "AreaChart"],
     examples: [{ params: {}, output: [{ time: "15:00", value: 9.2 }] }],
     request: () => ({}),
-    call: (request) => IPavo.GetResourceUsage(request),
+    call: (request, ctx) =>
+      IPavo.GetResourceUsage(request, requestInitForSignal(ctx.signal)),
     transform: (response) => toLineData(response.cpu?.history ?? [], (value) => value)
   }),
   "ipavo.memoryUsage": createSdkDataSource<
@@ -137,7 +142,8 @@ export const ipavoOverviewDataSources = defineDataSources({
     compatibleWidgets: ["LineChart", "AreaChart"],
     examples: [{ params: {}, output: [{ time: "15:00", value: 48.2 }] }],
     request: () => ({}),
-    call: (request) => IPavo.GetResourceUsage(request),
+    call: (request, ctx) =>
+      IPavo.GetResourceUsage(request, requestInitForSignal(ctx.signal)),
     transform: (response) =>
       toLineData(response.memory?.history ?? [], (value) => value / 1024 ** 3)
   }),
@@ -163,7 +169,8 @@ export const ipavoOverviewDataSources = defineDataSources({
       }
     ],
     request: () => ({}),
-    call: (request) => IPavo.GetResourceSummary(request),
+    call: (request, ctx) =>
+      IPavo.GetResourceSummary(request, requestInitForSignal(ctx.signal)),
     transform: (response) => {
       const items = [
         toHealthItem("集群", "C", response.clusterCount, response.threshold ?? 0.8),
@@ -200,7 +207,8 @@ export const ipavoOverviewDataSources = defineDataSources({
       }
     ],
     request: () => ({}),
-    call: (request) => IPavo.GetAlertSummary(request),
+    call: (request, ctx) =>
+      IPavo.GetAlertSummary(request, requestInitForSignal(ctx.signal)),
     transform: (response) => ({
       counts: [
         {
@@ -238,7 +246,8 @@ export const ipavoOverviewDataSources = defineDataSources({
     compatibleWidgets: ["IpavoClusterCount"],
     examples: [{ params: {}, output: { clusters: [], nodes: 8 } }],
     request: () => ({}),
-    call: (request) => IPavo.GetResourceSummary(request),
+    call: (request, ctx) =>
+      IPavo.GetResourceSummary(request, requestInitForSignal(ctx.signal)),
     transform: (response) => ({
       clusters: (response.clusterItems ?? []).map(toClusterItem),
       nodes: response.nodeCount?.total ?? 0
@@ -257,7 +266,8 @@ export const ipavoOverviewDataSources = defineDataSources({
     compatibleWidgets: ["IpavoResourceUsage"],
     examples: [{ params: {}, output: { items: [] } }],
     request: () => ({}),
-    call: (request) => IPavo.GetResourceUsage(request),
+    call: (request, ctx) =>
+      IPavo.GetResourceUsage(request, requestInitForSignal(ctx.signal)),
     transform: (response) => ({
       items: [
         toUsageItem("CPU", response.cpu, "core"),
@@ -280,7 +290,8 @@ export const ipavoOverviewDataSources = defineDataSources({
     compatibleWidgets: ["IpavoAbilityOverview"],
     examples: [{ params: {}, output: { products: [] } }],
     request: () => ({}),
-    call: (request) => IPavo.ListProducts(request),
+    call: (request, ctx) =>
+      IPavo.ListProducts(request, requestInitForSignal(ctx.signal)),
     transform: (response) => ({
       products: (response.items ?? []).map((item, index) => {
         const title = item.title ?? item.id ?? `Product ${index + 1}`;
